@@ -14,9 +14,8 @@ extern "C" void setup(ModInfo& info)
 
 extern "C" void load()
 {
-    
     QuestUI::Init();
 
-    Hooks::AutoInstallHooks(Logging::getLogger());
+    Hooks::InstallHooks(::Scribble::Logging::getLogger());
     custom_types::Register::AutoRegister();
 }
