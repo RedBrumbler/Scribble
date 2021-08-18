@@ -20,7 +20,11 @@ $libs = @()
 
 $cover = "./" + $modJson.coverImage
 
-$fileList = @($cover, $mod)
+$fileList = @($mod)
+if ((-not $cover -eq "./") -and (Test-Path $cover))
+{
+    $fileList += ,$cover
+}
 
 $bannedLibList = @("modloader", "questui", "custom-types", "codegen")
 
