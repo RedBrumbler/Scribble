@@ -9,6 +9,8 @@
 #include "UnityEngine/Material.hpp"
 #include "UnityEngine/Shader.hpp"
 
+#include "CustomTypes/BrushBehaviour.hpp"
+
 namespace Scribble
 {
     class Effect;
@@ -30,6 +32,7 @@ namespace Scribble
             Effect(std::string_view name, UnityEngine::Shader* shader) : name(name), shader(shader) {}; 
             virtual UnityEngine::Material* CreateMaterial(const CustomBrush& brush);
             friend Effect* Effects::GetEffect(std::string_view name);
+            friend UnityEngine::GameObject* BrushBehaviour::CreateBrushMesh();
     };
 
     class StandardEffect : public Effect

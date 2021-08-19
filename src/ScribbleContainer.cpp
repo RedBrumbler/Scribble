@@ -2,9 +2,10 @@
 
 #include "UnityEngine/Object.hpp"
 #include "UnityEngine/GameObject.hpp"
+#include "UnityEngine/Transform.hpp"
 #include "UnityEngine/Shader.hpp"
 
-DEFINE_TYPE(Scribble, LineRendererData);
+DEFINE_TYPE(Scribble, LinerendererData);
 DEFINE_TYPE(Scribble, ScribbleContainer);
 
 using namespace UnityEngine;
@@ -35,8 +36,23 @@ namespace Scribble
 
     Scribble::LineRenderer* ScribbleContainer::InitLineRenderer(const CustomBrush& brush, bool disableOnStart)
     {
-        #warning not implemented
-        return nullptr;
+        // create GO with numbered name
+        auto go = GameObject::New_ctor(il2cpp_utils::newcsstr(string_format("LineRenderer-%d", lineRenderers->get_Count())));
+        go->get_transform()->SetParent(get_transform());
+        auto lineRenderer = go->AddComponent<Scribble::LineRenderer*>();
+        lineRenderer->set_enabled(!disableOnStart);
+        lineRenderer->set_widthMultiplier(brush.size * lineWidth);
+        lineRenderer->set_numCornerVertices(5);
+        lineRenderer->set_numCapVertices(5);
+
+        if (brush.textureMode == CustomBrush::TextureMode::Stretch)
+            lineRenderer->set_textureMode(Scribble::LineRenderer::LineTextureMode::Stretch);
+        else if (brush.textureMode == CustomBrush::TextureMode::Tile)
+            lineRenderer->set_textureMode(Scribble::LineRenderer::LineTextureMode::Tile);
+        lineRenderer->set_material(brush.CreateMaterial());
+
+        lineRenderers->Add(LinerendererData::Create(lineRenderer, brush));
+        return lineRenderer;
     }
 
     void ScribbleContainer::UpdateMaterials(float BPM)
@@ -47,14 +63,20 @@ namespace Scribble
 
     void ScribbleContainer::InitPoint(Sombrero::FastVector3 point, GlobalNamespace::SaberType saberType, CustomBrush& brush)
     {
-        #warning not implemented
-
+        auto lineRenderer = InitLineRenderer(brush);
+        lineRenderer->set_positionCount(1);
+        lineRenderer->SetPosition(0, point);
+        lineRenderer->set_enabled(true);
+        if (saberType == GlobalNamespace::SaberType::SaberA) currentLineRendererLeft = lineRenderer;
+        else currentLineRendererRight = lineRenderer;
     }
 
     void ScribbleContainer::AddPoint(Sombrero::FastVector3 point, GlobalNamespace::SaberType saberType)
     {
-        #warning not implemented
-
+        auto lineRenderer = saberType==GlobalNamespace::SaberType::SaberA ? currentLineRendererLeft : currentLineRendererRight;
+        int posCount = lineRenderer->get_positionCount();
+        lineRenderer->set_positionCount(posCount + 1);
+        lineRenderer->SetPosition(posCount, point);
     }
 
     std::vector<Sombrero::FastVector3> ScribbleContainer::GetAllPoints()
@@ -114,7 +136,7 @@ namespace Scribble
         Object::Destroy(lr->get_gameObject());
     }
 
-    void ScribbleContainer::Delete(LineRendererData* data)
+    void ScribbleContainer::Delete(LinerendererData* data)
     {
         auto lr = data->lineRenderer;
         auto b = lineRenderers->Remove(data);
@@ -146,11 +168,11 @@ namespace Scribble
             Undo();
     }
 
-    LineRendererData* LineRendererData::Create(Scribble::LineRenderer* linerenderer, CustomBrush* brush)
+    LinerendererData* LinerendererData::Create(Scribble::LineRenderer* linerenderer, const CustomBrush& brush)
     {
-        auto data = *il2cpp_utils::New<LineRendererData*>();
-        data->lineRenderer = lineRenderer;
-        data->brush = brush;
+        auto data = *il2cpp_utils::New<LinerendererData*>();
+        data->lineRenderer = linerenderer;
+        data->brush.copy(brush);
         return data;
     }
 }

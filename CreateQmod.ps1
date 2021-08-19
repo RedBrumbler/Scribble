@@ -2,11 +2,11 @@ param($p1)
 
 if (-not $env:qmodName) 
 {
-    $env:qmodName = "Qosmetics"
+    $env:qmodName = "Scribble"
 }  
 if (-not $env:module_id)
 {
-    $env:module_id = "questcosmetics"
+    $env:module_id = "scribble"
 }
 
 $zip = $env:qmodName + ".zip"

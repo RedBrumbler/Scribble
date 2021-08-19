@@ -1,4 +1,4 @@
 & ./build.ps1
-$env:qmodName = "Qosmetics"
-$env:module_id = "questcosmetics"
+$env:qmodName = "Scribble"
+$env:module_id = "scribble"
 & ./CreateQmod.ps1

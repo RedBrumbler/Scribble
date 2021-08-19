@@ -13,10 +13,10 @@
 #include "CustomTypes/LineRenderer.hpp"
 #include <vector>
 
-DECLARE_CLASS_CODEGEN(Scribble, LineRendererData, Il2CppObject,
+DECLARE_CLASS_CODEGEN(Scribble, LinerendererData, Il2CppObject,
     DECLARE_INSTANCE_FIELD(Scribble::LineRenderer*, lineRenderer);
-    CustomBrush* brush;
-    LineRendererData* Create(Scribble::LineRenderer* linerenderer, CustomBrush* brush);
+    CustomBrush brush;
+    static LinerendererData* Create(Scribble::LineRenderer* linerenderer, const CustomBrush& brush);
 )
 
 DECLARE_CLASS_CODEGEN(Scribble, ScribbleContainer, UnityEngine::MonoBehaviour,
@@ -25,12 +25,12 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleContainer, UnityEngine::MonoBehaviour,
 
     DECLARE_INSTANCE_FIELD(Scribble::LineRenderer*, currentLineRendererLeft);
     DECLARE_INSTANCE_FIELD(Scribble::LineRenderer*, currentLineRendererRight);
-    DECLARE_INSTANCE_FIELD(List<LineRendererData*>*, lineRenderers);
+    DECLARE_INSTANCE_FIELD(List<LinerendererData*>*, lineRenderers);
 
     DECLARE_INSTANCE_FIELD(UnityEngine::Coroutine*, animatedLoadRoutine);
 
     public:
-        ScribbleContainer* get_instance();
+        static ScribbleContainer* get_instance();
         static inline bool drawingEnabled = true;
         static inline float lineWidth = 0.001f;
 
@@ -48,7 +48,7 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleContainer, UnityEngine::MonoBehaviour,
         void Clear();
         void Undo();
         void Delete(int index);
-        void Delete(LineRendererData* data);
+        void Delete(LinerendererData* data);
         void SetLayer(int layer);
         void Show();
         void Hide();

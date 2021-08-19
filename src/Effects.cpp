@@ -59,7 +59,7 @@ namespace Scribble
         mat->SetColor(_Color, brush.color);
         auto tex = BrushTextures::GetTexture(brush.textureName);
         if(tex) mat->SetTexture(_Tex, tex);
-        mat->SetVector(_Tiling, brush.tiling);
+        mat->SetVector(_Tiling, brush.get_tiling());
         mat->SetFloat(_Glow, brush.glow);
         return mat;
     }

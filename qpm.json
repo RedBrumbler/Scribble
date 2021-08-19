@@ -3,7 +3,7 @@
   "dependenciesDir": "extern",
   "info": {
     "name": "Scribble",
-    "id": "Scribble",
+    "id": "scribble",
     "version": "0.1.0",
     "url": null,
     "additionalData": {
