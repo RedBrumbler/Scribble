@@ -30,7 +30,7 @@ namespace Scribble::BrushTextures
             return textures->get_Item(key);
         } else {
             // if not found, load the texture from file, even if the texture doesnt exist this will work
-            std::string path = string_format("%s/%s", brushTexturePath, name.data());
+            std::string path = string_format("%s/%s.png", brushTexturePath, name.data());
             std::ifstream instream(path, std::ios::in | std::ios::binary);
             std::vector<uint8_t> data((std::istreambuf_iterator<char>(instream)), std::istreambuf_iterator<char>());
             Array<uint8_t>* bytes = il2cpp_utils::vectorToArray(data);
