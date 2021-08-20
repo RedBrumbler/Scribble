@@ -49,7 +49,7 @@ if ($p1 -eq "clean")
 }
 
 & $buildScript NDK_PROJECT_PATH=$PSScriptRoot APP_BUILD_SCRIPT=$PSScriptRoot/Android.mk NDK_APPLICATION_MK=$PSScriptRoot/Application.mk -j $coreCount -Oline
-
+echo "Build Finished!"
 if (-not ($LastExitCode -eq 0)) {
     $msg = "exit code " + $LastExitCode
     echo $msg

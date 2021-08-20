@@ -1,5 +1,8 @@
 #include "CustomTypes/BrushBehaviour.hpp"
+#include "CustomTypes/Eraser.hpp"
 #include "Effects.hpp"
+#include "Brushes.hpp"
+#include "GlobalBrushManager.hpp"
 #include "ScribbleContainer.hpp"
 #include "logging.hpp"
 
@@ -25,25 +28,22 @@ namespace Scribble
 
         if (saberType == GlobalNamespace::SaberType::SaberA)
         {
-            #warning brush list impl
-            //currentBrush = Brushes::BrusheList[0];
-            //GlobalBrushManager::set_leftBrush(this);
+            currentBrush = Brushes::brushes[0];
+            GlobalBrushManager::set_leftBrush(this);
         }
         else
         {
-            #warning brush list impl
-            //currentBrush = Brushes::BrusheList[1];
-            //GlobalBrushManager::set_rightBrush(this);
-            //GlobalBrushManager::set_ActiveBrush(this);
+            currentBrush = Brushes::brushes[1];
+            GlobalBrushManager::set_rightBrush(this);
+            GlobalBrushManager::set_activeBrush(this);
         }
 
         GetMenuHandle();
 
         brushMesh = CreateBrushMesh();
         
-        #warning make eraser work
-        //auto eraser = get_gameObject()->AddComponent<Eraser*>();
-        //eraser->Init(this);
+        auto eraser = get_gameObject()->AddComponent<Eraser*>();
+        eraser->Init(this);
 
         INFO("Brush Initialized");
         set_enabled(false);
@@ -90,16 +90,14 @@ namespace Scribble
 
     void BrushBehaviour::OnPress()
     {
-        #warning globalbrushmanager needs to be implemented pog
-        //GlobalBrushManager::set_ActiveBrush(this);
+        GlobalBrushManager::set_activeBrush(this);
         if (CheckForUI()) return;
         if (!ScribbleContainer::get_instance()) return;
         if (!ScribbleContainer::drawingEnabled) return;
         //set_menuHandleActive(false);
         if (eraseMode)
         {
-            #warning make eraser work
-            //GetComponent<Eraser*>()->StartErasing();
+            GetComponent<Eraser*>()->StartErasing();
             return;
         }
         lastPoint = get_transform()->get_position();
@@ -114,8 +112,7 @@ namespace Scribble
         //set_menuHandleActive = true;
         if (eraseMode)
         {
-            #warning make eraser work
-            //GetComponent<Eraser*>()->StopErasing();
+            GetComponent<Eraser*>()->StopErasing();
             return;
         }
         if (!pressed) return;
