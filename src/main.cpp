@@ -54,11 +54,18 @@ MAKE_AUTO_HOOK_MATCH(SceneManager_SetActiveScene, &UnityEngine::SceneManagement:
     if (name == "MenuCore")
     {
         firstMenu = false;
+        auto ui = UnityEngine::Object::FindObjectOfType<ScribbleUI*>();
+        if (ui) ui->Show();
     }
 
     if (name == "GameCore")
     {
+        UnityEngine::Object::FindObjectOfType<ScribbleUI*>()->Show(false);
         
+        if (config.visibleDuringPlay)
+            ScribbleContainer::get_instance()->Show();
+        else
+            ScribbleContainer::get_instance()->Hide();
     }
 
     return result;

@@ -2,6 +2,7 @@
 
 #include "CustomBrush.hpp"
 #include <optional>
+#include <functional>
 
 namespace Scribble
 {
@@ -13,6 +14,6 @@ namespace Scribble
             static void Load();
             static void Save();
             static void AddDefaultBrushes();
-            static std::optional<CustomBrush> GetBrush(std::string_view name);
+            static std::optional<std::reference_wrapper<CustomBrush>> GetBrush(std::string_view name);
     };
 }

@@ -19,6 +19,8 @@ namespace Scribble
     {
             static std::vector<Effect*> effects;
         public:
+            static const std::vector<Effect*> GetEffects();
+            static std::string GetEffectName(int idx);
             static void LoadEffects();
             static Effect* GetEffect(std::string_view name);
     };
@@ -30,7 +32,8 @@ namespace Scribble
             std::string shader;
         public:
             Effect(std::string_view name, std::string_view shader) : name(name), shader(shader) {}; 
-            UnityEngine::Shader* get_shader();
+            UnityEngine::Shader* get_shader() const;
+            std::string get_name() const;
             virtual UnityEngine::Material* CreateMaterial(const CustomBrush& brush);
             friend Effect* Effects::GetEffect(std::string_view name);
             friend UnityEngine::GameObject* BrushBehaviour::CreateBrushMesh();

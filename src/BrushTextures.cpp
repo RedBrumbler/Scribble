@@ -1,4 +1,6 @@
 #include "BrushTextures.hpp"
+#include "Utils/FileUtils.hpp"
+
 #include "logging.hpp"
 #include "static-defines.hpp"
 #include <fstream>
@@ -19,6 +21,17 @@ using namespace UnityEngine;
 namespace Scribble::BrushTextures
 {
     SafePtr<Dictionary<Il2CppString*, UnityEngine::Texture2D*>> textures;
+
+    void LoadAllTextures()
+    {
+        std::vector<std::string> textures;
+        FileUtils::GetFilesInFolderPath("png", brushTexturePath, textures);
+        
+        for (auto t : textures)
+        {
+            GetTexture(FileUtils::GetFileName(t, true));
+        }
+    }
 
     Texture2D* GetTexture(std::string_view name)
     {
@@ -41,5 +54,24 @@ namespace Scribble::BrushTextures
             textures->Add(key, tex);
             return tex;
         }
+    }
+
+    std::string GetTextureName(int idx)
+    {
+        if (!textures || idx < 0 || idx >= textures->get_Count()) return "brush";
+        return to_utf8(csstrtostr(textures->entries->values[idx].key));
+    }
+
+    const std::map<std::string, UnityEngine::Texture2D*> GetTextures()
+    {
+        std::map<std::string, UnityEngine::Texture2D*> tex;
+
+        int count = textures->get_Count();
+        for (int i = 0; i < count; i++)
+        {
+            std::string key = to_utf8(csstrtostr(textures->entries->values[i].key));
+            tex[key] = textures->entries->values[i].value;
+        }
+        return tex;
     }
 }

@@ -36,6 +36,17 @@ namespace Scribble
         effects.push_back(outline);
     }
 
+    const std::vector<Effect*> Effects::GetEffects()
+    {
+        return effects;
+    }
+    
+    std::string Effects::GetEffectName(int idx)
+    {
+        if (idx < 0 || idx >= effects.size()) return "standard";
+        return effects[idx]->get_name();
+    }
+
     Effect* Effects::GetEffect(std::string_view name)
     {
         for (auto effect : effects)
@@ -45,9 +56,14 @@ namespace Scribble
         return nullptr;
     }
 
-    UnityEngine::Shader* Effect::get_shader()
+    UnityEngine::Shader* Effect::get_shader() const
     {
         return AssetLoader::LoadShader(shader);
+    }
+
+    std::string Effect::get_name() const
+    {
+        return name;
     }
 
     UnityEngine::Material* Effect::CreateMaterial(const CustomBrush& brush)

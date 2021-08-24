@@ -16,7 +16,7 @@
 #include "HMUI/NoTransitionsButton.hpp"
 
 #include "TMPro/TextMeshProUGUI.hpp"
-
+#include "System/Action_2.hpp"
 #include "Polyglot/LocalizedTextMeshProUGUI.hpp"
 
 namespace Scribble
@@ -78,6 +78,16 @@ namespace Scribble
             {
                 slider->set_minValue(min);
                 slider->set_maxValue(max);
+            }
+
+            void SetValue(float val)
+            {
+                slider->set_value(val);
+            }
+
+            void AddListener(std::function<void(HMUI::RangeValuesTextSlider*, float)> fun)
+            {
+                slider->add_valueDidChangeEvent(il2cpp_utils::MakeDelegate<System::Action_2<HMUI::RangeValuesTextSlider*, float>*>(classof(System::Action_2<HMUI::RangeValuesTextSlider*, float>*), fun));
             }
     };
 

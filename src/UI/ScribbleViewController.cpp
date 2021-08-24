@@ -2,6 +2,7 @@
 #include "UI/UITools.hpp"
 #include "ScribbleContainer.hpp"
 #include "Brushes.hpp"
+#include "Effects.hpp"
 #include "BrushTextures.hpp"
 #include "GlobalBrushManager.hpp"
 #include "UnityEngine/Sprite.hpp"
@@ -13,7 +14,9 @@
 #include "UnityEngine/SpriteMeshType.hpp"
 #include "logging.hpp"
 
+#include "HMUI/TableView_ScrollPositionType.hpp"
 #include "questui/shared/BeatSaberUI.hpp"
+#include "questui/shared/CustomTypes/Components/List/QuestUITableView.hpp"
 
 DEFINE_TYPE(Scribble, ScribbleViewController);
 
@@ -86,8 +89,8 @@ namespace Scribble
 
                             std::string eraserPath = "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/eraser.png";
                             sprite = BeatSaberUI::FileToSprite(eraserPath);
-                            img = UITools::CreateImage(eraserButton->get_transform(), {0, 0}, {12, 12});
-                            img->set_sprite(sprite);
+                            eraserImage = UITools::CreateImage(eraserButton->get_transform(), {0, 0}, {12, 12});
+                            eraserImage->set_sprite(sprite);
                             //BeatSaberUI::SetButtonSprites(eraserButton, sprite, sprite);
 
                             //reinterpret_cast<RectTransform*>(pickerButton->get_transform()->GetChild(0))->set_sizeDelta({12, 12});
@@ -101,38 +104,44 @@ namespace Scribble
 
                     colorPickerModal = BeatSaberUI::CreateModal(get_transform(), Vector2(80.0f, 40.0f), nullptr);
                     UnityEngine::Color color = {0, 0, 0, 1.0};
+                    
                     if (GlobalBrushManager::get_activeBrush()) color = GlobalBrushManager::get_activeBrush()->currentBrush.color;
-                    BeatSaberUI::CreateColorPicker(colorPickerModal->get_transform(), "Brush Color", color, [&](UnityEngine::Color col, GlobalNamespace::ColorChangeUIEventType eventType) {
+                    auto modalVertical = BeatSaberUI::CreateVerticalLayoutGroup(colorPickerModal->get_transform());
+                    
+                    modalVertical->set_childControlHeight(true);
+                    modalVertical->set_childControlWidth(true);
+                    modalVertical->set_childForceExpandWidth(false);
+                    modalVertical->set_childForceExpandHeight(true);
+                    modalVertical->set_childScaleHeight(false);
+                    modalVertical->set_childScaleWidth(false);
+
+                    INFO("picker");
+                    BeatSaberUI::CreateColorPicker(modalVertical->get_transform(), "Brush Color", color, [&](UnityEngine::Color col, GlobalNamespace::ColorChangeUIEventType eventType) {
                         PickerSelectedColor(col);
                     });
 
                     //<modal-color-picker id="color-picker-modal" value="brush-color-value" on-done="picker-selected-color" move-to-center="true" click-off-closes="true"></modal-color-picker>
-                    auto brushList = BeatSaberUI::CreateScrollableList(horizontal->get_transform(), {35.0f, 60.0f}, [&](int idx){
+                    brushList = BeatSaberUI::CreateScrollableList(horizontal->get_transform(), {35.0f, 60.0f}, [&](int idx){
                         SelectBrush(idx);
                     });
 
-                    for (auto b : Brushes::brushes)
-                    {
-                        auto texture = BrushTextures::GetTexture(b.textureName);
-                        if (texture)
-                        {
-                            auto sprite = Sprite::Create(texture, UnityEngine::Rect(0.0f, 0.0f, (float)texture->get_width(), (float)texture->get_height()), UnityEngine::Vector2(0.5f,0.5f), 1024.0f, 1u, UnityEngine::SpriteMeshType::FullRect, UnityEngine::Vector4(0.0f, 0.0f, 0.0f, 0.0f), false);
-                            Object::DontDestroyOnLoad(sprite);
-                            brushList->data.emplace_back(b.name, b.effectName, sprite);
-                        }
-                        else
-                            brushList->data.emplace_back(b.name, b.effectName);
-                    }
-
-                    brushList->tableView->ReloadData();
-                
-                    auto textureList = BeatSaberUI::CreateScrollableList(horizontal->get_transform(), {35.0f, 60.0f}, [&](int idx){
+                    ReloadBrushList();
+                    BrushTextures::LoadAllTextures();
+                    textureList = BeatSaberUI::CreateScrollableList(horizontal->get_transform(), {35.0f, 60.0f}, [&](int idx){
                         SelectTexture(idx);
                     });
 
-                    auto effectsList = BeatSaberUI::CreateScrollableList(horizontal->get_transform(), {35.0f, 60.0f}, [&](int idx){
+                    textureList->set_listStyle(CustomListTableData::ListStyle::Box);
+                    
+                    ReloadTextureList();
+
+                    effectList = BeatSaberUI::CreateScrollableList(horizontal->get_transform(), {35.0f, 60.0f}, [&](int idx){
                         SelectEffect(idx);
                     });
+                    
+                    effectList->set_listStyle(CustomListTableData::ListStyle::Simple);
+
+                    ReloadEffectList();
                 }
                 //</horizontal>
                 //<vertical child-expand-height="false" child-control-height="false" spacing="2" pad-left='40' pad-right='20'>
@@ -146,20 +155,21 @@ namespace Scribble
                     auto brush = GlobalBrushManager::get_activeBrush();
                     if (brush) size = brush->currentBrush.size;
                     //    <slider-setting id='SizeSlider' text='Brush Size' min='1' max='70' increment='1' integer-only='false' apply-on-change='true' value='Size' />
-                    BeatSaberUI::CreateIncrementSetting(bottomVertical->get_transform(), "Brush Size", 0, 1.0f, size, 1.0f, 70.0f, [&](float val){
+                    sizeSlider = BeatSaberUI::CreateIncrementSetting(bottomVertical->get_transform(), "Brush Size", 0, 1.0f, size, 1.0f, 70.0f, [&](float val){
                         size = (int)val;
                         auto brush = GlobalBrushManager::get_activeBrush();
                         if (brush) brush->currentBrush.size = size;
                     });
+                    
 
                     //    <slider-setting id='GlowSlider' text='Glow Amount' min='0' max='1' increment='0.05' integer-only='false' apply-on-change='true' value='Glow' />
                     if (brush) glow = brush->currentBrush.glow;
-                    BeatSaberUI::CreateIncrementSetting(bottomVertical->get_transform(), "Glow Amount", 2, 0.05f, size, 0.0f, 1.0f, [&](float val){
+                    glowSlider = BeatSaberUI::CreateIncrementSetting(bottomVertical->get_transform(), "Glow Amount", 2, 0.05f, glow, 0.0f, 1.0f, [&](float val){
                         glow = val;
                         auto brush = GlobalBrushManager::get_activeBrush();
                         if (brush) brush->currentBrush.glow = glow;
                     });
-
+                    
 
                 }
                 //</vertical>
@@ -168,19 +178,119 @@ namespace Scribble
         }
     }
 
+    void ScribbleViewController::ReloadTextureList()
+    {
+        INFO("ReloadTextureList");
+        textureList->data.clear();
+        int row = brushList->tableView->get_contentTransform() ? reinterpret_cast<QuestUI::TableView*>(brushList->tableView)->get_scrolledRow() : 0;
+        auto textures = BrushTextures::GetTextures();
+        for (auto& t : textures)
+        {
+            auto texture = t.second;
+            if (texture)
+            {
+                auto sprite = Sprite::Create(texture, UnityEngine::Rect(0.0f, 0.0f, (float)texture->get_width(), (float)texture->get_height()), UnityEngine::Vector2(0.5f,0.5f), 1024.0f, 1u, UnityEngine::SpriteMeshType::FullRect, UnityEngine::Vector4(0.0f, 0.0f, 0.0f, 0.0f), false);
+                Object::DontDestroyOnLoad(sprite);
+                textureList->data.emplace_back(t.first, sprite);
+            }
+            else
+                textureList->data.emplace_back(t.first);
+        }
+
+        textureList->tableView->ReloadData();
+        textureList->tableView->ScrollToCellWithIdx(row, HMUI::TableView::ScrollPositionType::Beginning, false);
+    }
+
+    void ScribbleViewController::ReloadEffectList()
+    {
+        INFO("ReloadEffectList");
+        effectList->data.clear();
+        int row = brushList->tableView->get_contentTransform() ? reinterpret_cast<QuestUI::TableView*>(brushList->tableView)->get_scrolledRow() : 0;
+        auto& effects = Effects::GetEffects();
+        for (auto& e : effects)
+        {
+            effectList->data.emplace_back(e->get_name());
+        }
+        effectList->tableView->ReloadData();
+        effectList->tableView->ScrollToCellWithIdx(row, HMUI::TableView::ScrollPositionType::Beginning, false);
+    }
+
+    void ScribbleViewController::ReloadBrushList()
+    {
+        INFO("ReloadBrushList");
+        brushList->data.clear();
+        INFO("cleared");
+        int row = brushList->tableView->get_contentTransform() ? reinterpret_cast<QuestUI::TableView*>(brushList->tableView)->get_scrolledRow() : 0;
+        INFO("row");
+
+        for (auto b : Brushes::brushes)
+        {
+            INFO("brush %s", b.name.c_str());
+            auto texture = BrushTextures::GetTexture(b.textureName);
+            if (texture)
+            {
+                auto sprite = Sprite::Create(texture, UnityEngine::Rect(0.0f, 0.0f, (float)texture->get_width(), (float)texture->get_height()), UnityEngine::Vector2(0.5f,0.5f), 1024.0f, 1u, UnityEngine::SpriteMeshType::FullRect, UnityEngine::Vector4(0.0f, 0.0f, 0.0f, 0.0f), false);
+                Object::DontDestroyOnLoad(sprite);
+                brushList->data.emplace_back(b.name, b.effectName, sprite);
+            }
+            else
+                brushList->data.emplace_back(b.name, b.effectName);
+        }
+
+        INFO("reload");
+        brushList->tableView->ReloadData();
+        INFO("scroll");
+        brushList->tableView->ScrollToCellWithIdx(row, HMUI::TableView::ScrollPositionType::Beginning, false);
+        INFO("end");
+    }
+
     void ScribbleViewController::SelectBrush(int idx)
     {
-
+        auto brush = GlobalBrushManager::get_activeBrush();
+        if (brush) 
+        {
+            auto& newBrush = Brushes::brushes[idx];
+            brush->currentBrush = newBrush;
+            glowSlider->set_value(newBrush.glow);
+        }
     }
 
     void ScribbleViewController::SelectTexture(int idx)
     {
+        auto brush = GlobalBrushManager::get_activeBrush();
+        if (brush) 
+        {
+            // update current brush
+            std::string texName = BrushTextures::GetTextureName(idx);
+            auto& currentBrush = brush->currentBrush;
+            currentBrush.textureName = texName;
 
+            // update Brush list object
+            auto foundBrush = Brushes::GetBrush(currentBrush.name);
+            if (foundBrush)
+                (*foundBrush).get().textureName = texName;
+
+            Brushes::Save();
+            ReloadBrushList();
+        }
     }
 
     void ScribbleViewController::SelectEffect(int idx)
     {
+        auto brush = GlobalBrushManager::get_activeBrush();
+        if (brush) 
+        {
+            auto& currentBrush = brush->currentBrush;
+            std::string effectName = Effects::GetEffectName(idx);
+            currentBrush.effectName = effectName;
 
+            auto foundBrush = Brushes::GetBrush(currentBrush.name);
+            if (foundBrush)
+                (*foundBrush).get().effectName = effectName;
+
+            Brushes::Save();
+            ReloadBrushList();
+        }
     }
 
     void ScribbleViewController::SelectPicker()
@@ -190,11 +300,20 @@ namespace Scribble
 
     void ScribbleViewController::PickerSelectedColor(Color color)
     {
-
+        auto brush = GlobalBrushManager::get_activeBrush();
+        if (brush)
+        {
+            brush->currentBrush.color = color;
+        }
     }
 
     void ScribbleViewController::SelectEraseMode()
     {
-
+        auto brush = GlobalBrushManager::get_activeBrush();
+        if (brush)
+        {
+            brush->eraseMode ^= 1;
+            eraserImage->set_color(brush->eraseMode ? Color(1.0, 0.0, 0.0, 1.0) : Color(1.0, 1.0, 1.0, 1.0));
+        }
     }
 }

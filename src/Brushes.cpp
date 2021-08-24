@@ -70,10 +70,10 @@ namespace Scribble
             brushes.emplace_back("Secondary", Sombrero::FastColor(0.14f, 0.56f, 0.91f, 1.0f), "brush", 0.8f);
     }
 
-    std::optional<CustomBrush> Brushes::GetBrush(std::string_view name)
+    std::optional<std::reference_wrapper<CustomBrush>> Brushes::GetBrush(std::string_view name)
     {
         for (auto& brush : brushes)
-            if (!strcmp(brush.name.c_str(), name.data())) return brush;
+            if (!strcmp(brush.name.c_str(), name.data())) return std::make_optional(std::ref(brush));
 
         return std::nullopt;
     }
