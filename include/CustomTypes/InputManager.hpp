@@ -6,15 +6,17 @@
 
 DECLARE_CLASS_CODEGEN(Scribble, InputManager, UnityEngine::MonoBehaviour,
     DECLARE_INSTANCE_FIELD(Il2CppString*, inputString);
-    DECLARE_INSTANCE_METHOD(void, Start);
     DECLARE_INSTANCE_METHOD(void, Update);
-
+    DECLARE_CTOR(ctor);
     public:
+        void Init(GlobalNamespace::SaberType type);
         GlobalNamespace::SaberType saberType;
         
-        UnorderedEventCallback<> buttonPressedEvent;
-        UnorderedEventCallback<> buttonReleasedEvent;
+        using OnPressEvent = UnorderedEventCallback<>;
+        using OnReleaseEvent = UnorderedEventCallback<>;
+
+        OnPressEvent buttonPressedEvent;
+        OnReleaseEvent buttonReleasedEvent;
     private:
         bool upTriggered = true;
-
 )

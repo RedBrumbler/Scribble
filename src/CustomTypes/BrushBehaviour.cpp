@@ -11,6 +11,7 @@
 #include "UnityEngine/PrimitiveType.hpp"
 #include "UnityEngine/MeshRenderer.hpp"
 #include "UnityEngine/EventSystems/PointerEventData.hpp"
+#include "UnityEngine/EventSystems/UIBehaviour.hpp"
 #include "GlobalNamespace/VRController.hpp"
 
 DEFINE_TYPE(Scribble, BrushBehaviour);
@@ -21,8 +22,10 @@ namespace Scribble
 {
     void BrushBehaviour::Start()
     {
+        INFO("Brush Behaviour Start");
         inputManager = get_gameObject()->AddComponent<InputManager*>();
-        inputManager->saberType = saberType;
+        inputManager->Init(saberType);
+        
         inputManager->buttonPressedEvent += {&BrushBehaviour::OnPress, this};
         inputManager->buttonReleasedEvent += {&BrushBehaviour::OnRelease, this};
 
@@ -48,15 +51,17 @@ namespace Scribble
         INFO("Brush Initialized");
         set_enabled(false);
     }
-    
+
     void BrushBehaviour::Update()
     {
         if (pressed)
         {
             Sombrero::FastVector3 position = get_transform()->get_position();
             float sqrDistance = position.sqrDistance(lastPoint);
+            INFO("%.5f > %.5f = %d", sqrDistance, minDistance, sqrDistance < minDistance);
             if (sqrDistance > minDistance)
             {
+                INFO("Adding point");
                 ScribbleContainer::get_instance()->AddPoint(position, saberType);
                 lastPoint = position;
             }
@@ -72,6 +77,7 @@ namespace Scribble
 
         if (CheckForUI())
         {
+            INFO("Hiding Brush Mesh");
             ShowBrushMesh(false);
             set_menuHandleActive(true);
             didUpdateMeshLastFrame = false;
@@ -90,11 +96,12 @@ namespace Scribble
 
     void BrushBehaviour::OnPress()
     {
+        INFO("BrushBehaviour OnPress");
         GlobalBrushManager::set_activeBrush(this);
         if (CheckForUI()) return;
         if (!ScribbleContainer::get_instance()) return;
         if (!ScribbleContainer::drawingEnabled) return;
-        //set_menuHandleActive(false);
+        set_menuHandleActive(false);
         if (eraseMode)
         {
             GetComponent<Eraser*>()->StartErasing();
@@ -103,21 +110,23 @@ namespace Scribble
         lastPoint = get_transform()->get_position();
         ScribbleContainer::get_instance()->InitPoint(lastPoint, saberType, currentBrush);
         pressed = true;
-        //UpdateBrushMesh();
-        //ShowBrushMesh(true);
+        UpdateBrushMesh();
+        ShowBrushMesh(true);
     }
     
     void BrushBehaviour::OnRelease()
     {
-        //set_menuHandleActive = true;
+        INFO("BrushBehaviour OnRelease");
+        set_menuHandleActive(true);
         if (eraseMode)
         {
             GetComponent<Eraser*>()->StopErasing();
             return;
         }
+
         if (!pressed) return;
         pressed = false;
-        //ShowBrushMesh(false);
+        ShowBrushMesh(false);
         ScribbleContainer::get_instance()->CheckLine(saberType);
     }
 
@@ -139,22 +148,35 @@ namespace Scribble
         auto mr = pointer->vrController->get_gameObject()->GetComponent<MeshRenderer*>();
         if (mr) mr->set_enabled(!show);
         if (brushMesh) brushMesh->SetActive(show);
+        set_enabled(show);
     }
 
     bool BrushBehaviour::CheckForUI()
     {
         auto pointerData = pointer->pointerData;
-        return (pointerData ? (bool)pointerData->get_pointerCurrentRaycast().get_gameObject() : false);
+        if (!pointerData) return false;
+        auto go = pointerData->get_pointerCurrentRaycast().get_gameObject();
+        if (!go) return false;
+        return go->GetComponent<UnityEngine::EventSystems::UIBehaviour*>();
     }
 
     UnityEngine::GameObject* BrushBehaviour::CreateBrushMesh()
     {
+        INFO("Creating brush mesh");
         auto go = GameObject::CreatePrimitive(PrimitiveType::Sphere);
         go->get_transform()->SetParent(get_transform(), false);
         go->SetActive(false);
-        auto mat = Material::New_ctor((Shader*)Effects::GetEffect("standard")->shader);
-        mat->set_color(Sombrero::FastColor::white().Alpha(0.5f));
-        go->GetComponent<MeshRenderer*>()->set_material(mat);
+        auto effect = Effects::GetEffect("standard");
+        if (effect)
+        {
+            UnityEngine::Shader* shader = effect->get_shader();
+            if (shader)
+            {
+                auto mat = Material::New_ctor(shader);
+                mat->set_color(Sombrero::FastColor::white().Alpha(0.5f));
+                go->GetComponent<MeshRenderer*>()->set_material(mat);
+            }
+        }
         return go;
     }
 

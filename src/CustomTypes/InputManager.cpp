@@ -6,8 +6,14 @@ DEFINE_TYPE(Scribble, InputManager);
 using namespace UnityEngine;
 namespace Scribble
 {
-    void InputManager::Start()
+    void InputManager::ctor()
     {
+        INVOKE_CTOR();
+    }
+
+    void InputManager::Init(GlobalNamespace::SaberType type)
+    {
+        saberType = type;
         inputString = il2cpp_utils::newcsstr(saberType == GlobalNamespace::SaberType::SaberA ? "TriggerLeftHand" : "TriggerRightHand");
     }
 

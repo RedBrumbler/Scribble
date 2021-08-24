@@ -1,9 +1,12 @@
 #include "ScribbleContainer.hpp"
+#include "logging.hpp"
 
 #include "UnityEngine/Object.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/Shader.hpp"
+
+#include "GlobalNamespace/BeatmapObjectSpawnController.hpp"
 
 DEFINE_TYPE(Scribble, LinerendererData);
 DEFINE_TYPE(Scribble, ScribbleContainer);
@@ -16,7 +19,11 @@ namespace Scribble
 
     void ScribbleContainer::Start()
     {
+        instance = this;
+        lineRenderers = List<LinerendererData*>::New_ctor();
+        INFO("Scribble Container Initialized");
 
+        SetBPM(60);
     }
 
     ScribbleContainer* ScribbleContainer::get_instance()
@@ -31,42 +38,61 @@ namespace Scribble
 
     void ScribbleContainer::Create()
     {
-        GameObject::New_ctor(il2cpp_utils::newcsstr("ScribbleContianer"))->AddComponent<ScribbleContainer*>();
+        if (instance) return;
+        auto go = GameObject::New_ctor(il2cpp_utils::newcsstr("ScribbleContainer"))->AddComponent<ScribbleContainer*>();
+        Object::DontDestroyOnLoad(go);
     }
 
     Scribble::LineRenderer* ScribbleContainer::InitLineRenderer(const CustomBrush& brush, bool disableOnStart)
     {
         // create GO with numbered name
+        INFO("Creating go");
         auto go = GameObject::New_ctor(il2cpp_utils::newcsstr(string_format("LineRenderer-%d", lineRenderers->get_Count())));
+        INFO("set parent");
         go->get_transform()->SetParent(get_transform());
+        INFO("add linerenderer");
         auto lineRenderer = go->AddComponent<Scribble::LineRenderer*>();
+        INFO("set data");
         lineRenderer->set_enabled(!disableOnStart);
         lineRenderer->set_widthMultiplier(brush.size * lineWidth);
         lineRenderer->set_numCornerVertices(5);
         lineRenderer->set_numCapVertices(5);
 
+        INFO("set modes");
         if (brush.textureMode == CustomBrush::TextureMode::Stretch)
             lineRenderer->set_textureMode(Scribble::LineRenderer::LineTextureMode::Stretch);
         else if (brush.textureMode == CustomBrush::TextureMode::Tile)
             lineRenderer->set_textureMode(Scribble::LineRenderer::LineTextureMode::Tile);
         lineRenderer->set_material(brush.CreateMaterial());
 
+        INFO("add line");
         lineRenderers->Add(LinerendererData::Create(lineRenderer, brush));
+        INFO("return");
         return lineRenderer;
     }
 
-    void ScribbleContainer::UpdateMaterials(float BPM)
+    void ScribbleContainer::SetBPM(float BPM)
     {
         static auto _BPM = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("_BPM");
-        Shader::SetGlobalFloat(_BPM, BPM);
+        // bpm / 60 means per second, 60 bpm is once per second
+        Shader::SetGlobalFloat(_BPM, BPM / 60);
+    }
+
+    void ScribbleContainer::SetOffset(float offset)
+    {
+        static auto _StartOffset = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("_StartOffset");
+        Shader::SetGlobalFloat(_StartOffset, offset);
     }
 
     void ScribbleContainer::InitPoint(Sombrero::FastVector3 point, GlobalNamespace::SaberType saberType, CustomBrush& brush)
     {
+        INFO("initpoint");
         auto lineRenderer = InitLineRenderer(brush);
+        INFO("set stuff");
         lineRenderer->set_positionCount(1);
         lineRenderer->SetPosition(0, point);
         lineRenderer->set_enabled(true);
+        INFO("currentLinerenderer setting");
         if (saberType == GlobalNamespace::SaberType::SaberA) currentLineRendererLeft = lineRenderer;
         else currentLineRendererRight = lineRenderer;
     }
@@ -125,12 +151,14 @@ namespace Scribble
 
     void ScribbleContainer::Undo()
     {
+        INFO("Undo");
         Delete(lineRenderers->get_Count() - 1);
     }
 
     void ScribbleContainer::Delete(int index)
     {
         if (index < 0 || index > lineRenderers->get_Count() - 1) return;
+        INFO("Deleting index %d", index);
         auto lr = lineRenderers->items->values[index]->lineRenderer;
         lineRenderers->RemoveAt(index);
         Object::Destroy(lr->get_gameObject());
@@ -162,8 +190,10 @@ namespace Scribble
 
     void ScribbleContainer::CheckLine(GlobalNamespace::SaberType saberType)
     {
+        INFO("check line");
         auto lineRenderer = saberType == GlobalNamespace::SaberType::SaberA ? currentLineRendererLeft : currentLineRendererRight;
         if (!lineRenderer) return;
+        INFO("get posCount");
         if (lineRenderer->get_positionCount() <= minPositionCount)
             Undo();
     }

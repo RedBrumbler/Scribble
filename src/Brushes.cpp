@@ -1,4 +1,5 @@
 #include "Brushes.hpp"
+#include "logging.hpp"
 #include "static-defines.hpp"
 
 #include "beatsaber-hook/shared/rapidjson/include/rapidjson/prettywriter.h"
@@ -34,10 +35,12 @@ namespace Scribble
         doc.SetObject();
         rapidjson::Document::AllocatorType& allocator = doc.GetAllocator();
         rapidjson::Value array(rapidjson::kArrayType);
+        array.SetArray();
 
         for (const auto& brush : brushes)
         {
-            array.PushBack(brush.ToJson(allocator), allocator);
+            auto val = brush.ToJson(allocator);
+            array.PushBack(val, allocator);
         }
 
         doc.AddMember("brushes", array, allocator);
@@ -57,10 +60,14 @@ namespace Scribble
 
     void Brushes::AddDefaultBrushes()
     {
-        if (!GetBrush("Primary"))
-            brushes.push_back(CustomBrush("Primary", Sombrero::FastColor(0.90f, 0.20f, 0.20f, 1.0f), "brush", 0.8f));
-        if (!GetBrush("Secondary"))
-            brushes.push_back(CustomBrush("Secondary", Sombrero::FastColor(0.14f, 0.56f, 0.91f, 1.0f), "brush", 0.8f));
+        auto primary = GetBrush("Primary");
+        auto secondary = GetBrush("Secondary");
+
+        INFO("primary brush found: %d, secondary: %d", primary.has_value(), secondary.has_value());
+        if (!primary)
+            brushes.emplace_back("Primary", Sombrero::FastColor(0.90f, 0.20f, 0.20f, 1.0f), "brush", 0.8f);
+        if (!secondary)
+            brushes.emplace_back("Secondary", Sombrero::FastColor(0.14f, 0.56f, 0.91f, 1.0f), "brush", 0.8f);
     }
 
     std::optional<CustomBrush> Brushes::GetBrush(std::string_view name)

@@ -59,9 +59,12 @@ namespace Scribble
     rapidjson::Value CustomBrush::ToJson(const CustomBrush& brush, rapidjson::Document::AllocatorType& allocator)
     {
         rapidjson::Value val;
+        val.SetObject();
 
         val.AddMember("name", rapidjson::Value(brush.name.c_str(), brush.name.size(), allocator), allocator);
         rapidjson::Value colorVal;
+        colorVal.SetObject();
+
         colorVal.AddMember("r", brush.color.r, allocator);
         colorVal.AddMember("g", brush.color.g, allocator);
         colorVal.AddMember("b", brush.color.b, allocator);
@@ -74,6 +77,8 @@ namespace Scribble
         val.AddMember("textureMode", (int)brush.textureMode, allocator);
 
         rapidjson::Value tilingVal;
+        tilingVal.SetObject();
+        
         tilingVal.AddMember("x", brush.tiling.x, allocator);
         tilingVal.AddMember("y", brush.tiling.y, allocator);
         val.AddMember("tiling", tilingVal, allocator);

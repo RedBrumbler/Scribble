@@ -20,7 +20,7 @@ namespace Scribble
             int get_positionCount()
             {
                 using GetPositionCount = function_ptr_t<int, UnityEngine::LineRenderer*>;
-                static auto get_positionCount = reinterpret_cast<GetPositionCount>(il2cpp_functions::resolve_icall("UnityEngine.LineRenderer::get_PositionsCount"));
+                static auto get_positionCount = reinterpret_cast<GetPositionCount>(il2cpp_functions::resolve_icall("UnityEngine.LineRenderer::get_positionCount"));
                 return get_positionCount(this);
             }
 
@@ -75,7 +75,7 @@ namespace Scribble
             void set_textureMode(const LineTextureMode& mode)
             {
                 using SetLineTextureMode = function_ptr_t<void, UnityEngine::LineRenderer*, int>;
-                static auto SetModeIcall = reinterpret_cast<SetLineTextureMode>(il2cpp_functions::resolve_icall("UnityEngine.LineRenderer::set_set_textureMode"));
+                static auto SetModeIcall = reinterpret_cast<SetLineTextureMode>(il2cpp_functions::resolve_icall("UnityEngine.LineRenderer::set_textureMode"));
                 SetModeIcall(this, (int)mode);
             }
     };

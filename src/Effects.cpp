@@ -19,37 +19,41 @@ namespace Scribble
 
     void Effects::LoadEffects()
     {
-            effects.clear();
+        effects.clear();
 
-            StandardEffect* standardEffect = new StandardEffect("standard", AssetLoader::LoadShader("Simple"));
-            AnimatedEffect* animatedEffect = new AnimatedEffect("animated", AssetLoader::LoadShader("Animated"));
-            DotBPM* dotBPM = new DotBPM("dotbpm", AssetLoader::LoadShader("DotBPM"));
-            Rainbow* rainbow = new Rainbow("rainbow", AssetLoader::LoadShader("Rainbow"));
-            LollyPop* lollypop = new LollyPop("lollypop", AssetLoader::LoadShader("Lollypop"));
-            Outline* outline = new Outline("outline", AssetLoader::LoadShader("Outline"));
+        StandardEffect* standardEffect = new StandardEffect("standard", "Simple");
+        AnimatedEffect* animatedEffect = new AnimatedEffect("animated", "Animated");
+        DotBPM* dotBPM = new DotBPM("dotbpm", "DotBPM");
+        Rainbow* rainbow = new Rainbow("rainbow", "Rainbow");
+        LollyPop* lollypop = new LollyPop("lollypop", "Lollypop");
+        Outline* outline = new Outline("outline", "Outline");
 
-            effects.push_back(standardEffect);
-            effects.push_back(animatedEffect);
-            effects.push_back(dotBPM);
-            effects.push_back(rainbow);
-            effects.push_back(lollypop);
-            effects.push_back(outline);
+        effects.push_back(standardEffect);
+        effects.push_back(animatedEffect);
+        effects.push_back(dotBPM);
+        effects.push_back(rainbow);
+        effects.push_back(lollypop);
+        effects.push_back(outline);
     }
 
     Effect* Effects::GetEffect(std::string_view name)
     {
         for (auto effect : effects)
         {
-            if (effect->name == name) return effect;
+            if (!strcmp(effect->name.c_str(), name.data())) return effect;
         }
         return nullptr;
     }
 
+    UnityEngine::Shader* Effect::get_shader()
+    {
+        return AssetLoader::LoadShader(shader);
+    }
+
     UnityEngine::Material* Effect::CreateMaterial(const CustomBrush& brush)
     {
-        if (!shader) return nullptr;
         INFO("Creating material %s", name.c_str());
-        auto mat = UnityEngine::Material::New_ctor((UnityEngine::Shader*)shader);
+        auto mat = UnityEngine::Material::New_ctor(get_shader());
         
         EnsureString(_Color);
         EnsureString(_Tex);
@@ -83,7 +87,8 @@ namespace Scribble
     UnityEngine::Material* DotBPM::CreateMaterial(const CustomBrush& brush)
     {
         auto mat = this->Effect::CreateMaterial(brush);
-        
+        EnsureString(_Speed);
+        mat->SetFloat(_Speed, 0.0f);
         return mat;
     }
     

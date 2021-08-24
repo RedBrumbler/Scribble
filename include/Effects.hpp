@@ -27,9 +27,10 @@ namespace Scribble
     {
         private:
             std::string name;
-             SafePtr<UnityEngine::Shader> shader;
+            std::string shader;
         public:
-            Effect(std::string_view name, UnityEngine::Shader* shader) : name(name), shader(shader) {}; 
+            Effect(std::string_view name, std::string_view shader) : name(name), shader(shader) {}; 
+            UnityEngine::Shader* get_shader();
             virtual UnityEngine::Material* CreateMaterial(const CustomBrush& brush);
             friend Effect* Effects::GetEffect(std::string_view name);
             friend UnityEngine::GameObject* BrushBehaviour::CreateBrushMesh();
@@ -38,42 +39,42 @@ namespace Scribble
     class StandardEffect : public Effect
     {
         public:
-            StandardEffect(std::string_view name, UnityEngine::Shader* shader) : Effect(name, shader) {};
+            StandardEffect(std::string_view name, std::string_view shader) : Effect(name, shader) {};
             UnityEngine::Material* CreateMaterial(const CustomBrush& brush);
     };
 
     class AnimatedEffect : public Effect
     {
         public:
-            AnimatedEffect(std::string_view name, UnityEngine::Shader* shader) : Effect(name, shader) {};
+            AnimatedEffect(std::string_view name, std::string_view shader) : Effect(name, shader) {};
             UnityEngine::Material* CreateMaterial(const CustomBrush& brush);
     };
 
     class DotBPM : public Effect
     {
         public:
-            DotBPM(std::string_view name, UnityEngine::Shader* shader) : Effect(name, shader) {};
+            DotBPM(std::string_view name, std::string_view shader) : Effect(name, shader) {};
             UnityEngine::Material* CreateMaterial(const CustomBrush& brush);
     };
 
     class Rainbow : public Effect
     {
         public:
-            Rainbow(std::string_view name, UnityEngine::Shader* shader) : Effect(name, shader) {};
+            Rainbow(std::string_view name, std::string_view shader) : Effect(name, shader) {};
             UnityEngine::Material* CreateMaterial(const CustomBrush& brush);
     };
 
     class LollyPop : public Effect
     {
         public:
-            LollyPop(std::string_view name, UnityEngine::Shader* shader) : Effect(name, shader) {};
+            LollyPop(std::string_view name, std::string_view shader) : Effect(name, shader) {};
             UnityEngine::Material* CreateMaterial(const CustomBrush& brush);
     };
 
     class Outline : public Effect
     {
         public:
-            Outline(std::string_view name, UnityEngine::Shader* shader) : Effect(name, shader) {};
+            Outline(std::string_view name, std::string_view shader) : Effect(name, shader) {};
             UnityEngine::Material* CreateMaterial(const CustomBrush& brush);
     };
 }

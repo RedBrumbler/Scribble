@@ -3,9 +3,9 @@
 namespace Scribble::GlobalBrushManager
 {
     OnActiveBrushChangedEvent onActiveBrushChangedEvent;
-    BrushBehaviour* leftBrush;
-    BrushBehaviour* rightBrush;
-    BrushBehaviour* activeBrush;
+    BrushBehaviour* leftBrush = nullptr;
+    BrushBehaviour* rightBrush = nullptr;
+    BrushBehaviour* activeBrush = nullptr;
     
     BrushBehaviour* get_leftBrush()
     {

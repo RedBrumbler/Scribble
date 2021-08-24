@@ -34,11 +34,13 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleContainer, UnityEngine::MonoBehaviour,
         static inline bool drawingEnabled = true;
         static inline float lineWidth = 0.001f;
 
-        bool get_IsInAnimation();
+        static void SetBPM(float BPM);
+        static void SetOffset(float offset);
         static void Create();
+
+        bool get_IsInAnimation();
         Scribble::LineRenderer* InitLineRenderer(const CustomBrush& brush, bool disableOnStart = true);
 
-        void UpdateMaterials(float BPM);
         
         void InitPoint(Sombrero::FastVector3 point, GlobalNamespace::SaberType saberType, CustomBrush& brush);
         void AddPoint(Sombrero::FastVector3 point, GlobalNamespace::SaberType saberType);
