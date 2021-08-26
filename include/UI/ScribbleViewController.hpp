@@ -15,10 +15,15 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleViewController, HMUI::ViewController,
     DECLARE_INSTANCE_FIELD(QuestUI::CustomListTableData*, brushList);
     DECLARE_INSTANCE_FIELD(QuestUI::CustomListTableData*, textureList);
     DECLARE_INSTANCE_FIELD(QuestUI::CustomListTableData*, effectList);
+    DECLARE_INSTANCE_FIELD(QuestUI::CustomListTableData*, saveFileList);
+    DECLARE_INSTANCE_FIELD(QuestUI::CustomListTableData*, loadFileList);
     DECLARE_INSTANCE_FIELD(QuestUI::SliderSetting*, glowSlider);
     DECLARE_INSTANCE_FIELD(QuestUI::SliderSetting*, sizeSlider);
     DECLARE_INSTANCE_FIELD(UnityEngine::UI::Image*, eraserImage);
     
+    DECLARE_INSTANCE_FIELD(HMUI::ModalView* saveModal);
+    DECLARE_INSTANCE_FIELD(HMUI::ModalView* loadModal);
+
     private:
         void ReloadBrushList();
         void ReloadTextureList();
@@ -33,4 +38,6 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleViewController, HMUI::ViewController,
         void SelectPicker();
         void PickerSelectedColor(UnityEngine::Color color);
         void SelectEraseMode();
+        void ShowSaveFile();
+        void ShowLoadFile();
 )

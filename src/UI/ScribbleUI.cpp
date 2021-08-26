@@ -208,7 +208,8 @@ namespace Scribble
 
         get_gameObject()->GetComponent<HMUI::Screen*>()->rootViewController = mainViewController;
         mainViewController->get_transform()->SetParent(globalContainer->get_parent(), false);
-        mainViewController->get_transform()->set_localPosition({0.0f, 0.0f, -.01f});
+        mainViewController->get_transform()->set_localPosition({0.0f, -0.1f, -0.01f});
+        mainViewController->get_transform()->set_localRotation(Quaternion::Euler(-5.0f, 0.0f, 0.0f));
         mainViewController->__Activate(true, true);
     }
 }

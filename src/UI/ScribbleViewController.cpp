@@ -109,6 +109,53 @@ namespace Scribble
                     if (GlobalBrushManager::get_activeBrush()) color = GlobalBrushManager::get_activeBrush()->currentBrush.color;
                     colorPickerModal = BeatSaberUI::CreateColorPickerModal(get_transform(), "", color, std::bind(&ScribbleViewController::PickerSelectedColor, this, std::placeholders::_1));
                     
+                    //<modal id='save-dialog' hide-event='save-dialog-hide' move-to-center="true" click-off-closes="true" size-delta-x="70" size-delta-y="80">
+                    saveModal = BeatSaberUI::CreateModal(horizontal->get_transform(), Vector2(70, 80), nullptr, true);
+                    //  <vertical spacing="8" pad="5">
+                    auto saveVertical = BeatSaberUI::CreateVerticalLayoutGroup(saveModal->get_transform());
+                    saveVertical->set_padding(UnityEngine::RectOffset::New_ctor(5, 5, 5, 5));
+                    saveVertical->set_spacing(8);
+
+                    //    <vertical spacing='5'>
+                    auto saveFileVertical = BeatSaberUI::CreateVerticalLayoutGroup(saveVertical->get_transform());
+                    saveFileVertical->set_spacing(5);
+                    //      <list id='save-file-list' expand-cell='true' select-cell='file-save-selected' list-style='Box' />
+                    saveFileList = BeatSaberUI::CreateScrollableList(saveFileVertical->get_transform(), Vector2(35, 60));
+                    saveFileList->set_listStyle(QuestUI::CustomListTableData::ListStyle::Simple);
+                    saveFileList->cellSize = 5.5f;
+                    //    </vertical>
+
+                    //    <vertical  bg='round-rect-panel' bg-color='#00000000' preferred-height='180'>
+                    auto infoVertical = BeatSaberUI::CreateVerticalLayoutGroup(saveVertical->get_transform());
+                    infoVertical->get_gameObject()->AddComponent<QuestUI::BackGroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.2f); 
+                    infoVertical->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredHeight(180);
+                    //      <horizontal preferred-width='60'>
+
+                    //        <page-button event-click='save-file-list#PageUp' direction='Up' />
+                    //        <page-button event-click='save-file-list#PageDown' direction='Down' />
+                    //      </horizontal>
+                    
+                    //      <string-setting id='new-file-string' text='Name' value='save-file-name' on-change='save-file-name-changed' preferred-width='10' apply-on-change='true'></string-setting>
+                    //      <horizontal>
+                    //        <button text='Close' click-event='save-dialog-hide'/>
+                    //        <button text='New' on-click='save-new'/>
+                    //      </horizontal>
+                    //    </vertical>
+                    //  </vertical>
+                    //</modal>
+
+                    //<modal id='load-dialog' hide-event='load-dialog-hide' move-to-center="true" click-off-closes="true" size-delta-x="70" size-delta-y="70">
+                    //  <vertical spacing="10" pad="5">
+                    //    <vertical spacing='5'>
+                    //      <list id='load-file-list' expand-cell='true' select-cell='file-load-selected' list-style='Box' />
+                    //    </vertical>
+                    //    <horizontal preferred-width='60' bg='round-rect-panel' bg-color='#00000000'>
+                    //      <page-button event-click='load-file-list#PageUp' direction='Up' />
+                    //      <page-button event-click='load-file-list#PageDown' direction='Down' />
+                    //    </horizontal>
+                    //    <button text='Close' click-event='load-dialog-hide'/>
+                    //  </vertical>
+                    //</modal>
 
                     //<modal-color-picker id="color-picker-modal" value="brush-color-value" on-done="picker-selected-color" move-to-center="true" click-off-closes="true"></modal-color-picker>
                     brushList = BeatSaberUI::CreateScrollableList(horizontal->get_transform(), {35.0f, 60.0f}, [&](int idx){
@@ -306,5 +353,15 @@ namespace Scribble
             brush->eraseMode ^= 1;
             eraserImage->set_color(brush->eraseMode ? Color(1.0, 0.0, 0.0, 1.0) : Color(1.0, 1.0, 1.0, 1.0));
         }
+    }
+
+    void ScribbleViewController::ShowSaveFile()
+    {
+        if (saveModal) saveModal->Show(true, true, nullptr);
+    }
+
+    void ScribbleViewController::ShowLoadFile()
+    {
+        if (loadModal) loadModal->Show(true, true, nullptr);
     }
 }
