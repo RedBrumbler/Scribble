@@ -22,7 +22,6 @@ namespace Scribble
 {
     void BrushBehaviour::Start()
     {
-        INFO("Brush Behaviour Start");
         inputManager = get_gameObject()->AddComponent<InputManager*>();
         inputManager->Init(saberType);
         
@@ -48,7 +47,6 @@ namespace Scribble
         auto eraser = get_gameObject()->AddComponent<Eraser*>();
         eraser->Init(this);
 
-        INFO("Brush Initialized");
         set_enabled(false);
     }
 
@@ -61,7 +59,6 @@ namespace Scribble
             INFO("%.5f > %.5f = %d", sqrDistance, minDistance, sqrDistance < minDistance);
             if (sqrDistance > minDistance)
             {
-                INFO("Adding point");
                 ScribbleContainer::get_instance()->AddPoint(position, saberType);
                 lastPoint = position;
             }
@@ -74,10 +71,9 @@ namespace Scribble
         }
 
         if (eraseMode) return;
-
+        /*
         if (CheckForUI())
         {
-            INFO("Hiding Brush Mesh");
             ShowBrushMesh(false);
             set_menuHandleActive(true);
             didUpdateMeshLastFrame = false;
@@ -92,11 +88,11 @@ namespace Scribble
             ShowBrushMesh(true);
             set_menuHandleActive(false);
         }
+        */
     }
 
     void BrushBehaviour::OnPress()
     {
-        INFO("BrushBehaviour OnPress");
         GlobalBrushManager::set_activeBrush(this);
         if (CheckForUI()) return;
         if (!ScribbleContainer::get_instance()) return;
@@ -116,7 +112,6 @@ namespace Scribble
     
     void BrushBehaviour::OnRelease()
     {
-        INFO("BrushBehaviour OnRelease");
         set_menuHandleActive(true);
         if (eraseMode)
         {
@@ -140,7 +135,7 @@ namespace Scribble
     {
         float size = ScribbleContainer::lineWidth * currentBrush.size;
         brushMesh->get_transform()->set_localScale(Sombrero::FastVector3(size, size, size));
-        brushMesh->GetComponent<MeshRenderer*>()->get_material()->set_color(currentBrush.color);
+        brushMesh->GetComponent<MeshRenderer*>()->get_material()->set_color(currentBrush.color.Alpha(currentBrush.glow));
     }
 
     void BrushBehaviour::ShowBrushMesh(bool show)
@@ -162,7 +157,6 @@ namespace Scribble
 
     UnityEngine::GameObject* BrushBehaviour::CreateBrushMesh()
     {
-        INFO("Creating brush mesh");
         auto go = GameObject::CreatePrimitive(PrimitiveType::Sphere);
         go->get_transform()->SetParent(get_transform(), false);
         go->SetActive(false);

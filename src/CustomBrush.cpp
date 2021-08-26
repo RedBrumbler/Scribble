@@ -91,4 +91,56 @@ namespace Scribble
     {
         *const_cast<CustomBrush*>(this) = brush;
     }
+
+    void CustomBrush::Serialize(std::ofstream& writer)
+    {
+        int nameSize = name.size();
+
+        writer.write(reinterpret_cast<const char*>(&nameSize), sizeof(int));
+        writer.write(name.c_str(), name.size());
+
+        writer.write(reinterpret_cast<const char*>(&index), sizeof(int));
+        writer.write(reinterpret_cast<const char*>(&color), sizeof(Sombrero::FastColor));
+
+        nameSize = textureName.size();
+        writer.write(reinterpret_cast<const char*>(&nameSize), sizeof(int));
+        writer.write(textureName.c_str(), textureName.size());
+
+        nameSize = effectName.size();
+        writer.write(reinterpret_cast<const char*>(&nameSize), sizeof(int));
+        writer.write(effectName.c_str(), effectName.size());
+
+        writer.write(reinterpret_cast<const char*>(&size), sizeof(int));
+        writer.write(reinterpret_cast<const char*>(&glow), sizeof(float));
+        writer.write(reinterpret_cast<const char*>(&textureMode), sizeof(TextureMode));
+        writer.write(reinterpret_cast<const char*>(&tiling), sizeof(Sombrero::FastVector2));
+    }
+
+    CustomBrush CustomBrush::Deserialize(std::ifstream& reader)
+    {
+        CustomBrush result;
+        int nameSize;
+        char* name;
+
+        reader.read(reinterpret_cast<char*>(&nameSize), sizeof(int));
+        reader.read(name, nameSize);
+        result.name = std::string(name, nameSize);
+
+        reader.read(reinterpret_cast<char*>(&result.index), sizeof(int));
+        reader.read(reinterpret_cast<char*>(&result.color), sizeof(Sombrero::FastColor));
+
+        reader.read(reinterpret_cast<char*>(&nameSize), sizeof(int));
+        reader.read(name, nameSize);
+        result.textureName = std::string(name, nameSize);
+
+        reader.read(reinterpret_cast<char*>(&nameSize), sizeof(int));
+        reader.read(name, nameSize);
+        result.effectName = std::string(name, nameSize);
+        
+        reader.read(reinterpret_cast<char*>(&result.size), sizeof(int));
+        reader.read(reinterpret_cast<char*>(&result.glow), sizeof(float));
+        reader.read(reinterpret_cast<char*>(&result.textureMode), sizeof(TextureMode));
+        reader.read(reinterpret_cast<char*>(&result.tiling), sizeof(Sombrero::FastVector2));
+        return result;
+    }
 }

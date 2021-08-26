@@ -3,7 +3,7 @@
 #include "ScribbleContainer.hpp"
 #include "UnityEngine/MeshRenderer.hpp"
 #include "UnityEngine/Transform.hpp"
-
+#include "logging.hpp"
 DEFINE_TYPE(Scribble, Eraser);
 
 using namespace UnityEngine;
@@ -12,12 +12,14 @@ namespace Scribble
     void Eraser::Awake()
     {
         set_enabled(false);
+        eraserSize = 0.1f;
     }
 
     void Eraser::Update()
     {
-        Sombrero::FastVector3 position = get_transform()->get_position();; 
-        if (lastErasePosition.sqrDistance(position) > 0.01f)
+        Sombrero::FastVector3 position = get_transform()->get_position();
+        float dist = lastErasePosition.sqrDistance(position);
+        if (dist > 0.01f)
         {
             lastErasePosition = position;
             ScribbleContainer::get_instance()->Erase(lastErasePosition, eraserSize);

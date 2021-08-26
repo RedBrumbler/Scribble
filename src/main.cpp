@@ -19,6 +19,7 @@
 #include "ScribbleContainer.hpp"
 #include "AssetLoader.hpp"
 
+#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/SceneManagement/Scene.hpp"
 #include "UnityEngine/SceneManagement/SceneManager.hpp"
 #include "GlobalNamespace/MainFlowCoordinator.hpp"
@@ -27,6 +28,7 @@
 #include "HMUI/FlowCoordinator.hpp"
 
 #include "UI/ScribbleViewController.hpp"
+#include "UI/ScribbleSettingsViewController.hpp"
 #include "UI/ScribbleUI.hpp"
 
 using namespace Scribble;
@@ -51,16 +53,17 @@ MAKE_AUTO_HOOK_MATCH(SceneManager_SetActiveScene, &UnityEngine::SceneManagement:
         firstWarmup = false;
     }
 
-    if (name == "MenuCore")
+    if (name == "MainMenu")
     {
         firstMenu = false;
-        auto ui = UnityEngine::Object::FindObjectOfType<ScribbleUI*>();
-        if (ui) ui->Show();
+        auto ui = UnityEngine::Resources::FindObjectsOfTypeAll<ScribbleUI*>();
+        if (ui && ui->Length() > 0) ui->values[0]->Show();
     }
 
     if (name == "GameCore")
     {
-        UnityEngine::Object::FindObjectOfType<ScribbleUI*>()->Show(false);
+        auto ui = UnityEngine::Resources::FindObjectsOfTypeAll<ScribbleUI*>();
+        if (ui && ui->Length() > 0) ui->values[0]->Show(false);
         
         if (config.visibleDuringPlay)
             ScribbleContainer::get_instance()->Show();
@@ -71,10 +74,10 @@ MAKE_AUTO_HOOK_MATCH(SceneManager_SetActiveScene, &UnityEngine::SceneManagement:
     return result;
 }
 
-MAKE_AUTO_HOOK_MATCH(VRPointer_OnEnable, &VRUIControls::VRPointer::OnEnable, void, VRUIControls::VRPointer* self)
+MAKE_AUTO_HOOK_MATCH(VRPointer_Awake, &VRUIControls::VRPointer::Awake, void, VRUIControls::VRPointer* self)
 {
-    VRPointer_OnEnable(self);
-    INFO("VR pointer OnEnable");
+    VRPointer_Awake(self);
+    INFO("VR pointer Awake");
 
     if (!pastLoad) return;
     
@@ -153,4 +156,6 @@ extern "C" void load()
     Brushes::Load();
     Hooks::InstallHooks(::Scribble::Logging::getLogger());
     custom_types::Register::AutoRegister();
+
+    QuestUI::Register::RegisterModSettingsViewController<ScribbleSettingsViewController*>({ID, VERSION});
 }

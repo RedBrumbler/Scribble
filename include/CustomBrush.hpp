@@ -8,6 +8,8 @@
 #include "UnityEngine/Material.hpp"
 #include "UnityEngine/Vector4.hpp"
 
+#include <fstream>
+
 namespace Scribble
 {
     class CustomBrush
@@ -50,5 +52,8 @@ namespace Scribble
 
             // this method is const I promise
             void copy(const CustomBrush& brush) const;
+
+            void Serialize(std::ofstream& writer);
+            static CustomBrush Deserialize(std::ifstream& reader);
     };
 }

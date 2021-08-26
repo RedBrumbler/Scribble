@@ -110,7 +110,7 @@ namespace Scribble
     {
         auto go = GameObject::New_ctor(il2cpp_utils::newcsstr("ScribbleUI"));
         Object::DontDestroyOnLoad(go);
-        return go->AddComponent<ScribbleUI*>();        
+        return go->AddComponent<ScribbleUI*>(); 
     }
 
     void ScribbleUI::Show(bool shouldShow)

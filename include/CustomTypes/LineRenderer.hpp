@@ -17,6 +17,7 @@ namespace Scribble
                 DistributePerSegment,
                 RepeatPerSegment
             };
+            
             int get_positionCount()
             {
                 using GetPositionCount = function_ptr_t<int, UnityEngine::LineRenderer*>;

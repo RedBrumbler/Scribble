@@ -72,24 +72,27 @@ namespace Scribble
                             eraserPickerVertical->set_childForceExpandHeight(false);
                             eraserPickerVertical->set_childForceExpandWidth(false);
 
-                            auto pickerButton = BeatSaberUI::CreateUIButton(eraserPickerVertical->get_transform(), "", "PracticeButton", Vector2(12, 12), [&](){
-                                colorPickerModal->Show(true, true, nullptr);
-                            });
+                            auto pickerButton = BeatSaberUI::CreateUIButton(eraserPickerVertical->get_transform(), "", "PracticeButton", Vector2(12, 12), std::bind(&ScribbleViewController::SelectPicker, this));
                             
                             //<button-with-icon id="picker-btn" stroke-type="Clean" preferred-width="12" preferred-height="12" on-click="selectPicker" click-event="show-picker" hover-hint="Color Picker" />
-                            auto eraserButton = BeatSaberUI::CreateUIButton(eraserPickerVertical->get_transform(), "", "PracticeButton", Vector2(12, 12), [&](){
-                                SelectEraseMode();
-                            });
+                            auto eraserButton = BeatSaberUI::CreateUIButton(eraserPickerVertical->get_transform(), "", "PracticeButton", Vector2(12, 12), std::bind(&ScribbleViewController::SelectEraseMode, this));
 
+                            Il2CppString* practiceButton_cs = il2cpp_utils::newcsstr("PracticeButton");
+                            auto orig = QuestUI::ArrayUtil::Last(Resources::FindObjectsOfTypeAll<Button*>(),  [&](Button* x) {
+                                return x->get_name()->Equals(practiceButton_cs);
+                            });
+                            auto material = orig->get_gameObject()->GetComponentInChildren<HMUI::ImageView*>()->get_material();
                             std::string pickerPath = "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/picker.png";
                             auto sprite = BeatSaberUI::FileToSprite(pickerPath);
                             auto img = UITools::CreateImage(pickerButton->get_transform(), {0, 0}, {12, 12});
+                            img->set_material(material);
                             img->set_sprite(sprite);
                             //BeatSaberUI::SetButtonSprites(pickerButton, sprite, sprite);
 
                             std::string eraserPath = "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/eraser.png";
                             sprite = BeatSaberUI::FileToSprite(eraserPath);
                             eraserImage = UITools::CreateImage(eraserButton->get_transform(), {0, 0}, {12, 12});
+                            eraserImage->set_material(material);
                             eraserImage->set_sprite(sprite);
                             //BeatSaberUI::SetButtonSprites(eraserButton, sprite, sprite);
 
@@ -102,23 +105,10 @@ namespace Scribble
                     }
                     //</vertical>
 
-                    colorPickerModal = BeatSaberUI::CreateModal(get_transform(), Vector2(80.0f, 40.0f), nullptr);
                     UnityEngine::Color color = {0, 0, 0, 1.0};
-                    
                     if (GlobalBrushManager::get_activeBrush()) color = GlobalBrushManager::get_activeBrush()->currentBrush.color;
-                    auto modalVertical = BeatSaberUI::CreateVerticalLayoutGroup(colorPickerModal->get_transform());
+                    colorPickerModal = BeatSaberUI::CreateColorPickerModal(get_transform(), "", color, std::bind(&ScribbleViewController::PickerSelectedColor, this, std::placeholders::_1));
                     
-                    modalVertical->set_childControlHeight(true);
-                    modalVertical->set_childControlWidth(true);
-                    modalVertical->set_childForceExpandWidth(false);
-                    modalVertical->set_childForceExpandHeight(true);
-                    modalVertical->set_childScaleHeight(false);
-                    modalVertical->set_childScaleWidth(false);
-
-                    INFO("picker");
-                    BeatSaberUI::CreateColorPicker(modalVertical->get_transform(), "Brush Color", color, [&](UnityEngine::Color col, GlobalNamespace::ColorChangeUIEventType eventType) {
-                        PickerSelectedColor(col);
-                    });
 
                     //<modal-color-picker id="color-picker-modal" value="brush-color-value" on-done="picker-selected-color" move-to-center="true" click-off-closes="true"></modal-color-picker>
                     brushList = BeatSaberUI::CreateScrollableList(horizontal->get_transform(), {35.0f, 60.0f}, [&](int idx){
@@ -127,12 +117,12 @@ namespace Scribble
 
                     ReloadBrushList();
                     BrushTextures::LoadAllTextures();
-                    textureList = BeatSaberUI::CreateScrollableList(horizontal->get_transform(), {35.0f, 60.0f}, [&](int idx){
+                    textureList = BeatSaberUI::CreateScrollableList(horizontal->get_transform(), {22.0f, 60.0f}, [&](int idx){
                         SelectTexture(idx);
                     });
 
                     textureList->set_listStyle(CustomListTableData::ListStyle::Box);
-                    
+                    textureList->cellSize = 22.0f;
                     ReloadTextureList();
 
                     effectList = BeatSaberUI::CreateScrollableList(horizontal->get_transform(), {35.0f, 60.0f}, [&](int idx){
@@ -140,6 +130,7 @@ namespace Scribble
                     });
                     
                     effectList->set_listStyle(CustomListTableData::ListStyle::Simple);
+                    effectList->cellSize = 5.5f;
 
                     ReloadEffectList();
                 }
@@ -155,7 +146,7 @@ namespace Scribble
                     auto brush = GlobalBrushManager::get_activeBrush();
                     if (brush) size = brush->currentBrush.size;
                     //    <slider-setting id='SizeSlider' text='Brush Size' min='1' max='70' increment='1' integer-only='false' apply-on-change='true' value='Size' />
-                    sizeSlider = BeatSaberUI::CreateIncrementSetting(bottomVertical->get_transform(), "Brush Size", 0, 1.0f, size, 1.0f, 70.0f, [&](float val){
+                    sizeSlider = BeatSaberUI::CreateSliderSetting(bottomVertical->get_transform(), "Brush Size", 1.0f, size, 1.0f, 70.0f, [&](float val){
                         size = (int)val;
                         auto brush = GlobalBrushManager::get_activeBrush();
                         if (brush) brush->currentBrush.size = size;
@@ -164,13 +155,11 @@ namespace Scribble
 
                     //    <slider-setting id='GlowSlider' text='Glow Amount' min='0' max='1' increment='0.05' integer-only='false' apply-on-change='true' value='Glow' />
                     if (brush) glow = brush->currentBrush.glow;
-                    glowSlider = BeatSaberUI::CreateIncrementSetting(bottomVertical->get_transform(), "Glow Amount", 2, 0.05f, glow, 0.0f, 1.0f, [&](float val){
+                    glowSlider = BeatSaberUI::CreateSliderSetting(bottomVertical->get_transform(), "Glow Amount", 0.05f, glow, 0.0f, 1.0f, [&](float val){
                         glow = val;
                         auto brush = GlobalBrushManager::get_activeBrush();
                         if (brush) brush->currentBrush.glow = glow;
                     });
-                    
-
                 }
                 //</vertical>
             }
@@ -252,6 +241,8 @@ namespace Scribble
             auto& newBrush = Brushes::brushes[idx];
             brush->currentBrush = newBrush;
             glowSlider->set_value(newBrush.glow);
+            sizeSlider->set_value(newBrush.size);
+            colorPickerModal->set_color(newBrush.color);
         }
     }
 
@@ -266,12 +257,12 @@ namespace Scribble
             currentBrush.textureName = texName;
 
             // update Brush list object
-            auto foundBrush = Brushes::GetBrush(currentBrush.name);
-            if (foundBrush)
-                (*foundBrush).get().textureName = texName;
+            //auto foundBrush = Brushes::GetBrush(currentBrush.name);
+            //if (foundBrush)
+            //    (*foundBrush).get().textureName = texName;
 
-            Brushes::Save();
-            ReloadBrushList();
+            //Brushes::Save();
+            //ReloadBrushList();
         }
     }
 
@@ -284,18 +275,18 @@ namespace Scribble
             std::string effectName = Effects::GetEffectName(idx);
             currentBrush.effectName = effectName;
 
-            auto foundBrush = Brushes::GetBrush(currentBrush.name);
-            if (foundBrush)
-                (*foundBrush).get().effectName = effectName;
+            //auto foundBrush = Brushes::GetBrush(currentBrush.name);
+            //if (foundBrush)
+            //    (*foundBrush).get().effectName = effectName;
 
-            Brushes::Save();
-            ReloadBrushList();
+            //Brushes::Save();
+            //ReloadBrushList();
         }
     }
 
     void ScribbleViewController::SelectPicker()
     {
-        if (colorPickerModal) colorPickerModal->Show(true, true, nullptr);
+        if (colorPickerModal) colorPickerModal->Show();
     }
 
     void ScribbleViewController::PickerSelectedColor(Color color)

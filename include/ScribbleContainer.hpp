@@ -16,6 +16,10 @@
 DECLARE_CLASS_CODEGEN(Scribble, LinerendererData, Il2CppObject,
     DECLARE_INSTANCE_FIELD(Scribble::LineRenderer*, lineRenderer);
     CustomBrush brush;
+
+    std::vector<unsigned char> Serialize();
+    static LinerendererData* Deserialize(std::vector<unsigned char> data);
+    
     static LinerendererData* Create(Scribble::LineRenderer* linerenderer, const CustomBrush& brush);
 )
 

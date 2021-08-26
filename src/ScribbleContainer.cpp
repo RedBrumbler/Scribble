@@ -123,19 +123,25 @@ namespace Scribble
     {
         int length = lineRenderers->get_Count();
         float sizeSqr = size * size;
-        for (int index = 0; index < length; index++)
+        // cache what to delete
+        std::vector<LinerendererData*> toDelete = {};
+        for (int i = 0; i < length; i++)
         {
-            auto lineRendererData = lineRenderers->items->values[index];
+            auto lineRendererData = lineRenderers->items->values[i];
             auto positions = lineRendererData->lineRenderer->GetPositions();
             for (auto& point : positions)
             {
-                if (point.sqrDistance(position) < sizeSqr)
+                float dist = point.sqrDistance(position);
+                if (dist < sizeSqr)
                 {
-                    Delete(lineRendererData);
+                    toDelete.push_back(lineRendererData);
                     break;
                 }
             }
         }
+
+        // delete them
+        for (auto l : toDelete) Delete(l);
     }
 
     void ScribbleContainer::Clear()
@@ -166,6 +172,7 @@ namespace Scribble
 
     void ScribbleContainer::Delete(LinerendererData* data)
     {
+        INFO("Deleting data");
         auto lr = data->lineRenderer;
         auto b = lineRenderers->Remove(data);
         Object::Destroy(lr);
@@ -190,12 +197,14 @@ namespace Scribble
 
     void ScribbleContainer::CheckLine(GlobalNamespace::SaberType saberType)
     {
-        INFO("check line");
         auto lineRenderer = saberType == GlobalNamespace::SaberType::SaberA ? currentLineRendererLeft : currentLineRendererRight;
         if (!lineRenderer) return;
-        INFO("get posCount");
-        if (lineRenderer->get_positionCount() <= minPositionCount)
-            Undo();
+
+        for (int i = 0; i < lineRenderers->get_Count(); i++)
+        {
+            auto data = lineRenderers->items->values[i];
+            if (data->lineRenderer == lineRenderer && lineRenderer->get_positionCount() <= minPositionCount) Delete(data);
+        }
     }
 
     LinerendererData* LinerendererData::Create(Scribble::LineRenderer* linerenderer, const CustomBrush& brush)
