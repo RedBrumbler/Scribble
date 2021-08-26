@@ -113,78 +113,65 @@ namespace Scribble
                     
                     //<modal id='save-dialog' hide-event='save-dialog-hide' move-to-center="true" click-off-closes="true" size-delta-x="70" size-delta-y="80">
                     saveModal = BeatSaberUI::CreateModal(horizontal->get_transform(), Vector2(80, 80), nullptr, true);
-                    //  <vertical spacing="8" pad="5">
-                    auto saveHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(saveModal->get_transform());
-                    saveHorizontal->set_childForceExpandWidth(false);
-                    saveHorizontal->set_childForceExpandHeight(true);
+                        //  <vertical spacing="8" pad="5">
+                        auto saveHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(saveModal->get_transform());
+                        saveHorizontal->set_childForceExpandWidth(false);
+                        saveHorizontal->set_childForceExpandHeight(true);
 
-                    saveFileList = BeatSaberUI::CreateScrollableList(saveHorizontal->get_transform(), Vector2(30, 76));
-                    saveFileList->set_listStyle(QuestUI::CustomListTableData::ListStyle::Box);
-                    saveFileList->cellSize = 30.0f;
-                    //    </vertical>
+                            saveFileList = BeatSaberUI::CreateScrollableList(saveHorizontal->get_transform(), Vector2(30, 76), std::bind(&ScribbleViewController::SaveSelectIdx, this, std::placeholders::_1));
+                            saveFileList->set_listStyle(QuestUI::CustomListTableData::ListStyle::Box);
+                            saveFileList->cellSize = 30.0f;
 
-                    //    <vertical  bg='round-rect-panel' bg-color='#00000000' preferred-height='180'>
-                    auto saveInfoVertical = BeatSaberUI::CreateVerticalLayoutGroup(saveHorizontal->get_transform());
-                    saveInfoVertical->get_gameObject()->AddComponent<QuestUI::Backgroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.2f);
-                    saveInfoVertical->set_padding(UnityEngine::RectOffset::New_ctor(0, 0, 20, 20));
-                    saveInfoVertical->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredHeight(40);
-                    saveInfoVertical->set_childForceExpandHeight(false);
-                    //      <horizontal preferred-width='60'>
-                    // we dont need no scroll buttons cause we use a scrollable list
-                    //        <page-button event-click='save-file-list#PageUp' direction='Up' />
-                    //        <page-button event-click='save-file-list#PageDown' direction='Down' />
-                    //      </horizontal>
-                    //      <string-setting id='new-file-string' text='Name' value='save-file-name' on-change='save-file-name-changed' preferred-width='10' apply-on-change='true'></string-setting>
-                    auto saveFileNameHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(saveInfoVertical->get_transform());
-                    saveFileNameHorizontal->set_childForceExpandHeight(false);
-                    fileNameField = BeatSaberUI::CreateStringSetting(saveFileNameHorizontal->get_transform(), "filename", "", std::bind(&ScribbleViewController::SaveFilenameChanged, this, std::placeholders::_1) );
-                    auto nameFieldLayout = fileNameField->GetComponent<LayoutElement*>();
-                    nameFieldLayout->set_preferredWidth(30);
-                    auto saveConfirmHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(saveInfoVertical->get_transform());
-                    saveConfirmHorizontal->set_childForceExpandHeight(false);
-                    auto saveClose = BeatSaberUI::CreateUIButton(saveConfirmHorizontal->get_transform(), "Close", [&](){ 
-                        saveModal->Hide(true, nullptr);
-                        saveFileName = "";
-                        fileNameField->set_text(Il2CppString::_get_Empty());
-                        ReloadFileLists();
-                    });
-                    auto saveNew = BeatSaberUI::CreateUIButton(saveConfirmHorizontal->get_transform(), "Save", [&](){ 
-                        ScribbleContainer::get_instance()->Save(string_format("%s/%s.png", drawingPath, saveFileName.c_str()));
-                    });
-                    //      <horizontal>
-                    //        <button text='Close' click-event='save-dialog-hide'/>
-                    //        <button text='New' on-click='save-new'/>
-                    //      </horizontal>
-                    //    </vertical>
-                    //  </vertical>
-                    //</modal>
+                            auto saveInfoVertical = BeatSaberUI::CreateVerticalLayoutGroup(saveHorizontal->get_transform());
+                            saveInfoVertical->get_gameObject()->AddComponent<QuestUI::Backgroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.2f);
+                            saveInfoVertical->set_padding(UnityEngine::RectOffset::New_ctor(0, 0, 20, 20));
+                            saveInfoVertical->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredHeight(40);
+                            saveInfoVertical->set_childForceExpandHeight(false);
+                                auto saveFileNameHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(saveInfoVertical->get_transform());
+                                saveFileNameHorizontal->set_childForceExpandHeight(false);
+                                
+                                fileNameField = BeatSaberUI::CreateStringSetting(saveFileNameHorizontal->get_transform(), "filename", "", std::bind(&ScribbleViewController::SaveFilenameChanged, this, std::placeholders::_1) );
+                                auto nameFieldLayout = fileNameField->GetComponent<LayoutElement*>();
+                                nameFieldLayout->set_preferredWidth(30);
+
+                                auto saveConfirmHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(saveInfoVertical->get_transform());
+                                saveConfirmHorizontal->set_childForceExpandHeight(false);
+                                auto saveClose = BeatSaberUI::CreateUIButton(saveConfirmHorizontal->get_transform(), "Close", [&](){ 
+                                    saveModal->Hide(true, nullptr);
+                                    saveFileName = "";
+                                    fileNameField->set_text(Il2CppString::_get_Empty());
+                                    ReloadFileLists();
+                                });
+                                auto saveNew = BeatSaberUI::CreateUIButton(saveConfirmHorizontal->get_transform(), "Save", [&](){ 
+                                    ScribbleContainer::get_instance()->Save(string_format("%s/%s.png", drawingPath, saveFileName.c_str()));
+                                });
 
                     loadModal = BeatSaberUI::CreateModal(horizontal->get_transform(), Vector2(80, 80), nullptr, true);
-                    auto loadHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(loadModal->get_transform());
-                    loadHorizontal->set_childForceExpandWidth(false);
-                    loadHorizontal->set_childForceExpandHeight(true);
+                        auto loadHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(loadModal->get_transform());
+                        loadHorizontal->set_childForceExpandWidth(false);
+                        loadHorizontal->set_childForceExpandHeight(true);
 
-                    loadFileList = BeatSaberUI::CreateScrollableList(loadHorizontal->get_transform(), Vector2(30, 76));
-                    loadFileList->set_listStyle(QuestUI::CustomListTableData::ListStyle::Box);
-                    loadFileList->cellSize = 30.0f;
+                        loadFileList = BeatSaberUI::CreateScrollableList(loadHorizontal->get_transform(), Vector2(30, 76));
+                        loadFileList->set_listStyle(QuestUI::CustomListTableData::ListStyle::Box);
+                        loadFileList->cellSize = 30.0f;
 
-                    auto loadInfoVertical = BeatSaberUI::CreateVerticalLayoutGroup(loadHorizontal->get_transform());
-                    loadInfoVertical->get_gameObject()->AddComponent<QuestUI::Backgroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.2f); 
-                    loadInfoVertical->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredHeight(40);
-                    loadInfoVertical->set_childForceExpandHeight(false);
+                            auto loadInfoVertical = BeatSaberUI::CreateVerticalLayoutGroup(loadHorizontal->get_transform());
+                            loadInfoVertical->get_gameObject()->AddComponent<QuestUI::Backgroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.2f); 
+                            loadInfoVertical->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredHeight(40);
+                            loadInfoVertical->set_childForceExpandHeight(false);
+                            loadInfoVertical->set_padding(UnityEngine::RectOffset::New_ctor(0, 0, 20, 20));
 
-                    auto loadConfirmHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(loadInfoVertical->get_transform());
-                    auto loadClose = BeatSaberUI::CreateUIButton(loadConfirmHorizontal->get_transform(), "Close", [&](){ loadModal->Hide(true, nullptr); });
-                    auto loadLoad = BeatSaberUI::CreateUIButton(loadConfirmHorizontal->get_transform(), "Load", [&](){ 
-                        if (reinterpret_cast<System::Collections::ICollection*>(loadFileList->tableView->selectedCellIdxs)->get_Count() <= 0) return;
-                        auto enumerator = loadFileList->tableView->selectedCellIdxs->GetEnumerator();
-                        INFO("Initial value: %d", enumerator.current);
-                        if (!enumerator.MoveNext()) return;
-                        //loadFileList->tableView->selectedCellIdxs->items->values[0];
-                        ScribbleContainer::get_instance()->Load(string_format("%s/%s.png", drawingPath, loadFileList->data[enumerator.current].text.c_str()));
-                    });
+                            auto loadClose = BeatSaberUI::CreateUIButton(loadInfoVertical->get_transform(), "Close", [&](){ loadModal->Hide(true, nullptr); });
+                            auto loadLoad = BeatSaberUI::CreateUIButton(loadInfoVertical->get_transform(), "Load", [&](){ 
+                                if (reinterpret_cast<System::Collections::ICollection*>(loadFileList->tableView->selectedCellIdxs)->get_Count() <= 0) return;
+                                auto enumerator = loadFileList->tableView->selectedCellIdxs->GetEnumerator();
+                                INFO("Initial value: %d", enumerator.current);
+                                if (!enumerator.MoveNext()) return;
+                                //loadFileList->tableView->selectedCellIdxs->items->values[0];
+                                ScribbleContainer::get_instance()->Load(string_format("%s/%s.png", drawingPath, loadFileList->data[enumerator.current].text.c_str()));
+                            });
 
-                    ReloadFileLists();
+                        ReloadFileLists();
                     //<modal id='load-dialog' hide-event='load-dialog-hide' move-to-center="true" click-off-closes="true" size-delta-x="70" size-delta-y="70">
                     //  <vertical spacing="10" pad="5">
                     //    <vertical spacing='5'>
@@ -265,7 +252,7 @@ namespace Scribble
             SetModalPosition(loadModal);
             SetModalPosition(colorPickerModal->modalView);
 
-            SelectForBrush(GlobalBrushManager::get_activeBrush()->currentBrush);
+            ActiveControllerChanged(GlobalBrushManager::get_activeBrush());
         }
         
         GlobalBrushManager::OnActiveBrushChanged() += {&ScribbleViewController::ActiveControllerChanged, this};

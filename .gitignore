@@ -61,7 +61,7 @@ src/utils.cpp.txt
 include/utils.hpp.txt
 qpm.lock.json
 .vscode/Qosmetics.code-workspace
-
+*.xcf
 OriginalSource
 addr2line.bat
 *.psd
