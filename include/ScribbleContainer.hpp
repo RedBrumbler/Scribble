@@ -12,13 +12,15 @@
 #include "CustomBrush.hpp"
 #include "CustomTypes/LineRenderer.hpp"
 #include <vector>
+#include <string_view>
+#include <fstream>
 
 DECLARE_CLASS_CODEGEN(Scribble, LinerendererData, Il2CppObject,
     DECLARE_INSTANCE_FIELD(Scribble::LineRenderer*, lineRenderer);
     CustomBrush brush;
 
-    std::vector<unsigned char> Serialize();
-    static LinerendererData* Deserialize(std::vector<unsigned char> data);
+    void Serialize(std::ofstream& writer);
+    static void Deserialize(std::ifstream& reader);
     
     static LinerendererData* Create(Scribble::LineRenderer* linerenderer, const CustomBrush& brush);
 )
@@ -58,6 +60,9 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleContainer, UnityEngine::MonoBehaviour,
         void SetLayer(int layer);
         void Show();
         void Hide();
+        
+        void Save(std::string_view path, bool clear = false);
+        void Load(std::string_view path, bool clear = true);
 
         void CheckLine(GlobalNamespace::SaberType saberType);
     private:

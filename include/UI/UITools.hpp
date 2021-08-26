@@ -37,4 +37,6 @@ namespace UITools
     {
         return GetChild(go, path)->GetComponent<T>();
     }
+
+    void SetSkewForChildren(UnityEngine::GameObject* root, float skew);
 }

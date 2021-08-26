@@ -11,6 +11,7 @@
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "TMPro/TMP_FontAsset.hpp"
 #include "VRUIControls/VRGraphicRaycaster.hpp"
+#include "HMUI/ImageView.hpp"
 
 #include <string_view>
 
@@ -97,5 +98,16 @@ namespace UITools
     UnityEngine::GameObject* GetChild(UnityEngine::GameObject* go, std::string_view path)
     {
         return go->get_transform()->Find(il2cpp_utils::newcsstr(path))->get_gameObject();
+    }
+
+    void SetSkewForChildren(UnityEngine::GameObject* root, float skew)
+    {
+        auto imageViews = root->GetComponentsInChildren<HMUI::ImageView*>(true);
+        int length = imageViews->Length();
+        for (int i = 0; i < length; i++)
+        {
+            imageViews->values[i]->skew = skew;
+        }
+
     }
 }

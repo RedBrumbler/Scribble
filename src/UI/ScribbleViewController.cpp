@@ -17,6 +17,13 @@
 #include "HMUI/TableView_ScrollPositionType.hpp"
 #include "questui/shared/BeatSaberUI.hpp"
 #include "questui/shared/CustomTypes/Components/List/QuestUITableView.hpp"
+#include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
+#include "static-defines.hpp"
+
+#include "System/Collections/Generic/HashSet_1.hpp"
+
+#include "Utils/FileUtils.hpp"
+#include "Utils/ThumbnailHelper.hpp"
 
 DEFINE_TYPE(Scribble, ScribbleViewController);
 
@@ -87,17 +94,12 @@ namespace Scribble
                             auto img = UITools::CreateImage(pickerButton->get_transform(), {0, 0}, {12, 12});
                             img->set_material(material);
                             img->set_sprite(sprite);
-                            //BeatSaberUI::SetButtonSprites(pickerButton, sprite, sprite);
 
                             std::string eraserPath = "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/eraser.png";
                             sprite = BeatSaberUI::FileToSprite(eraserPath);
                             eraserImage = UITools::CreateImage(eraserButton->get_transform(), {0, 0}, {12, 12});
                             eraserImage->set_material(material);
                             eraserImage->set_sprite(sprite);
-                            //BeatSaberUI::SetButtonSprites(eraserButton, sprite, sprite);
-
-                            //reinterpret_cast<RectTransform*>(pickerButton->get_transform()->GetChild(0))->set_sizeDelta({12, 12});
-                            //reinterpret_cast<RectTransform*>(eraserButton->get_transform()->GetChild(0))->set_sizeDelta({12, 12});
 
                             //<button-with-icon id="eraser-btn" stroke-type="Clean" preferred-width="12" preferred-height="12" on-click="selectEraseMode" hover-hint="Eraser" />
                         }
@@ -110,32 +112,45 @@ namespace Scribble
                     colorPickerModal = BeatSaberUI::CreateColorPickerModal(get_transform(), "", color, std::bind(&ScribbleViewController::PickerSelectedColor, this, std::placeholders::_1));
                     
                     //<modal id='save-dialog' hide-event='save-dialog-hide' move-to-center="true" click-off-closes="true" size-delta-x="70" size-delta-y="80">
-                    saveModal = BeatSaberUI::CreateModal(horizontal->get_transform(), Vector2(70, 80), nullptr, true);
+                    saveModal = BeatSaberUI::CreateModal(horizontal->get_transform(), Vector2(80, 80), nullptr, true);
                     //  <vertical spacing="8" pad="5">
-                    auto saveVertical = BeatSaberUI::CreateVerticalLayoutGroup(saveModal->get_transform());
-                    saveVertical->set_padding(UnityEngine::RectOffset::New_ctor(5, 5, 5, 5));
-                    saveVertical->set_spacing(8);
+                    auto saveHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(saveModal->get_transform());
+                    saveHorizontal->set_childForceExpandWidth(false);
+                    saveHorizontal->set_childForceExpandHeight(true);
 
-                    //    <vertical spacing='5'>
-                    auto saveFileVertical = BeatSaberUI::CreateVerticalLayoutGroup(saveVertical->get_transform());
-                    saveFileVertical->set_spacing(5);
-                    //      <list id='save-file-list' expand-cell='true' select-cell='file-save-selected' list-style='Box' />
-                    saveFileList = BeatSaberUI::CreateScrollableList(saveFileVertical->get_transform(), Vector2(35, 60));
-                    saveFileList->set_listStyle(QuestUI::CustomListTableData::ListStyle::Simple);
-                    saveFileList->cellSize = 5.5f;
+                    saveFileList = BeatSaberUI::CreateScrollableList(saveHorizontal->get_transform(), Vector2(30, 76));
+                    saveFileList->set_listStyle(QuestUI::CustomListTableData::ListStyle::Box);
+                    saveFileList->cellSize = 30.0f;
                     //    </vertical>
 
                     //    <vertical  bg='round-rect-panel' bg-color='#00000000' preferred-height='180'>
-                    auto infoVertical = BeatSaberUI::CreateVerticalLayoutGroup(saveVertical->get_transform());
-                    infoVertical->get_gameObject()->AddComponent<QuestUI::BackGroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.2f); 
-                    infoVertical->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredHeight(180);
+                    auto saveInfoVertical = BeatSaberUI::CreateVerticalLayoutGroup(saveHorizontal->get_transform());
+                    saveInfoVertical->get_gameObject()->AddComponent<QuestUI::Backgroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.2f);
+                    saveInfoVertical->set_padding(UnityEngine::RectOffset::New_ctor(0, 0, 20, 20));
+                    saveInfoVertical->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredHeight(40);
+                    saveInfoVertical->set_childForceExpandHeight(false);
                     //      <horizontal preferred-width='60'>
-
+                    // we dont need no scroll buttons cause we use a scrollable list
                     //        <page-button event-click='save-file-list#PageUp' direction='Up' />
                     //        <page-button event-click='save-file-list#PageDown' direction='Down' />
                     //      </horizontal>
-                    
                     //      <string-setting id='new-file-string' text='Name' value='save-file-name' on-change='save-file-name-changed' preferred-width='10' apply-on-change='true'></string-setting>
+                    auto saveFileNameHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(saveInfoVertical->get_transform());
+                    saveFileNameHorizontal->set_childForceExpandHeight(false);
+                    fileNameField = BeatSaberUI::CreateStringSetting(saveFileNameHorizontal->get_transform(), "filename", "", std::bind(&ScribbleViewController::SaveFilenameChanged, this, std::placeholders::_1) );
+                    auto nameFieldLayout = fileNameField->GetComponent<LayoutElement*>();
+                    nameFieldLayout->set_preferredWidth(30);
+                    auto saveConfirmHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(saveInfoVertical->get_transform());
+                    saveConfirmHorizontal->set_childForceExpandHeight(false);
+                    auto saveClose = BeatSaberUI::CreateUIButton(saveConfirmHorizontal->get_transform(), "Close", [&](){ 
+                        saveModal->Hide(true, nullptr);
+                        saveFileName = "";
+                        fileNameField->set_text(Il2CppString::_get_Empty());
+                        ReloadFileLists();
+                    });
+                    auto saveNew = BeatSaberUI::CreateUIButton(saveConfirmHorizontal->get_transform(), "Save", [&](){ 
+                        ScribbleContainer::get_instance()->Save(string_format("%s/%s.png", drawingPath, saveFileName.c_str()));
+                    });
                     //      <horizontal>
                     //        <button text='Close' click-event='save-dialog-hide'/>
                     //        <button text='New' on-click='save-new'/>
@@ -144,6 +159,32 @@ namespace Scribble
                     //  </vertical>
                     //</modal>
 
+                    loadModal = BeatSaberUI::CreateModal(horizontal->get_transform(), Vector2(80, 80), nullptr, true);
+                    auto loadHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(loadModal->get_transform());
+                    loadHorizontal->set_childForceExpandWidth(false);
+                    loadHorizontal->set_childForceExpandHeight(true);
+
+                    loadFileList = BeatSaberUI::CreateScrollableList(loadHorizontal->get_transform(), Vector2(30, 76));
+                    loadFileList->set_listStyle(QuestUI::CustomListTableData::ListStyle::Box);
+                    loadFileList->cellSize = 30.0f;
+
+                    auto loadInfoVertical = BeatSaberUI::CreateVerticalLayoutGroup(loadHorizontal->get_transform());
+                    loadInfoVertical->get_gameObject()->AddComponent<QuestUI::Backgroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.2f); 
+                    loadInfoVertical->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredHeight(40);
+                    loadInfoVertical->set_childForceExpandHeight(false);
+
+                    auto loadConfirmHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(loadInfoVertical->get_transform());
+                    auto loadClose = BeatSaberUI::CreateUIButton(loadConfirmHorizontal->get_transform(), "Close", [&](){ loadModal->Hide(true, nullptr); });
+                    auto loadLoad = BeatSaberUI::CreateUIButton(loadConfirmHorizontal->get_transform(), "Load", [&](){ 
+                        if (reinterpret_cast<System::Collections::ICollection*>(loadFileList->tableView->selectedCellIdxs)->get_Count() <= 0) return;
+                        auto enumerator = loadFileList->tableView->selectedCellIdxs->GetEnumerator();
+                        INFO("Initial value: %d", enumerator.current);
+                        if (!enumerator.MoveNext()) return;
+                        //loadFileList->tableView->selectedCellIdxs->items->values[0];
+                        ScribbleContainer::get_instance()->Load(string_format("%s/%s.png", drawingPath, loadFileList->data[enumerator.current].text.c_str()));
+                    });
+
+                    ReloadFileLists();
                     //<modal id='load-dialog' hide-event='load-dialog-hide' move-to-center="true" click-off-closes="true" size-delta-x="70" size-delta-y="70">
                     //  <vertical spacing="10" pad="5">
                     //    <vertical spacing='5'>
@@ -207,11 +248,38 @@ namespace Scribble
                         auto brush = GlobalBrushManager::get_activeBrush();
                         if (brush) brush->currentBrush.glow = glow;
                     });
+
+                    //    <slider-setting id='GlowSlider' text='Glow Amount' min='0' max='1' increment='0.05' integer-only='false' apply-on-change='true' value='Glow' />
+                    if (brush) tile = brush->currentBrush.tiling.x;
+                    tileSlider = BeatSaberUI::CreateSliderSetting(bottomVertical->get_transform(), "Tiling", 0.1f, tile, 0.0f, 20.0f, [&](float val){
+                        tile = val;
+                        auto brush = GlobalBrushManager::get_activeBrush();
+                        if (brush) brush->currentBrush.tiling.x = tile;
+                    });
                 }
                 //</vertical>
             }
             //</vertical>
+            
+            SetModalPosition(saveModal);
+            SetModalPosition(loadModal);
+            SetModalPosition(colorPickerModal->modalView);
+
+            SelectForBrush(GlobalBrushManager::get_activeBrush()->currentBrush);
         }
+        
+        GlobalBrushManager::OnActiveBrushChanged() += {&ScribbleViewController::ActiveControllerChanged, this};
+    }
+
+    void ScribbleViewController::SetModalPosition(HMUI::ModalView* modal)
+    {
+        modal->get_transform()->set_localPosition(Vector3(0, 0, -20));
+        modal->get_transform()->set_localRotation(Quaternion::Euler(-20, 0, 0));
+    }
+
+    void ScribbleViewController::DidDeactivate(bool, bool)
+    {
+        GlobalBrushManager::OnActiveBrushChanged() -= {&ScribbleViewController::ActiveControllerChanged, this};
     }
 
     void ScribbleViewController::ReloadTextureList()
@@ -279,6 +347,36 @@ namespace Scribble
         brushList->tableView->ScrollToCellWithIdx(row, HMUI::TableView::ScrollPositionType::Beginning, false);
         INFO("end");
     }
+    
+    void ScribbleViewController::SelectForBrush(const CustomBrush& brush)
+    {
+
+        int idx = 0;
+        for (auto t : textureList->data)
+        {
+            if (t.text == brush.textureName) break; 
+            idx++;
+        }
+
+        textureList->tableView->ScrollToCellWithIdx(idx, HMUI::TableView::ScrollPositionType::Beginning, true);
+        textureList->tableView->SelectCellWithIdx(idx, false);
+
+        idx = 0;
+        for (auto t : effectList->data)
+        {
+            if (t.text == brush.effectName) break; 
+            idx++;
+        }
+
+        effectList->tableView->ScrollToCellWithIdx(idx, HMUI::TableView::ScrollPositionType::Beginning, true);
+        effectList->tableView->SelectCellWithIdx(idx, false);
+
+        glowSlider->set_value(brush.glow);
+        sizeSlider->set_value(brush.size);
+        tileSlider->set_value(brush.tiling.x);
+        colorPickerModal->set_color(brush.color);
+
+    }
 
     void ScribbleViewController::SelectBrush(int idx)
     {
@@ -287,10 +385,14 @@ namespace Scribble
         {
             auto& newBrush = Brushes::brushes[idx];
             brush->currentBrush = newBrush;
-            glowSlider->set_value(newBrush.glow);
-            sizeSlider->set_value(newBrush.size);
-            colorPickerModal->set_color(newBrush.color);
+            
+            SelectForBrush(newBrush);
         }
+    }
+
+    void ScribbleViewController::ActiveControllerChanged(BrushBehaviour* newBrush)
+    {
+        SelectForBrush(newBrush->currentBrush);
     }
 
     void ScribbleViewController::SelectTexture(int idx)
@@ -302,14 +404,6 @@ namespace Scribble
             std::string texName = BrushTextures::GetTextureName(idx);
             auto& currentBrush = brush->currentBrush;
             currentBrush.textureName = texName;
-
-            // update Brush list object
-            //auto foundBrush = Brushes::GetBrush(currentBrush.name);
-            //if (foundBrush)
-            //    (*foundBrush).get().textureName = texName;
-
-            //Brushes::Save();
-            //ReloadBrushList();
         }
     }
 
@@ -321,13 +415,6 @@ namespace Scribble
             auto& currentBrush = brush->currentBrush;
             std::string effectName = Effects::GetEffectName(idx);
             currentBrush.effectName = effectName;
-
-            //auto foundBrush = Brushes::GetBrush(currentBrush.name);
-            //if (foundBrush)
-            //    (*foundBrush).get().effectName = effectName;
-
-            //Brushes::Save();
-            //ReloadBrushList();
         }
     }
 
@@ -363,5 +450,51 @@ namespace Scribble
     void ScribbleViewController::ShowLoadFile()
     {
         if (loadModal) loadModal->Show(true, true, nullptr);
+    }
+
+    void ScribbleViewController::SaveFilenameChanged(std::string val)
+    {
+        saveFileName = val;
+    }
+
+    void ScribbleViewController::ReloadFileLists()
+    {
+        std::vector<std::string> fileNames = {};
+        FileUtils::GetFilesInFolderPath("png", drawingPath, fileNames);
+
+        for (auto& f : fileNames)
+        {
+            std::string name = FileUtils::GetFileName(f, true);
+            
+            bool addSave = std::find_if(saveFileList->data.begin(), saveFileList->data.end(), [&](const auto& x) { return x.text == name; }) == saveFileList->data.end();
+            bool addLoad = std::find_if(loadFileList->data.begin(), loadFileList->data.end(), [&](const auto& x) { return x.text == name; }) == loadFileList->data.end();
+            
+            if (addSave || addLoad)
+            {
+                std::ifstream reader(string_format("%s/%s", drawingPath, f.c_str()), std::ios::in | std::ios::binary);
+                long size;
+                UnityEngine::Texture2D* texture = nullptr;
+                
+                if (ThumbnailHelper::CheckPngData(reader, size, false)) // if success
+                {
+                    INFO("Reading texture from ifstream");
+                    texture = ThumbnailHelper::ReadPNG(reader, size);
+                }
+
+                auto sprite = texture ? Sprite::Create(texture, UnityEngine::Rect(0.0f, 0.0f, (float)texture->get_width(), (float)texture->get_height()), UnityEngine::Vector2(0.5f,0.5f), 1024.0f, 1u, UnityEngine::SpriteMeshType::FullRect, UnityEngine::Vector4(0.0f, 0.0f, 0.0f, 0.0f), false) : nullptr;
+                if (addSave)
+                    saveFileList->data.emplace_back(name, sprite);
+                if (addLoad)
+                    loadFileList->data.emplace_back(name, sprite);
+            }
+        }
+
+        saveFileList->tableView->ReloadData();
+        loadFileList->tableView->ReloadData();
+    }
+
+    void ScribbleViewController::SaveSelectIdx(int idx)
+    {
+        fileNameField->set_text(il2cpp_utils::newcsstr(saveFileList->data[idx].text));
     }
 }

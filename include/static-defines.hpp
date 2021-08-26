@@ -2,6 +2,7 @@
 
 #define DATAPATH "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/"
 
+constexpr const int imageVersion = 1;
 constexpr const char* brushTexturePath = DATAPATH "BrushTextures";
 constexpr const char* assetPath = DATAPATH "scribbleassets";
 constexpr const char* brushSavePath = DATAPATH "brushes.json";

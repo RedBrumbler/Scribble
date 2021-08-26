@@ -1,6 +1,7 @@
 #include "hooks.hpp"
 #include "logging.hpp"
 #include "config.hpp"
+#include "static-defines.hpp"
 
 #include "custom-types/shared/register.hpp"
 #include "questui/shared/QuestUI.hpp"
@@ -153,6 +154,8 @@ extern "C" void load()
 {
     QuestUI::Init();
     if (!LoadConfig()) SaveConfig();
+    if (!direxists(brushTexturePath)) mkpath(brushTexturePath);
+    if (!direxists(drawingPath)) mkpath(drawingPath);
     Brushes::Load();
     Hooks::InstallHooks(::Scribble::Logging::getLogger());
     custom_types::Register::AutoRegister();

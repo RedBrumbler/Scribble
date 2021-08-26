@@ -1,5 +1,6 @@
 #include "CustomBrush.hpp"
 #include "Effects.hpp"
+#include "logging.hpp"
 
 using namespace UnityEngine;
 namespace Scribble
@@ -46,7 +47,9 @@ namespace Scribble
 
     Material* CustomBrush::CreateMaterial(const CustomBrush& brush)
     {
+        INFO("Looking for effect: %s", brush.effectName.c_str());
         auto effect = Effects::GetEffect(brush.effectName);
+        if (!effect) return nullptr;
         auto mat = effect->CreateMaterial(brush);
         return mat;
     }
@@ -95,7 +98,6 @@ namespace Scribble
     void CustomBrush::Serialize(std::ofstream& writer)
     {
         int nameSize = name.size();
-
         writer.write(reinterpret_cast<const char*>(&nameSize), sizeof(int));
         writer.write(name.c_str(), name.size());
 
@@ -116,26 +118,27 @@ namespace Scribble
         writer.write(reinterpret_cast<const char*>(&tiling), sizeof(Sombrero::FastVector2));
     }
 
+    std::string ReadNextString(std::ifstream& reader)
+    {
+        int nameSize;
+        reader.read(reinterpret_cast<char*>(&nameSize), sizeof(int));
+        std::vector<char> name(nameSize);
+
+        reader.read(name.data(), nameSize);
+        return std::string(name.data(), nameSize);
+    }
+
     CustomBrush CustomBrush::Deserialize(std::ifstream& reader)
     {
         CustomBrush result;
-        int nameSize;
-        char* name;
 
-        reader.read(reinterpret_cast<char*>(&nameSize), sizeof(int));
-        reader.read(name, nameSize);
-        result.name = std::string(name, nameSize);
+        result.name = ReadNextString(reader);
 
         reader.read(reinterpret_cast<char*>(&result.index), sizeof(int));
         reader.read(reinterpret_cast<char*>(&result.color), sizeof(Sombrero::FastColor));
 
-        reader.read(reinterpret_cast<char*>(&nameSize), sizeof(int));
-        reader.read(name, nameSize);
-        result.textureName = std::string(name, nameSize);
-
-        reader.read(reinterpret_cast<char*>(&nameSize), sizeof(int));
-        reader.read(name, nameSize);
-        result.effectName = std::string(name, nameSize);
+        result.textureName = ReadNextString(reader);
+        result.effectName = ReadNextString(reader);
         
         reader.read(reinterpret_cast<char*>(&result.size), sizeof(int));
         reader.read(reinterpret_cast<char*>(&result.glow), sizeof(float));

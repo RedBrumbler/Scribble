@@ -23,6 +23,7 @@ void SaveConfig()
 
     doc.AddMember("visibleDuringPlay", config.visibleDuringPlay, allocator);
     doc.AddMember("drawingEnabled", config.drawingEnabled, allocator);
+    doc.AddMember("thumbnailSize", config.thumbnailSize, allocator);
 
     get_config().Write();
     INFO("Saved Configuration!");
@@ -45,6 +46,13 @@ bool LoadConfig()
     auto drawingEnabled_itr = doc.FindMember("drawingEnabled");
     if (drawingEnabled_itr != doc.MemberEnd()) {
         config.drawingEnabled = drawingEnabled_itr->value.GetBool();
+    } else {
+        foundEverything = false;
+    }
+
+    auto thumbnailSize_itr = doc.FindMember("thumbnailSize");
+    if (thumbnailSize_itr != doc.MemberEnd()) {
+        config.thumbnailSize = thumbnailSize_itr->value.GetInt();
     } else {
         foundEverything = false;
     }
