@@ -62,15 +62,15 @@ namespace Scribble::BrushTextures
         return to_utf8(csstrtostr(textures->entries->values[idx].key));
     }
 
-    const std::map<std::string, UnityEngine::Texture2D*> GetTextures()
+    const std::vector<std::pair<std::string, UnityEngine::Texture2D*>> GetTextures()
     {
-        std::map<std::string, UnityEngine::Texture2D*> tex;
+        std::vector<std::pair<std::string, UnityEngine::Texture2D*>> tex;
 
         int count = textures->get_Count();
         for (int i = 0; i < count; i++)
         {
             std::string key = to_utf8(csstrtostr(textures->entries->values[i].key));
-            tex[key] = textures->entries->values[i].value;
+            tex.emplace_back(key, textures->entries->values[i].value);
         }
         return tex;
     }

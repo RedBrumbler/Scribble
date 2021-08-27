@@ -50,10 +50,11 @@ namespace Scribble
             rapidjson::Value ToJson(rapidjson::Document::AllocatorType& allocator) const;
             static rapidjson::Value ToJson(const CustomBrush& brush, rapidjson::Document::AllocatorType& allocator);
 
-            // this method is const I promise
-            void copy(const CustomBrush& brush) const;
+            void copy(const CustomBrush& brush);
 
             void Serialize(std::ofstream& writer);
             static CustomBrush Deserialize(std::ifstream& reader);
+
+            bool operator==(const CustomBrush& rhs);
     };
 }

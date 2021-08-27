@@ -3,11 +3,14 @@
 #include "config.hpp"
 
 #include "UnityEngine/Object.hpp"
+#include "UnityEngine/Resources.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/Shader.hpp"
 
+#include "GlobalNamespace/MainEffectContainerSO.hpp"
 #include "GlobalNamespace/BeatmapObjectSpawnController.hpp"
+#include "GlobalNamespace/BoolSO.hpp"
 #include "static-defines.hpp"
 
 #include "Utils/ThumbnailHelper.hpp"
@@ -24,10 +27,22 @@ namespace Scribble
     void ScribbleContainer::Start()
     {
         instance = this;
+        drawingEnabled = config.drawingEnabled;
         lineRenderers = List<LinerendererData*>::New_ctor();
         INFO("Scribble Container Initialized");
 
         SetBPM(60);
+        
+        // turn on / off glow capability in scribble
+        auto effectContainers = Resources::FindObjectsOfTypeAll<GlobalNamespace::MainEffectContainerSO*>();
+        if (effectContainers && effectContainers->Length() > 0)
+        {
+            INFO("Found Effect Container");
+            auto container = effectContainers->values[0];
+            SetRealGlow(container->postProcessEnabled->get_value() && config.useRealGlow);
+        }
+        else
+            SetRealGlow(config.useRealGlow);
     }
 
     ScribbleContainer* ScribbleContainer::get_instance()
@@ -66,6 +81,13 @@ namespace Scribble
 
         lineRenderers->Add(LinerendererData::Create(lineRenderer, brush));
         return lineRenderer;
+    }
+
+    void ScribbleContainer::SetRealGlow(bool real)
+    {
+        INFO("Setting real glow usage to: %d", real);
+        static auto _ScribbleRealGlow = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("_ScribbleRealGlow");
+        UnityEngine::Shader::SetGlobalFloat(_ScribbleRealGlow, real);
     }
 
     void ScribbleContainer::SetBPM(float BPM)
@@ -139,6 +161,28 @@ namespace Scribble
 
         // delete them
         for (auto l : toDelete) Delete(l);
+    }
+
+    void ScribbleContainer::Bucket(Sombrero::FastVector3 position, float size, const CustomBrush& brush)
+    {
+        int length = lineRenderers->get_Count();
+        float sizeSqr = size * size;
+        for (int i = 0; i < length; i++)
+        {
+            auto lineRendererData = lineRenderers->items->values[i];
+            if (lineRendererData->brush == brush) continue;
+            auto positions = lineRendererData->lineRenderer->GetPositions();
+            for (auto& point : positions)
+            {
+                float dist = point.sqrDistance(position);
+                if (dist < sizeSqr)
+                {
+                    lineRendererData->brush = brush;
+                    lineRendererData->lineRenderer->set_material(brush.CreateMaterial());
+                    break;
+                }
+            }
+        }
     }
 
     void ScribbleContainer::Clear()

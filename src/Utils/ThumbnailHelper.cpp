@@ -44,6 +44,7 @@ namespace Scribble::ThumbnailHelper
         auto screenshot = GetThumbnail(camera, width, height);
         auto data = ImageConversion::EncodeToPNG(screenshot);
         writer.write(reinterpret_cast<const char*>(data->values), data->Length());
+        Object::Destroy(screenshot);
     }
 
     Camera* CreateCamera(Sombrero::FastVector3&& position, Sombrero::FastVector3&& rotation)
@@ -100,9 +101,6 @@ namespace Scribble::ThumbnailHelper
         // read header data
         reader.read(reinterpret_cast<char*>(&foundHeader[0]), foundHeader.size());
         
-        for (auto i : pngHeader) INFO("found: %d", i);
-        for (auto i : foundHeader) INFO("needed: %d", i);
-
         if (foundHeader != pngHeader)
         {
             ERROR("Invalid png header");
@@ -124,12 +122,10 @@ namespace Scribble::ThumbnailHelper
             reader.read(reinterpret_cast<char*>(&num2), sizeof(int));
             if (num2 == 1145980233)
             {
-                INFO("Reached end of png!");
                 flag = false;
             }
             if (num1 + 4 > streamsize - reader.tellg())
             {
-                ERROR("Stream Too Short, returning false");
                 reader.seekg(pos, reader.beg);
                 return false;
             }

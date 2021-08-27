@@ -63,7 +63,7 @@ foreach ($lib in $allLibs)
     $libs += ,$lib
 }
 
-$bannedFiles = @("CreatorCache", "Patrons")
+$bannedFiles = @("xcf", "Icons", "psd")
 
 $extraFiles = @()
 
@@ -82,7 +82,7 @@ if (Test-Path "./ExtraFiles")
         $doContinue = 0
         foreach ($ban in $bannedFiles)
         {
-            if ($entry.Name.Contains($ban))
+            if ($entry.FullName.Contains($ban))
             {
                 $doContinue = 1
                 break

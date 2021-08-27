@@ -49,7 +49,7 @@ namespace Scribble
     {
         INFO("Looking for effect: %s", brush.effectName.c_str());
         auto effect = Effects::GetEffect(brush.effectName);
-        if (!effect) return nullptr;
+        if (!effect) effect = Effects::GetEffect("standard");
         auto mat = effect->CreateMaterial(brush);
         return mat;
     }
@@ -89,12 +89,6 @@ namespace Scribble
         return val;
     }
 
-    // im a liar
-    void CustomBrush::copy(const CustomBrush& brush) const
-    {
-        *const_cast<CustomBrush*>(this) = brush;
-    }
-
     void CustomBrush::Serialize(std::ofstream& writer)
     {
         int nameSize = name.size();
@@ -122,10 +116,10 @@ namespace Scribble
     {
         int nameSize;
         reader.read(reinterpret_cast<char*>(&nameSize), sizeof(int));
-        std::vector<char> name(nameSize);
-
+        std::string name;
+        name.resize(nameSize);
         reader.read(name.data(), nameSize);
-        return std::string(name.data(), nameSize);
+        return name;
     }
 
     CustomBrush CustomBrush::Deserialize(std::ifstream& reader)
@@ -146,4 +140,30 @@ namespace Scribble
         reader.read(reinterpret_cast<char*>(&result.tiling), sizeof(Sombrero::FastVector2));
         return result;
     }
+
+    void CustomBrush::copy(const CustomBrush& brush)
+    {
+        name = brush.name;
+        color = brush.color;
+        textureName = brush.textureName;
+        effectName = brush.effectName;
+        size = brush.size;
+        glow = brush.glow;
+        textureMode = brush.textureMode;
+        tiling = brush.tiling;
+    }
+
+    bool CustomBrush::operator==(const CustomBrush& rhs)
+    {
+        if (this->name != rhs.name) return false;
+        if (this->color != rhs.color) return false;
+        if (this->textureName != rhs.textureName) return false;
+        if (this->effectName != rhs.effectName) return false;
+        if (this->size != rhs.size) return false;
+        if (this->glow != rhs.glow) return false;
+        if (this->textureMode != rhs.textureMode) return false;
+        if (this->tiling != rhs.tiling) return false;
+        return true;
+    }
+
 }

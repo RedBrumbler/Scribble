@@ -37,11 +37,13 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleContainer, UnityEngine::MonoBehaviour,
 
     public:
         static ScribbleContainer* get_instance();
-        static inline bool drawingEnabled = true;
+        static inline bool drawingEnabled = false;
         static inline float lineWidth = 0.001f;
 
         static void SetBPM(float BPM);
         static void SetOffset(float offset);
+        static void SetRealGlow(bool real);
+
         static void Create();
 
         bool get_IsInAnimation();
@@ -52,6 +54,7 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleContainer, UnityEngine::MonoBehaviour,
         void AddPoint(Sombrero::FastVector3 point, GlobalNamespace::SaberType saberType);
         std::vector<Sombrero::FastVector3> GetAllPoints();
         void Erase(Sombrero::FastVector3 position, float size);
+        void Bucket(Sombrero::FastVector3 position, float size, const CustomBrush& brush);
         
         void Clear();
         void Undo();

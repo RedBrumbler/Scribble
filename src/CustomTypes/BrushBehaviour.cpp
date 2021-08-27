@@ -1,5 +1,6 @@
 #include "CustomTypes/BrushBehaviour.hpp"
 #include "CustomTypes/Eraser.hpp"
+#include "CustomTypes/Bucket.hpp"
 #include "Effects.hpp"
 #include "Brushes.hpp"
 #include "GlobalBrushManager.hpp"
@@ -47,6 +48,9 @@ namespace Scribble
         auto eraser = get_gameObject()->AddComponent<Eraser*>();
         eraser->Init(this);
 
+        auto bucket = get_gameObject()->AddComponent<Bucket*>();
+        bucket->Init(this);
+
         set_enabled(false);
     }
 
@@ -70,25 +74,7 @@ namespace Scribble
             return;
         }
 
-        if (eraseMode) return;
-        /*
-        if (CheckForUI())
-        {
-            ShowBrushMesh(false);
-            set_menuHandleActive(true);
-            didUpdateMeshLastFrame = false;
-        }
-        else
-        {
-            if (!didUpdateMeshLastFrame)
-            {
-                UpdateBrushMesh();
-                didUpdateMeshLastFrame = true;
-            }
-            ShowBrushMesh(true);
-            set_menuHandleActive(false);
-        }
-        */
+        //if (eraseMode || bucketMode) return;
     }
 
     void BrushBehaviour::OnPress()
@@ -103,6 +89,12 @@ namespace Scribble
             GetComponent<Eraser*>()->StartErasing();
             return;
         }
+        else if (bucketMode)
+        {
+            GetComponent<Bucket*>()->StartBucketing();
+            return;
+        }
+
         lastPoint = get_transform()->get_position();
         ScribbleContainer::get_instance()->InitPoint(lastPoint, saberType, currentBrush);
         pressed = true;
@@ -116,6 +108,11 @@ namespace Scribble
         if (eraseMode)
         {
             GetComponent<Eraser*>()->StopErasing();
+            return;
+        }
+        else if (bucketMode)
+        {
+            GetComponent<Bucket*>()->StopBucketing();
             return;
         }
 

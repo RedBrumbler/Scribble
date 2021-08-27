@@ -12,7 +12,9 @@
 #include "TMPro/TMP_FontAsset.hpp"
 #include "VRUIControls/VRGraphicRaycaster.hpp"
 #include "HMUI/ImageView.hpp"
+#include "System/Convert.hpp"
 
+#include "questui/shared/BeatSaberUI.hpp"
 #include <string_view>
 
 namespace UITools
@@ -109,5 +111,11 @@ namespace UITools
             imageViews->values[i]->skew = skew;
         }
 
+    }
+
+    UnityEngine::Sprite* Base64ToSprite(std::string_view base64)
+    {
+        Array<uint8_t>* bytes = System::Convert::FromBase64String(il2cpp_utils::createcsstr(base64));
+        return QuestUI::BeatSaberUI::ArrayToSprite(bytes);
     }
 }

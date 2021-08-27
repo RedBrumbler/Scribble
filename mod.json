@@ -25,20 +25,20 @@
       "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/BrushTextures/brush.png"
     },
     {
-      "name": "standard.png",
-      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/BrushTextures/standard.png"
-    },
-    {
       "name": "pogchamp.png",
       "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/BrushTextures/pogchamp.png"
     },
     {
-      "name": "eraser.png",
-      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/eraser.png"
+      "name": "triangle.png",
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/BrushTextures/triangle.png"
     },
     {
-      "name": "picker.png",
-      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/picker.png"
+      "name": "full.png",
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/BrushTextures/full.png"
+    },
+    {
+      "name": "plant.png",
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/BrushTextures/plant.png"
     }
   ]
 }

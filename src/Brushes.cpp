@@ -27,6 +27,7 @@ namespace Scribble
             // construct in place pog
             brushes.emplace_back(b);
         }
+        AddDefaultBrushes();
     }
 
     void Brushes::Save()
@@ -62,12 +63,15 @@ namespace Scribble
     {
         auto primary = GetBrush("Primary");
         auto secondary = GetBrush("Secondary");
+        auto william = GetBrush("William");
 
-        INFO("primary brush found: %d, secondary: %d", primary.has_value(), secondary.has_value());
+        INFO("primary brush found: %d, secondary: %d, william: %d", primary.has_value(), secondary.has_value(), william.has_value());
         if (!primary)
             brushes.emplace_back("Primary", Sombrero::FastColor(0.90f, 0.20f, 0.20f, 1.0f), "brush", 0.8f);
         if (!secondary)
             brushes.emplace_back("Secondary", Sombrero::FastColor(0.14f, 0.56f, 0.91f, 1.0f), "brush", 0.8f);
+        if (!william)
+            brushes.emplace_back("William", Sombrero::FastColor(0.14f, 0.56f, 0.91f, 1.0f), "brush", "rainbow", 0.8f);
     }
 
     std::optional<std::reference_wrapper<CustomBrush>> Brushes::GetBrush(std::string_view name)

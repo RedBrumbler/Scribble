@@ -76,13 +76,14 @@ namespace Scribble
 
         LoadMainView();
 
-        auto startButton = UITools::CreateSimpleButton(rectTransform, "Start Drawing");
+        auto startButton = UITools::CreateSimpleButton(rectTransform, config.drawingEnabled ? "Stop Drawing" : "Start Drawing");
         startButton.SetAnchor(0.5f, 0.5f);
         startButton.SetSize(30, 10);
         startButton.SetPosition(0, -51);
         startButton.AddListener([startButton, this]()
         {
             config.drawingEnabled ^= 1;
+            ScribbleContainer::get_instance()->drawingEnabled = config.drawingEnabled;
             SaveConfig();
             auto btn = const_cast<ScribbleUISimpleButton*>(&startButton);
             btn->set_text(config.drawingEnabled ? "Stop Drawing" : "Start Drawing");

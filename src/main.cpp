@@ -59,6 +59,8 @@ MAKE_AUTO_HOOK_MATCH(SceneManager_SetActiveScene, &UnityEngine::SceneManagement:
         firstMenu = false;
         auto ui = UnityEngine::Resources::FindObjectsOfTypeAll<ScribbleUI*>();
         if (ui && ui->Length() > 0) ui->values[0]->Show();
+        auto scribbles = UnityEngine::Resources::FindObjectsOfTypeAll<ScribbleContainer*>();
+        if (scribbles && scribbles->Length() > 0) scribbles->values[0]->Show();
     }
 
     if (name == "GameCore")
@@ -78,17 +80,14 @@ MAKE_AUTO_HOOK_MATCH(SceneManager_SetActiveScene, &UnityEngine::SceneManagement:
 MAKE_AUTO_HOOK_MATCH(VRPointer_Awake, &VRUIControls::VRPointer::Awake, void, VRUIControls::VRPointer* self)
 {
     VRPointer_Awake(self);
-    INFO("VR pointer Awake");
 
     if (!pastLoad) return;
     
-    INFO("Checking if components are added");
     auto leftController = self->leftVRController;
     auto rightController = self->rightVRController;
 
     if (!leftController->get_gameObject()->GetComponent<BrushBehaviour*>())
     {
-        INFO("Adding to left controller");
         auto brush = leftController->get_gameObject()->AddComponent<BrushBehaviour*>();
         brush->saberType = GlobalNamespace::SaberType::SaberA;
         brush->pointer = self;
@@ -96,7 +95,6 @@ MAKE_AUTO_HOOK_MATCH(VRPointer_Awake, &VRUIControls::VRPointer::Awake, void, VRU
 
     if (!rightController->get_gameObject()->GetComponent<BrushBehaviour*>())
     {
-        INFO("Adding to right controller");
         auto brush = rightController->get_gameObject()->AddComponent<BrushBehaviour*>();
         brush->saberType = GlobalNamespace::SaberType::SaberB;
         brush->pointer = self;

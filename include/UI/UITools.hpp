@@ -7,6 +7,7 @@
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/UI/ContentSizeFitter.hpp"
 #include "UnityEngine/UI/Image.hpp"
+#include "UnityEngine/Sprite.hpp"
 #include "questui/shared/ArrayUtil.hpp"
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "VRUIControls/VRGraphicRaycaster.hpp"
@@ -39,4 +40,6 @@ namespace UITools
     }
 
     void SetSkewForChildren(UnityEngine::GameObject* root, float skew);
+
+    UnityEngine::Sprite* Base64ToSprite(std::string_view base64);
 }

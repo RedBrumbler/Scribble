@@ -22,6 +22,7 @@ void SaveConfig()
     rapidjson::Document::AllocatorType& allocator = doc.GetAllocator();
 
     doc.AddMember("visibleDuringPlay", config.visibleDuringPlay, allocator);
+    doc.AddMember("useRealGlow", config.useRealGlow, allocator);
     doc.AddMember("drawingEnabled", config.drawingEnabled, allocator);
     doc.AddMember("thumbnailSize", config.thumbnailSize, allocator);
 
@@ -39,6 +40,13 @@ bool LoadConfig()
     auto visibleDuringPlay_itr = doc.FindMember("visibleDuringPlay");
     if (visibleDuringPlay_itr != doc.MemberEnd()) {
         config.visibleDuringPlay = visibleDuringPlay_itr->value.GetBool();
+    } else {
+        foundEverything = false;
+    }
+
+    auto useRealGlow_itr = doc.FindMember("useRealGlow");
+    if (useRealGlow_itr != doc.MemberEnd()) {
+        config.useRealGlow = useRealGlow_itr->value.GetBool();
     } else {
         foundEverything = false;
     }

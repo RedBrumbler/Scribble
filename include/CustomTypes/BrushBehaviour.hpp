@@ -24,6 +24,7 @@ DECLARE_CLASS_CODEGEN(Scribble, BrushBehaviour, UnityEngine::MonoBehaviour,
         GlobalNamespace::SaberType saberType;
         CustomBrush currentBrush;
         bool eraseMode;
+        bool bucketMode;
         void GetMenuHandle();
         UnityEngine::GameObject* CreateBrushMesh();
         void UpdateBrushMesh();
