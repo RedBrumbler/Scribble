@@ -47,6 +47,13 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleViewController, HMUI::ViewController,
         void ActiveControllerChanged(BrushBehaviour* newBrush);
         void SetModalPosition(HMUI::ModalView* modal);
         void SaveSelectIdx(int idx);
+        void DeleteBrush();
+        void CopyBrush();
+        void SaveBrush();
+        void CreateBrushList(UnityEngine::Transform* parent);
+        void CreateLeftToolBar(UnityEngine::Transform* parent);
+        void CreateMainVertical(UnityEngine::Transform* parent);
+
         std::string FindNextName(std::string_view name, int idx);
 
         std::string saveFileName = "";

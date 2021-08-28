@@ -39,10 +39,10 @@ namespace Scribble
         // candidate, what we think might work
         std::string candidate = idx == 0 ? std::string(name) : string_format("%s-%d", name.data(), idx);
         // check all existing brushes for this name
-        for (auto b : saveBrushList->data)
+        for (auto b : Brushes::brushes)
         {
             // if we find the name, increment idx by 1 and try again
-            if (b.text == candidate) return FindNextName(name, ++idx);
+            if (b.name == candidate) return FindNextName(name, ++idx);
         }
         // if we didnt find the name, its good, return it
         return candidate;
@@ -55,7 +55,6 @@ namespace Scribble
             // going to attempt to port the UI from BSML
             
             //<vertical anchor-pos-y="-25" child-expand-height="false" child-control-height="false" spacing="2" xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
-            {
             auto vertical = BeatSaberUI::CreateVerticalLayoutGroup(get_transform());
             vertical->get_gameObject()->GetComponent<Backgroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.5f);
             vertical->get_rectTransform()->set_anchoredPosition({0.0f, -25.0f});
@@ -74,79 +73,11 @@ namespace Scribble
                 horizontal->set_spacing(5);
                     //<vertical pad-top="5">
                     
-                        auto verticalTop = BeatSaberUI::CreateVerticalLayoutGroup(horizontal->get_transform());
-                        verticalTop->set_padding(UnityEngine::RectOffset::New_ctor(0, 0, 5, 0));
-                        verticalTop->set_spacing(2);
-                        auto layoutTop = verticalTop->get_gameObject()->AddComponent<LayoutElement*>();
-                        layoutTop->set_preferredWidth(12);
-                        verticalTop->set_childControlHeight(true);
-                        verticalTop->set_childControlWidth(true);
-                        verticalTop->set_childForceExpandHeight(false);
-                        verticalTop->set_childForceExpandWidth(false);
                         
-                        //<vertical spacing="2" preferred-width="12" child-control-height="true" child-control-width="true" child-expand-height="false" child-expand-width="false">
                         
-                            auto eraserPickerVertical = BeatSaberUI::CreateVerticalLayoutGroup(verticalTop->get_transform());
-                            auto layoutButtons = verticalTop->get_gameObject()->AddComponent<LayoutElement*>();
-                            eraserPickerVertical->GetComponent<ContentSizeFitter*>()->set_verticalFit(ContentSizeFitter::FitMode::PreferredSize);
-                            float buttonSize = 20;
-                            eraserPickerVertical->set_spacing(2);
-                            layoutButtons->set_preferredWidth(buttonSize);
-                            eraserPickerVertical->set_childControlHeight(true);
-                            eraserPickerVertical->set_childControlWidth(true);
-                            eraserPickerVertical->set_childForceExpandHeight(false);
-                            eraserPickerVertical->set_childForceExpandWidth(false);
+                            CreateLeftToolBar(horizontal->get_transform());
 
-                            auto pickerButton = BeatSaberUI::CreateUIButton(eraserPickerVertical->get_transform(), "", "SettingsButton", Vector2(0, 0), Vector2(buttonSize, buttonSize), std::bind(&ScribbleViewController::SelectPicker, this));
-                            reinterpret_cast<RectTransform*>(pickerButton->get_transform()->GetChild(0))->set_sizeDelta({buttonSize, buttonSize});
-                            pickerImage = pickerButton->GetComponentInChildren<HMUI::ImageView*>();
-                            
-                            //<button-with-icon id="picker-btn" stroke-type="Clean" preferred-width="12" preferred-height="12" on-click="selectPicker" click-event="show-picker" hover-hint="Color Picker" />
-                            auto eraserButton = BeatSaberUI::CreateUIButton(eraserPickerVertical->get_transform(), "", "SettingsButton", Vector2(0, 0), Vector2(buttonSize, buttonSize), std::bind(&ScribbleViewController::SelectEraseMode, this));
-                            reinterpret_cast<RectTransform*>(eraserButton->get_transform()->GetChild(0))->set_sizeDelta({buttonSize, buttonSize});
-                            eraserImage = eraserButton->GetComponentInChildren<HMUI::ImageView*>();
-                            
-                            auto bucketButton = BeatSaberUI::CreateUIButton(eraserPickerVertical->get_transform(), "", "SettingsButton", Vector2(0, 0), Vector2(buttonSize, buttonSize), std::bind(&ScribbleViewController::SelectBucketMode, this));
-                            reinterpret_cast<RectTransform*>(bucketButton->get_transform()->GetChild(0))->set_sizeDelta({buttonSize, buttonSize});
-                            bucketImage = bucketButton->GetComponentInChildren<HMUI::ImageView*>();
 
-                            auto brushSaveButton = BeatSaberUI::CreateUIButton(eraserPickerVertical->get_transform(), "", "SettingsButton", Vector2(0, 0), Vector2(buttonSize, buttonSize), [&](){
-                                brushModal->Show(true, true, nullptr);
-                            });
-                            reinterpret_cast<RectTransform*>(brushSaveButton->get_transform()->GetChild(0))->set_sizeDelta({buttonSize, buttonSize});
-
-                            BeatSaberUI::SetButtonSprites(pickerButton, UITools::Base64ToSprite(picker_inactive), UITools::Base64ToSprite(picker));
-                            BeatSaberUI::SetButtonSprites(eraserButton, UITools::Base64ToSprite(eraser_inactive), UITools::Base64ToSprite(eraser));
-                            BeatSaberUI::SetButtonSprites(bucketButton, UITools::Base64ToSprite(bucket_inactive), UITools::Base64ToSprite(bucket));
-                            BeatSaberUI::SetButtonSprites(brushSaveButton, UITools::Base64ToSprite(save_inactive), UITools::Base64ToSprite(save));
-                            
-                            /*
-                            Il2CppString* practiceButton_cs = il2cpp_utils::newcsstr("PracticeButton");
-                            auto orig = QuestUI::ArrayUtil::Last(Resources::FindObjectsOfTypeAll<Button*>(),  [&](Button* x) {
-                                return x->get_name()->Equals(practiceButton_cs);
-                            });
-                            auto material = orig->get_gameObject()->GetComponentInChildren<HMUI::ImageView*>()->get_material();
-                            std::string pickerPath = "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/picker.png";
-                            auto sprite = BeatSaberUI::FileToSprite(pickerPath);
-                            auto img = UITools::CreateImage(pickerButton->get_transform(), {0, 0}, {12, 12});
-                            img->set_material(material);
-                            img->set_sprite(sprite);
-
-                            std::string eraserPath = "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/eraser.png";
-                            sprite = BeatSaberUI::FileToSprite(eraserPath);
-                            eraserImage = UITools::CreateImage(eraserButton->get_transform(), {0, 0}, {12, 12});
-                            eraserImage->set_material(material);
-                            eraserImage->set_sprite(sprite);
-                            */
-                            //<button-with-icon id="eraser-btn" stroke-type="Clean" preferred-width="12" preferred-height="12" on-click="selectEraseMode" hover-hint="Eraser" />
-                        
-                        //  </vertical>
-                    
-                    //</vertical>
-
-                    UnityEngine::Color color = {0, 0, 0, 1.0};
-                    if (GlobalBrushManager::get_activeBrush()) color = GlobalBrushManager::get_activeBrush()->currentBrush.color;
-                    colorPickerModal = BeatSaberUI::CreateColorPickerModal(get_transform(), "", color, std::bind(&ScribbleViewController::PickerSelectedColor, this, std::placeholders::_1));
                     
                     //<modal id='save-dialog' hide-event='save-dialog-hide' move-to-center="true" click-off-closes="true" size-delta-x="70" size-delta-y="80">
                     saveModal = BeatSaberUI::CreateModal(horizontal->get_transform(), Vector2(80, 80), nullptr, true);
@@ -211,7 +142,7 @@ namespace Scribble
                             });
                     
                     ReloadFileLists();
-                    
+                    /*
                     brushModal = BeatSaberUI::CreateModal(horizontal->get_transform(), Vector2(80, 80), [&](auto){
                         // clear selection on menu leave
                         saveBrushList->tableView->ClearSelection();
@@ -247,212 +178,277 @@ namespace Scribble
                         auto saveButtonLayout = brushSaveButtonHorizontal->get_gameObject()->AddComponent<LayoutElement*>();
                         saveButtonLayout->set_preferredHeight(brushButtonSize);
                         saveButtonLayout->set_preferredWidth(brushButtonSize * 3 + 4);
-
-                        auto deleteButton = BeatSaberUI::CreateUIButton(brushSaveButtonHorizontal->get_transform(), "", "SettingsButton", Vector2(0, 0), Vector2(brushButtonSize, brushButtonSize), [&](){
-                            int idx = reinterpret_cast<QuestUI::TableView*>(saveBrushList->tableView)->get_selectedRow();
-                            INFO("brush delete idx: %d", idx);
-                            if (idx < 0) return;
-                            auto& selectedBrush = saveBrushList->data[idx];
-                            auto itr = std::find_if(Brushes::brushes.begin(), Brushes::brushes.end(), [&](const auto& x){ return x.name == selectedBrush.text; });
-                            if (itr != Brushes::brushes.end())
-                            {
-                                INFO("erasing brush: %s", selectedBrush.text.c_str());
-                                Brushes::brushes.erase(itr, itr + 1);
-                                Brushes::Save();
-                            }
-
-                            ReloadBrushList();
-                        });
-                        
-                        auto copyButton = BeatSaberUI::CreateUIButton(brushSaveButtonHorizontal->get_transform(), "", "SettingsButton", Vector2(0, 0), Vector2(brushButtonSize, brushButtonSize), [&](){
-                            int idx = reinterpret_cast<QuestUI::TableView*>(saveBrushList->tableView)->get_selectedRow();
-                            INFO("brush copy idx: %d", idx);
-                            if (idx < 0) return;
-                            auto& selectedBrush = saveBrushList->data[idx];
-                            auto brush = Brushes::GetBrush(selectedBrush.text);
-                            if (brush)
-                            {
-                                INFO("Got a brush with name: %s", selectedBrush.text.c_str());
-                                // the brush in our managed list
-                                auto& brushRef = brush.value().get();
-                                // duplicate that one
-                                CustomBrush duplicate = brushRef;
-
-                                // if no given name, copy the original name
-                                if (brushName == "") brushName = FindNextName(brushRef.name, 0);
-                                // if a given name, use that instead
-                                else brushName = brushName = FindNextName(brushName, 0);
-
-                                // set name
-                                duplicate.name = brushName;
-                                Brushes::brushes.push_back(duplicate);
-                                // clear name setting
-                                brushName = "";
-                                brushNameField->set_text(Il2CppString::_get_Empty());
-                            }
-
-                            ReloadBrushList();
-                        });
-
-                        auto saveButton = BeatSaberUI::CreateUIButton(brushSaveButtonHorizontal->get_transform(), "", "SettingsButton", Vector2(0, 0), Vector2(brushButtonSize, brushButtonSize), [&](){
-                            int idx = reinterpret_cast<QuestUI::TableView*>(saveBrushList->tableView)->get_selectedRow();
-                            // we have an index that is selected!;
-                            std::string selectedBrushName = idx >= 0 ? saveBrushList->data[idx].text : "";
-
-                            INFO("saving idx: %d", idx);
-
-                            // if we want to save, and we have a brush name
-                            if (selectedBrushName != "")
-                            {
-                                auto brush = Brushes::GetBrush(selectedBrushName);
-                                // if the brush existed in the first place
-                                if (brush)
-                                {
-                                    auto& brushRef = brush.value().get();
-                                    brushRef.copy(GlobalBrushManager::get_activeBrush()->currentBrush);
-                                    if (brushRef.name != brushName) brushRef.name = brushName;
-                                }
-                            } 
-                            // we want to save a brush, but have no brush to overwrite
-                            else if (brushName != "")
-                            {
-                                auto brush = Brushes::GetBrush(brushName);
-                                if (brush)
-                                {
-                                    // if this name already exists
-                                    brushName = FindNextName(brushName, 0);
-                                    CustomBrush duplicate = brush.value().get();
-                                    duplicate.name = brushName;
-                                    Brushes::brushes.push_back(duplicate);
-                                }
-                                else
-                                {
-                                    // new brush!
-                                    CustomBrush newBrush = GlobalBrushManager::get_activeBrush()->currentBrush;
-                                    newBrush.name = brushName;
-                                    Brushes::brushes.push_back(newBrush);
-                                }
-                            }
-                            Brushes::Save();
-
-                            brushName = "";
-                            brushNameField->set_text(Il2CppString::_get_Empty());
-                            ReloadBrushList();
-                        });
-                        reinterpret_cast<RectTransform*>(deleteButton->get_transform()->GetChild(0))->set_sizeDelta({ brushButtonSize, brushButtonSize });
-                        reinterpret_cast<RectTransform*>(copyButton->get_transform()->GetChild(0))->set_sizeDelta({ brushButtonSize, brushButtonSize });
-                        reinterpret_cast<RectTransform*>(saveButton->get_transform()->GetChild(0))->set_sizeDelta({ brushButtonSize, brushButtonSize });
-                        BeatSaberUI::SetButtonSprites(deleteButton, UITools::Base64ToSprite(trash_inactive), UITools::Base64ToSprite(trash));
-                        BeatSaberUI::SetButtonSprites(copyButton, UITools::Base64ToSprite(copy_inactive), UITools::Base64ToSprite(copy));
-                        BeatSaberUI::SetButtonSprites(saveButton, UITools::Base64ToSprite(save_inactive), UITools::Base64ToSprite(save));
-                    //<modal id='load-dialog' hide-event='load-dialog-hide' move-to-center="true" click-off-closes="true" size-delta-x="70" size-delta-y="70">
-                    //  <vertical spacing="10" pad="5">
-                    //    <vertical spacing='5'>
-                    //      <list id='load-file-list' expand-cell='true' select-cell='file-load-selected' list-style='Box' />
-                    //    </vertical>
-                    //    <horizontal preferred-width='60' bg='round-rect-panel' bg-color='#00000000'>
-                    //      <page-button event-click='load-file-list#PageUp' direction='Up' />
-                    //      <page-button event-click='load-file-list#PageDown' direction='Down' />
-                    //    </horizontal>
-                    //    <button text='Close' click-event='load-dialog-hide'/>
-                    //  </vertical>
-                    //</modal>
-                    
+                    */
 
                     //<modal-color-picker id="color-picker-modal" value="brush-color-value" on-done="picker-selected-color" move-to-center="true" click-off-closes="true"></modal-color-picker>
-                    auto rightVertical = BeatSaberUI::CreateVerticalLayoutGroup(horizontal->get_transform());
-                    rightVertical->set_childForceExpandWidth(true);
-                    rightVertical->set_childForceExpandHeight(false);
-                    auto rightVerticalLayout = rightVertical->GetComponent<LayoutElement*>();
-                    rightVerticalLayout->set_preferredWidth(92);
-
-                    auto listHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(rightVertical->get_transform());
-                    auto listHorizontalLayout = listHorizontal->GetComponent<LayoutElement*>();
-                    listHorizontalLayout->set_preferredWidth(92);
-
-                    listHorizontal->set_childForceExpandWidth(false);
-                    listHorizontal->set_childForceExpandHeight(false);
-                    listHorizontal->set_childControlWidth(false);
-                    listHorizontal->set_childControlHeight(false);
-                    brushList = BeatSaberUI::CreateScrollableCustomSourceList<CustomBrushListDataSource*>(listHorizontal->get_transform(), {35.0f, 60.0f}, [&](int idx){
-                        SelectBrush(idx);
-                    });
-
-                    ReloadBrushList();
-
-                    BrushTextures::LoadAllTextures();
-                    textureList = BeatSaberUI::CreateScrollableList(listHorizontal->get_transform(), {22.0f, 60.0f}, [&](int idx){
-                        SelectTexture(idx);
-                    });
-
-                    textureList->set_listStyle(CustomListTableData::ListStyle::Box);
-                    textureList->cellSize = 22.0f;
-                    ReloadTextureList();
-
-                    effectList = BeatSaberUI::CreateScrollableList(listHorizontal->get_transform(), {35.0f, 60.0f}, [&](int idx){
-                        SelectEffect(idx);
-                    });
-                    
-                    effectList->set_listStyle(CustomListTableData::ListStyle::Simple);
-                    effectList->cellSize = 5.5f;
-
-                    ReloadEffectList();
-                
-                //</horizontal>
-                //<vertical child-expand-height="false" child-control-height="false" spacing="2" pad-left='40' pad-right='20'>
-                {
-                    auto bottomHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(rightVertical->get_transform());
-                    auto bottomHorizontalLayout = bottomHorizontal->GetComponent<LayoutElement*>();
-                    bottomHorizontalLayout->set_preferredWidth(92);
-                    bottomHorizontal->set_childForceExpandWidth(true);
-
-                    auto bottomVertical = BeatSaberUI::CreateVerticalLayoutGroup(bottomHorizontal->get_transform());
-                    bottomVertical->set_childForceExpandHeight(false);
-                    bottomVertical->set_childForceExpandWidth(true);
-                    bottomVertical->set_childControlHeight(false);
-                    bottomVertical->set_childControlWidth(true);
-                    bottomVertical->set_spacing(2);
-                    //bottomVertical->set_padding(UnityEngine::RectOffset::New_ctor(0, 0, 0, 0));
-
-                    auto brush = GlobalBrushManager::get_activeBrush();
-                    if (brush) size = brush->currentBrush.size;
-                    //    <slider-setting id='SizeSlider' text='Brush Size' min='1' max='70' increment='1' integer-only='false' apply-on-change='true' value='Size' />
-                    sizeSlider = BeatSaberUI::CreateSliderSetting(bottomVertical->get_transform(), "Brush Size", 1.0f, size, 1.0f, 70.0f, 0.5f, [&](float val){
-                        size = (int)val;
-                        auto brush = GlobalBrushManager::get_activeBrush();
-                        if (brush) brush->currentBrush.size = size;
-                    });
-                    
-
-                    //    <slider-setting id='GlowSlider' text='Glow Amount' min='0' max='1' increment='0.05' integer-only='false' apply-on-change='true' value='Glow' />
-                    if (brush) glow = brush->currentBrush.glow;
-                    glowSlider = BeatSaberUI::CreateSliderSetting(bottomVertical->get_transform(), "Glow Amount", 0.05f, glow, 0.0f, 1.0f, 0.5f, [&](float val){
-                        glow = val;
-                        auto brush = GlobalBrushManager::get_activeBrush();
-                        if (brush) brush->currentBrush.glow = glow;
-                    });
-
-                    //    <slider-setting id='GlowSlider' text='Glow Amount' min='0' max='1' increment='0.05' integer-only='false' apply-on-change='true' value='Glow' />
-                    if (brush) tile = brush->currentBrush.tiling.x;
-                    tileSlider = BeatSaberUI::CreateSliderSetting(bottomVertical->get_transform(), "Tiling", 1.0f, tile, 1.0f, 20.0f, 0.5f, [&](float val){
-                        tile = val;
-                        auto brush = GlobalBrushManager::get_activeBrush();
-                        if (brush) brush->currentBrush.tiling.x = tile;
-                    });
-                }
-                //</vertical>
-            }
-            //</vertical>
+                    CreateMainVertical(horizontal->get_transform());
             
             SetModalPosition(saveModal);
             SetModalPosition(loadModal);
             SetModalPosition(colorPickerModal->modalView);
-            SetModalPosition(brushModal);
+            //SetModalPosition(brushModal);
 
             ActiveControllerChanged(GlobalBrushManager::get_activeBrush());
         }
         
         GlobalBrushManager::OnActiveBrushChanged() += {&ScribbleViewController::ActiveControllerChanged, this};
+    }
+
+    void ScribbleViewController::DeleteBrush()
+    {
+        int idx = reinterpret_cast<QuestUI::TableView*>(brushList->tableView)->get_selectedRow();
+        INFO("brush delete idx: %d", idx);
+        if (idx < 0) return;
+        auto& selectedBrush = brushList->data[idx];
+        auto itr = std::find_if(Brushes::brushes.begin(), Brushes::brushes.end(), [&](const auto& x){ return x.name == selectedBrush.text; });
+        if (itr != Brushes::brushes.end())
+        {
+            INFO("erasing brush: %s", selectedBrush.text.c_str());
+            Brushes::brushes.erase(itr, itr + 1);
+            Brushes::Save();
+        }
+
+        brushList->tableView->ClearSelection();
+        ReloadBrushList();
+    }
+
+    void ScribbleViewController::CopyBrush()
+    {
+        int idx = reinterpret_cast<QuestUI::TableView*>(brushList->tableView)->get_selectedRow();
+        INFO("brush copy idx: %d", idx);
+        if (idx < 0) return;
+        auto& selectedBrush = brushList->data[idx];
+        auto brush = Brushes::GetBrush(selectedBrush.text);
+        if (brush)
+        {
+            INFO("Got a brush with name: %s", selectedBrush.text.c_str());
+            // the brush in our managed list
+            auto& brushRef = brush.value().get();
+            // duplicate that one
+            CustomBrush duplicate = brushRef;
+
+            // if no given name, copy the original name
+            if (brushName == "") brushName = FindNextName(brushRef.name, 0);
+            // if a given name, use that instead
+            else brushName = brushName = FindNextName(brushName, 0);
+
+            // set name
+            duplicate.name = brushName;
+            Brushes::brushes.push_back(duplicate);
+            // clear name setting
+            brushName = "";
+            brushNameField->set_text(Il2CppString::_get_Empty());
+        }
+
+        ReloadBrushList();
+    }
+
+    void ScribbleViewController::SaveBrush()
+    {
+        int idx = reinterpret_cast<QuestUI::TableView*>(brushList->tableView)->get_selectedRow();
+        // we have an index that is selected!;
+        std::string selectedBrushName = idx >= 0 ? brushList->data[idx].text : "";
+
+        INFO("saving idx: %d, name: %s", idx, selectedBrushName.c_str());
+
+        // if we want to save, and we have a selected brush name
+        if (idx >= 0)
+        {
+            auto brush = Brushes::GetBrush(selectedBrushName);
+            // if the brush existed in the first place
+            if (brush)
+            {
+                auto& brushRef = brush.value().get();
+                brushRef.copy(GlobalBrushManager::get_activeBrush()->currentBrush);
+                if (brushName != "") brushRef.name = brushName;
+            }
+        }
+        // we want to save a brush, but have no brush to overwrite
+        else if (brushName != "")
+        {
+            auto brush = Brushes::GetBrush(brushName);
+            if (brush)
+            {
+                // if this name already exists
+                brushName = FindNextName(brushName, 0);
+                CustomBrush duplicate = brush.value().get();
+                duplicate.name = brushName;
+                Brushes::brushes.push_back(duplicate);
+            }
+            else
+            {
+                // new brush!
+                CustomBrush newBrush = GlobalBrushManager::get_activeBrush()->currentBrush;
+                newBrush.name = brushName;
+                Brushes::brushes.push_back(newBrush);
+            }
+        }
+        Brushes::Save();
+
+        brushName = "";
+        brushNameField->set_text(Il2CppString::_get_Empty());
+        ReloadBrushList();
+    }
+
+    void ScribbleViewController::CreateBrushList(UnityEngine::Transform* parent)
+    {
+        auto brushListVertical = BeatSaberUI::CreateVerticalLayoutGroup(parent);
+        brushListVertical->get_gameObject()->GetComponent<Backgroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.5f);
+        auto brushListHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(brushListVertical->get_transform());
+        brushListHorizontal->set_childForceExpandWidth(false);
+        brushListHorizontal->set_childForceExpandHeight(false);
+        brushListHorizontal->set_childControlWidth(false);
+        brushListHorizontal->set_childControlHeight(false);
+
+        auto nameFieldhorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(brushListVertical->get_transform());
+        //nameFieldhorizontal->set_childForceExpandHeight(false);
+        //nameFieldhorizontal->GetComponent<LayoutElement*>()->set_preferredHeight(10.0f);
+        nameFieldhorizontal->set_padding(RectOffset::New_ctor(0, 0, 2, 2));
+        brushNameField = BeatSaberUI::CreateStringSetting(nameFieldhorizontal->get_transform(), "Brush Name", brushName, std::bind(&ScribbleViewController::BrushNameChanged, this, std::placeholders::_1));
+        brushNameField->GetComponent<LayoutElement*>()->set_preferredWidth(20);
+        
+        brushList = BeatSaberUI::CreateScrollableCustomSourceList<CustomBrushListDataSource*>(brushListHorizontal->get_transform(), {35.0f, 50.0f}, std::bind(&ScribbleViewController::SelectBrush, this, std::placeholders::_1));
+
+        auto brushSaveButtonsVertical = BeatSaberUI::CreateVerticalLayoutGroup(brushListHorizontal->get_transform());
+        float buttonSize = 15.0f;
+        brushSaveButtonsVertical->set_childForceExpandHeight(false);
+        brushSaveButtonsVertical->set_childForceExpandWidth(false);
+        brushSaveButtonsVertical->GetComponent<LayoutElement*>()->set_preferredWidth(buttonSize);
+
+        auto deleteButton = BeatSaberUI::CreateUIButton(brushSaveButtonsVertical->get_transform(), "", "SettingsButton", Vector2(0, 0), Vector2(buttonSize, buttonSize), std::bind(&ScribbleViewController::DeleteBrush, this));
+        auto copyButton = BeatSaberUI::CreateUIButton(brushSaveButtonsVertical->get_transform(), "", "SettingsButton", Vector2(0, 0), Vector2(buttonSize, buttonSize), std::bind(&ScribbleViewController::CopyBrush, this));
+        auto saveButton = BeatSaberUI::CreateUIButton(brushSaveButtonsVertical->get_transform(), "", "SettingsButton", Vector2(0, 0), Vector2(buttonSize, buttonSize), std::bind(&ScribbleViewController::SaveBrush, this));
+        
+        reinterpret_cast<RectTransform*>(deleteButton->get_transform()->GetChild(0))->set_sizeDelta({ buttonSize, buttonSize });
+        reinterpret_cast<RectTransform*>(copyButton->get_transform()->GetChild(0))->set_sizeDelta({ buttonSize, buttonSize });
+        reinterpret_cast<RectTransform*>(saveButton->get_transform()->GetChild(0))->set_sizeDelta({ buttonSize, buttonSize });
+        
+        BeatSaberUI::SetButtonSprites(deleteButton, UITools::Base64ToSprite(trash_inactive), UITools::Base64ToSprite(trash));
+        BeatSaberUI::SetButtonSprites(copyButton, UITools::Base64ToSprite(copy_inactive), UITools::Base64ToSprite(copy));
+        BeatSaberUI::SetButtonSprites(saveButton, UITools::Base64ToSprite(save_inactive), UITools::Base64ToSprite(save));
+
+        ReloadBrushList();
+    }
+
+    void ScribbleViewController::CreateMainVertical(UnityEngine::Transform* parent)
+    {
+        auto rightVertical = BeatSaberUI::CreateVerticalLayoutGroup(parent->get_transform());
+        rightVertical->set_childForceExpandWidth(true);
+        rightVertical->set_childForceExpandHeight(false);
+        auto rightVerticalLayout = rightVertical->GetComponent<LayoutElement*>();
+        rightVerticalLayout->set_preferredWidth(92);
+
+        auto listHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(rightVertical->get_transform());
+        auto listHorizontalLayout = listHorizontal->GetComponent<LayoutElement*>();
+        listHorizontalLayout->set_preferredWidth(92);
+
+        listHorizontal->set_childForceExpandWidth(false);
+        listHorizontal->set_childForceExpandHeight(false);
+        listHorizontal->set_childControlWidth(false);
+        listHorizontal->set_childControlHeight(false);
+
+        CreateBrushList(listHorizontal->get_transform());
+
+        BrushTextures::LoadAllTextures();
+        textureList = BeatSaberUI::CreateScrollableList(listHorizontal->get_transform(), {22.0f, 67.0f}, [&](int idx){
+            SelectTexture(idx);
+        });
+
+        textureList->set_listStyle(CustomListTableData::ListStyle::Box);
+        textureList->cellSize = 17.0f;
+        ReloadTextureList();
+
+        effectList = BeatSaberUI::CreateScrollableList(listHorizontal->get_transform(), {35.0f, 67.0f}, [&](int idx){
+            SelectEffect(idx);
+        });
+        
+        effectList->set_listStyle(CustomListTableData::ListStyle::Simple);
+        effectList->cellSize = 8.5f;
+
+        ReloadEffectList();
+    
+        auto bottomHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(rightVertical->get_transform());
+        auto bottomHorizontalLayout = bottomHorizontal->GetComponent<LayoutElement*>();
+        bottomHorizontalLayout->set_preferredWidth(92);
+        bottomHorizontal->set_childForceExpandWidth(true);
+
+        auto bottomVertical = BeatSaberUI::CreateVerticalLayoutGroup(bottomHorizontal->get_transform());
+        bottomVertical->set_childForceExpandHeight(false);
+        bottomVertical->set_childForceExpandWidth(true);
+        bottomVertical->set_childControlHeight(false);
+        bottomVertical->set_childControlWidth(true);
+        bottomVertical->set_spacing(2);
+
+        auto brush = GlobalBrushManager::get_activeBrush();
+        if (brush) size = brush->currentBrush.size;
+        //    <slider-setting id='SizeSlider' text='Brush Size' min='1' max='70' increment='1' integer-only='false' apply-on-change='true' value='Size' />
+        sizeSlider = BeatSaberUI::CreateSliderSetting(bottomVertical->get_transform(), "Brush Size", 1.0f, size, 1.0f, 70.0f, 0.5f, [&](float val){
+            size = (int)val;
+            auto brush = GlobalBrushManager::get_activeBrush();
+            if (brush) brush->currentBrush.size = size;
+        });
+        
+
+        //    <slider-setting id='GlowSlider' text='Glow Amount' min='0' max='1' increment='0.05' integer-only='false' apply-on-change='true' value='Glow' />
+        if (brush) glow = brush->currentBrush.glow;
+        glowSlider = BeatSaberUI::CreateSliderSetting(bottomVertical->get_transform(), "Glow Amount", 0.05f, glow, 0.0f, 1.0f, 0.5f, [&](float val){
+            glow = val;
+            auto brush = GlobalBrushManager::get_activeBrush();
+            if (brush) brush->currentBrush.glow = glow;
+        });
+
+        //    <slider-setting id='GlowSlider' text='Glow Amount' min='0' max='1' increment='0.05' integer-only='false' apply-on-change='true' value='Glow' />
+        if (brush) tile = brush->currentBrush.tiling.x;
+        tileSlider = BeatSaberUI::CreateSliderSetting(bottomVertical->get_transform(), "Tiling", 1.0f, tile, 1.0f, 20.0f, 0.5f, [&](float val){
+            tile = val;
+            auto brush = GlobalBrushManager::get_activeBrush();
+            if (brush) brush->currentBrush.tiling.x = tile;
+        });
+    }
+
+    void ScribbleViewController::CreateLeftToolBar(UnityEngine::Transform* parent)
+    {
+        auto verticalTop = BeatSaberUI::CreateVerticalLayoutGroup(parent->get_transform());
+        verticalTop->set_padding(UnityEngine::RectOffset::New_ctor(0, 0, 5, 0));
+        verticalTop->set_spacing(2);
+        auto layoutTop = verticalTop->get_gameObject()->AddComponent<LayoutElement*>();
+        layoutTop->set_preferredWidth(12);
+        verticalTop->set_childControlHeight(true);
+        verticalTop->set_childControlWidth(true);
+        verticalTop->set_childForceExpandHeight(false);
+        verticalTop->set_childForceExpandWidth(false);
+        auto toolBarVertical = BeatSaberUI::CreateVerticalLayoutGroup(verticalTop->get_transform());
+
+        auto layoutButtons = verticalTop->get_gameObject()->AddComponent<LayoutElement*>();
+        toolBarVertical->GetComponent<ContentSizeFitter*>()->set_verticalFit(ContentSizeFitter::FitMode::PreferredSize);
+        float buttonSize = 20;
+        toolBarVertical->set_spacing(2);
+        layoutButtons->set_preferredWidth(buttonSize);
+        toolBarVertical->set_childControlHeight(true);
+        toolBarVertical->set_childControlWidth(true);
+        toolBarVertical->set_childForceExpandHeight(false);
+        toolBarVertical->set_childForceExpandWidth(false);
+
+        auto pickerButton = BeatSaberUI::CreateUIButton(toolBarVertical->get_transform(), "", "SettingsButton", Vector2(0, 0), Vector2(buttonSize, buttonSize), std::bind(&ScribbleViewController::SelectPicker, this));
+        reinterpret_cast<RectTransform*>(pickerButton->get_transform()->GetChild(0))->set_sizeDelta({buttonSize, buttonSize});
+        pickerImage = pickerButton->GetComponentInChildren<HMUI::ImageView*>();
+        
+        //<button-with-icon id="picker-btn" stroke-type="Clean" preferred-width="12" preferred-height="12" on-click="selectPicker" click-event="show-picker" hover-hint="Color Picker" />
+        auto eraserButton = BeatSaberUI::CreateUIButton(toolBarVertical->get_transform(), "", "SettingsButton", Vector2(0, 0), Vector2(buttonSize, buttonSize), std::bind(&ScribbleViewController::SelectEraseMode, this));
+        reinterpret_cast<RectTransform*>(eraserButton->get_transform()->GetChild(0))->set_sizeDelta({buttonSize, buttonSize});
+        eraserImage = eraserButton->GetComponentInChildren<HMUI::ImageView*>();
+        
+        auto bucketButton = BeatSaberUI::CreateUIButton(toolBarVertical->get_transform(), "", "SettingsButton", Vector2(0, 0), Vector2(buttonSize, buttonSize), std::bind(&ScribbleViewController::SelectBucketMode, this));
+        reinterpret_cast<RectTransform*>(bucketButton->get_transform()->GetChild(0))->set_sizeDelta({buttonSize, buttonSize});
+        bucketImage = bucketButton->GetComponentInChildren<HMUI::ImageView*>();
+
+        BeatSaberUI::SetButtonSprites(pickerButton, UITools::Base64ToSprite(picker_inactive), UITools::Base64ToSprite(picker));
+        BeatSaberUI::SetButtonSprites(eraserButton, UITools::Base64ToSprite(eraser_inactive), UITools::Base64ToSprite(eraser));
+        BeatSaberUI::SetButtonSprites(bucketButton, UITools::Base64ToSprite(bucket_inactive), UITools::Base64ToSprite(bucket));
+
+        UnityEngine::Color color = {0, 0, 0, 1.0};
+        if (GlobalBrushManager::get_activeBrush()) color = GlobalBrushManager::get_activeBrush()->currentBrush.color;
+        colorPickerModal = BeatSaberUI::CreateColorPickerModal(get_transform(), "", color, std::bind(&ScribbleViewController::PickerSelectedColor, this, std::placeholders::_1));
     }
 
     void ScribbleViewController::SetModalPosition(HMUI::ModalView* modal)
@@ -509,9 +505,7 @@ namespace Scribble
     {
         INFO("ReloadBrushList");
         brushList->data.clear();
-        saveBrushList->data.clear();
         int firstRow = reinterpret_cast<QuestUI::TableView*>(brushList->tableView)->get_selectedRow();
-        int secondRow = reinterpret_cast<QuestUI::TableView*>(saveBrushList->tableView)->get_selectedRow();
 
         for (auto b : Brushes::brushes)
         {
@@ -521,23 +515,16 @@ namespace Scribble
                 auto sprite = Sprite::Create(texture, UnityEngine::Rect(0.0f, 0.0f, (float)texture->get_width(), (float)texture->get_height()), UnityEngine::Vector2(0.5f,0.5f), 1024.0f, 1u, UnityEngine::SpriteMeshType::FullRect, UnityEngine::Vector4(0.0f, 0.0f, 0.0f, 0.0f), false);
                 Object::DontDestroyOnLoad(sprite);
                 brushList->data.emplace_back(b.name, b.effectName, b.color, sprite);
-                saveBrushList->data.emplace_back(b.name, b.effectName, b.color, sprite);
             }
             else
             {
                 brushList->data.emplace_back(b.name, b.effectName, b.color);
-                saveBrushList->data.emplace_back(b.name, b.effectName, b.color);
             }
         }
 
         brushList->tableView->ReloadData();
         brushList->tableView->RefreshCells(true, true);
         brushList->tableView->ScrollToCellWithIdx(firstRow > 0 ? firstRow : 0, HMUI::TableView::ScrollPositionType::Beginning, true);
-
-        saveBrushList->tableView->ReloadData();
-        saveBrushList->tableView->RefreshCells(true, true);
-        saveBrushList->tableView->ClearSelection();
-        saveBrushList->tableView->ScrollToCellWithIdx(secondRow > 0 ? secondRow : 0, HMUI::TableView::ScrollPositionType::Beginning, true);
     }
     
     void ScribbleViewController::SelectForBrush(const CustomBrush& brush)
@@ -567,6 +554,7 @@ namespace Scribble
         tileSlider->set_value(brush.tiling.x);
         colorPickerModal->set_color(brush.color);
         pickerImage->set_color(brush.color);
+        brushNameField->set_text(il2cpp_utils::newcsstr(brush.name));
     }
 
     void ScribbleViewController::SelectBrush(int idx)
