@@ -142,51 +142,12 @@ namespace Scribble
                             });
                     
                     ReloadFileLists();
-                    /*
-                    brushModal = BeatSaberUI::CreateModal(horizontal->get_transform(), Vector2(80, 80), [&](auto){
-                        // clear selection on menu leave
-                        saveBrushList->tableView->ClearSelection();
-                    }, true);
-                    
-                        auto brushHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(brushModal->get_transform());
-                        brushHorizontal->set_childForceExpandWidth(false);
-                        brushHorizontal->set_childForceExpandHeight(true);
 
-                        saveBrushList = BeatSaberUI::CreateScrollableCustomSourceList<CustomBrushListDataSource*>(brushHorizontal->get_transform(), Vector2(35, 60), [&](int idx){
-                            brushName = saveBrushList->data[idx].text;
-                            brushNameField->set_text(il2cpp_utils::newcsstr(brushName));
-                        });
-
-                        auto brushSaveButtonVertical = BeatSaberUI::CreateVerticalLayoutGroup(brushHorizontal->get_transform());
-                        brushSaveButtonVertical->set_padding(RectOffset::New_ctor(0, 0, 20, 20));
-                        // what do we want to do with brushes? 
-                        // - delete
-                        // - save current setup -> name input
-                        // - duplicate selected in save menu
-                        //auto brushNameFieldHorizontal = 
-                        brushNameField = BeatSaberUI::CreateStringSetting(brushSaveButtonVertical->get_transform(), "brush name", "", std::bind(&ScribbleViewController::BrushNameChanged, this, std::placeholders::_1) );
-                        auto brushNameFieldLayout = brushNameField->GetComponent<LayoutElement*>();
-                        brushNameFieldLayout->set_preferredWidth(30);
-                        auto brushSaveButtonHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(brushSaveButtonVertical->get_transform());
-                        brushSaveButtonHorizontal->GetComponent<ContentSizeFitter*>()->set_horizontalFit(ContentSizeFitter::FitMode::PreferredSize);
-                        float brushButtonSize = 10.0f;
-                        brushSaveButtonHorizontal->set_spacing(2);
-                        brushSaveButtonHorizontal->set_childForceExpandWidth(false);
-                        brushSaveButtonHorizontal->set_childForceExpandHeight(false);
-                        brushSaveButtonHorizontal->set_childControlHeight(false);
-                        brushSaveButtonHorizontal->set_childControlWidth(false);
-                        auto saveButtonLayout = brushSaveButtonHorizontal->get_gameObject()->AddComponent<LayoutElement*>();
-                        saveButtonLayout->set_preferredHeight(brushButtonSize);
-                        saveButtonLayout->set_preferredWidth(brushButtonSize * 3 + 4);
-                    */
-
-                    //<modal-color-picker id="color-picker-modal" value="brush-color-value" on-done="picker-selected-color" move-to-center="true" click-off-closes="true"></modal-color-picker>
                     CreateMainVertical(horizontal->get_transform());
             
             SetModalPosition(saveModal);
             SetModalPosition(loadModal);
             SetModalPosition(colorPickerModal->modalView);
-            //SetModalPosition(brushModal);
 
             ActiveControllerChanged(GlobalBrushManager::get_activeBrush());
         }
@@ -458,6 +419,15 @@ namespace Scribble
         UnityEngine::Color color = {0, 0, 0, 1.0};
         if (GlobalBrushManager::get_activeBrush()) color = GlobalBrushManager::get_activeBrush()->currentBrush.color;
         colorPickerModal = BeatSaberUI::CreateColorPickerModal(get_transform(), "", color, std::bind(&ScribbleViewController::PickerSelectedColor, this, std::placeholders::_1));
+
+        colorHistoryPanel = ColorHistoryPanelController::CreateColorHistoryPanel(colorPickerModal->modalView->get_transform(), Vector2(10, 50), [&](Sombrero::FastColor color){
+            auto brush = GlobalBrushManager::get_activeBrush();
+            if (brush)
+            {
+                brush->currentBrush.color = color;
+                pickerImage->set_color(color);
+            }
+        });
     }
 
     void ScribbleViewController::SetModalPosition(HMUI::ModalView* modal)
@@ -632,6 +602,7 @@ namespace Scribble
         {
             brush->currentBrush.color = color;
             pickerImage->set_color(color);
+            colorHistoryPanel->AddColor(color);
         }
     }
 

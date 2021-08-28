@@ -12,11 +12,13 @@
 #include "questui/shared/CustomTypes/Components/ModalColorPicker.hpp"
 #include "CustomTypes/BrushBehaviour.hpp"
 #include "CustomTypes/CustomBrushListDataSource.hpp"
+#include "UI/ColorHistoryPanelController.hpp"
 
 DECLARE_CLASS_CODEGEN(Scribble, ScribbleViewController, HMUI::ViewController,
     DECLARE_OVERRIDE_METHOD(void, DidActivate, il2cpp_utils::FindMethodUnsafe("HMUI", "ViewController", "DidActivate", 3), bool firstActivation, bool addedToHierarchy, bool screenSystemEnabling);
     DECLARE_OVERRIDE_METHOD(void, DidDeactivate, il2cpp_utils::FindMethodUnsafe("HMUI", "ViewController", "DidDeactivate", 2), bool, bool);
     DECLARE_INSTANCE_FIELD(QuestUI::ModalColorPicker*, colorPickerModal);
+    DECLARE_INSTANCE_FIELD(ColorHistoryPanelController*, colorHistoryPanel);
 
     DECLARE_INSTANCE_FIELD(Scribble::CustomBrushListDataSource*, brushList);
     DECLARE_INSTANCE_FIELD(QuestUI::CustomListTableData*, textureList);
