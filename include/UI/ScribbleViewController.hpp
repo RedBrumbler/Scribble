@@ -28,11 +28,14 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleViewController, HMUI::ViewController,
     DECLARE_INSTANCE_FIELD(QuestUI::SliderSetting*, glowSlider);
     DECLARE_INSTANCE_FIELD(QuestUI::SliderSetting*, sizeSlider);
     DECLARE_INSTANCE_FIELD(QuestUI::SliderSetting*, tileSlider);
+
     DECLARE_INSTANCE_FIELD(HMUI::InputFieldView*, fileNameField);
     DECLARE_INSTANCE_FIELD(HMUI::InputFieldView*, brushNameField);
+
     DECLARE_INSTANCE_FIELD(HMUI::ImageView*, pickerImage);
     DECLARE_INSTANCE_FIELD(HMUI::ImageView*, eraserImage);
     DECLARE_INSTANCE_FIELD(HMUI::ImageView*, bucketImage);
+    DECLARE_INSTANCE_FIELD(HMUI::ImageView*, rulerImage);
     
     DECLARE_INSTANCE_FIELD(HMUI::ModalView*, saveModal);
     DECLARE_INSTANCE_FIELD(HMUI::ModalView*, loadModal);
@@ -69,6 +72,8 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleViewController, HMUI::ViewController,
         void SelectPicker();
         void SelectEraseMode();
         void SelectBucketMode();
+        void SelectRulerMode();
+
         void ShowSaveFile();
         void ShowLoadFile();
         void SaveFilenameChanged(std::string val);

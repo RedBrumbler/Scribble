@@ -25,6 +25,7 @@ DECLARE_CLASS_CODEGEN(Scribble, BrushBehaviour, UnityEngine::MonoBehaviour,
         CustomBrush currentBrush;
         bool eraseMode;
         bool bucketMode;
+        bool rulerMode;
         void GetMenuHandle();
         UnityEngine::GameObject* CreateBrushMesh();
         void UpdateBrushMesh();

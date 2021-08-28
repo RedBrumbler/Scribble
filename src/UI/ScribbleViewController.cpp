@@ -327,6 +327,10 @@ namespace Scribble
         BeatSaberUI::SetButtonSprites(copyButton, UITools::Base64ToSprite(copy_inactive), UITools::Base64ToSprite(copy));
         BeatSaberUI::SetButtonSprites(saveButton, UITools::Base64ToSprite(save_inactive), UITools::Base64ToSprite(save));
 
+        BeatSaberUI::AddHoverHint(deleteButton->get_gameObject(), "Delete the currently selected brush, irreversible!");
+        BeatSaberUI::AddHoverHint(copyButton->get_gameObject(), "Duplicate the currently selected brush");
+        BeatSaberUI::AddHoverHint(saveButton->get_gameObject(), "Override the currently selected brush with current brush settings");
+
         ReloadBrushList();
     }
 
@@ -442,9 +446,14 @@ namespace Scribble
         reinterpret_cast<RectTransform*>(bucketButton->get_transform()->GetChild(0))->set_sizeDelta({buttonSize, buttonSize});
         bucketImage = bucketButton->GetComponentInChildren<HMUI::ImageView*>();
 
+        auto rulerButton = BeatSaberUI::CreateUIButton(toolBarVertical->get_transform(), "", "SettingsButton", Vector2(0, 0), Vector2(buttonSize, buttonSize), std::bind(&ScribbleViewController::SelectRulerMode, this));
+        reinterpret_cast<RectTransform*>(rulerButton->get_transform()->GetChild(0))->set_sizeDelta({buttonSize, buttonSize});
+        rulerImage = rulerButton->GetComponentInChildren<HMUI::ImageView*>();
+
         BeatSaberUI::SetButtonSprites(pickerButton, UITools::Base64ToSprite(picker_inactive), UITools::Base64ToSprite(picker));
         BeatSaberUI::SetButtonSprites(eraserButton, UITools::Base64ToSprite(eraser_inactive), UITools::Base64ToSprite(eraser));
         BeatSaberUI::SetButtonSprites(bucketButton, UITools::Base64ToSprite(bucket_inactive), UITools::Base64ToSprite(bucket));
+        BeatSaberUI::SetButtonSprites(rulerButton, UITools::Base64ToSprite(ruler_inactive), UITools::Base64ToSprite(ruler));
 
         UnityEngine::Color color = {0, 0, 0, 1.0};
         if (GlobalBrushManager::get_activeBrush()) color = GlobalBrushManager::get_activeBrush()->currentBrush.color;
@@ -585,6 +594,7 @@ namespace Scribble
 
         eraserImage->set_color(newBrush->eraseMode ? Color(1.0, 0.0, 0.0, 1.0) : Color(1.0, 1.0, 1.0, 1.0));
         bucketImage->set_color(newBrush->bucketMode ? Color(0.0, 0.0, 1.0, 1.0) : Color(1.0, 1.0, 1.0, 1.0));
+        rulerImage->set_color(newBrush->rulerMode ? Color(0.0, 1.0, 0.0, 1.0) : Color(1.0, 1.0, 1.0, 1.0));
     }
 
     void ScribbleViewController::SelectTexture(int idx)
@@ -624,6 +634,17 @@ namespace Scribble
             pickerImage->set_color(color);
         }
     }
+
+    void ScribbleViewController::SelectRulerMode()
+    {
+        auto brush = GlobalBrushManager::get_activeBrush();
+        if (brush)
+        {
+            brush->rulerMode ^= 1;
+            rulerImage->set_color(brush->rulerMode ? Color(0.0, 1.0, 0.0, 1.0) : Color(1.0, 1.0, 1.0, 1.0));
+        }
+    }
+
     void ScribbleViewController::SelectBucketMode()
     {
         auto brush = GlobalBrushManager::get_activeBrush();

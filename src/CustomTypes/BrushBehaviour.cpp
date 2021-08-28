@@ -1,6 +1,7 @@
 #include "CustomTypes/BrushBehaviour.hpp"
 #include "CustomTypes/Eraser.hpp"
 #include "CustomTypes/Bucket.hpp"
+#include "CustomTypes/Ruler.hpp"
 #include "Effects.hpp"
 #include "Brushes.hpp"
 #include "GlobalBrushManager.hpp"
@@ -51,6 +52,9 @@ namespace Scribble
         auto bucket = get_gameObject()->AddComponent<Bucket*>();
         bucket->Init(this);
 
+        auto ruler = get_gameObject()->AddComponent<Ruler*>();
+        ruler->Init(this);
+
         set_enabled(false);
     }
 
@@ -94,6 +98,11 @@ namespace Scribble
             GetComponent<Bucket*>()->StartBucketing();
             return;
         }
+        else if (rulerMode)
+        {
+            GetComponent<Ruler*>()->StartRuling();
+            return;
+        }
 
         lastPoint = get_transform()->get_position();
         ScribbleContainer::get_instance()->InitPoint(lastPoint, saberType, currentBrush);
@@ -115,7 +124,11 @@ namespace Scribble
             GetComponent<Bucket*>()->StopBucketing();
             return;
         }
-
+        else if (rulerMode)
+        {
+            GetComponent<Ruler*>()->StopRuling();
+            return;
+        }
         if (!pressed) return;
         pressed = false;
         ShowBrushMesh(false);

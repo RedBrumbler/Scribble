@@ -47,7 +47,6 @@ namespace Scribble
 
     Material* CustomBrush::CreateMaterial(const CustomBrush& brush)
     {
-        INFO("Looking for effect: %s", brush.effectName.c_str());
         auto effect = Effects::GetEffect(brush.effectName);
         if (!effect) effect = Effects::GetEffect("standard");
         auto mat = effect->CreateMaterial(brush);

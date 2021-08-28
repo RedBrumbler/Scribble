@@ -103,15 +103,12 @@ namespace Scribble
         Shader::SetGlobalFloat(_StartOffset, offset);
     }
 
-    void ScribbleContainer::InitPoint(Sombrero::FastVector3 point, GlobalNamespace::SaberType saberType, CustomBrush& brush)
+    void ScribbleContainer::InitPoint(Sombrero::FastVector3 point, GlobalNamespace::SaberType saberType, const CustomBrush& brush)
     {
-        INFO("initpoint");
         auto lineRenderer = InitLineRenderer(brush);
-        INFO("set stuff");
         lineRenderer->set_positionCount(1);
         lineRenderer->SetPosition(0, point);
         lineRenderer->set_enabled(true);
-        INFO("currentLinerenderer setting");
         if (saberType == GlobalNamespace::SaberType::SaberA) currentLineRendererLeft = lineRenderer;
         else currentLineRendererRight = lineRenderer;
     }
@@ -185,6 +182,33 @@ namespace Scribble
         }
     }
 
+    void ScribbleContainer::StartRuler(Sombrero::FastVector3 position, GlobalNamespace::SaberType type, const CustomBrush& brush)
+    {
+        InitPoint(position, type, brush);
+        AddPoint(position, type);
+    }
+
+    void ScribbleContainer::UpdateRuler(Sombrero::FastVector3 position, GlobalNamespace::SaberType type)
+    {
+        auto lineRenderer = type==GlobalNamespace::SaberType::SaberA ? currentLineRendererLeft : currentLineRendererRight;
+        lineRenderer->SetPosition(1, position);
+    }
+
+    void ScribbleContainer::FinishRuler(Sombrero::FastVector3 position, GlobalNamespace::SaberType type)
+    {
+        auto lineRenderer = type==GlobalNamespace::SaberType::SaberA ? currentLineRendererLeft : currentLineRendererRight;
+        auto firstPos = lineRenderer->GetPosition(0);
+        float dist = firstPos.Distance(position);
+
+        int posCount = dist  > 0.1f ? dist * 20 : 2;
+        
+        lineRenderer->set_positionCount(posCount);
+        for (int i = 0; i < posCount; i++)
+        {
+            lineRenderer->SetPosition(i, Sombrero::FastVector3::Lerp(firstPos, position, (float)i / (float)posCount));
+        }
+    }
+
     void ScribbleContainer::Clear()
     {
         int length = lineRenderers->get_Count();
@@ -244,7 +268,7 @@ namespace Scribble
         for (int i = 0; i < lineRenderers->get_Count(); i++)
         {
             auto data = lineRenderers->items->values[i];
-            if (data->lineRenderer == lineRenderer && lineRenderer->get_positionCount() <= minPositionCount) Delete(data);
+            if (data->lineRenderer == lineRenderer && lineRenderer->get_positionCount() < minPositionCount) Delete(data);
         }
     }
 
