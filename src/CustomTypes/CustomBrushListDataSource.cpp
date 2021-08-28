@@ -10,30 +10,31 @@
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "questui/shared/ArrayUtil.hpp"
 
-DEFINE_TYPE(QuestUI, CustomListTableData);
+DEFINE_TYPE(Scribble, CustomBrushListDataSource);
 
 using namespace HMUI;
 using namespace TMPro;
+using namespace QuestUI;
 using namespace UnityEngine;
 using namespace UnityEngine::UI;
 
-namespace QuestUI 
+namespace Scribble 
 {
-    void CustomListTableData::ctor()
+    void CustomBrushListDataSource::ctor()
     {
         INVOKE_CTOR();
-        set_listStyle(CustomListTableData::ListStyle::List);
+        set_listStyle(CustomBrushListDataSource::ListStyle::List);
         expandCell = false;
-        reuseIdentifier = il2cpp_utils::newcsstr("QuestUIListTableCell");
+        reuseIdentifier = il2cpp_utils::newcsstr("ScribbleCustomBrushListTableCell");
         tableView = nullptr;
     }
     
-    void CustomListTableData::dtor()
+    void CustomBrushListDataSource::dtor()
     {
         Finalize();
     }
 
-    void CustomListTableData::set_listStyle(CustomListTableData::ListStyle value)
+    void CustomBrushListDataSource::set_listStyle(CustomBrushListDataSource::ListStyle value)
     {
         this->listStyle = value;
         switch (value)
@@ -50,12 +51,12 @@ namespace QuestUI
         }
     }
 
-    CustomListTableData::ListStyle CustomListTableData::get_listStyle()
+    CustomBrushListDataSource::ListStyle CustomBrushListDataSource::get_listStyle()
     {
         return listStyle;
     }
 
-    GlobalNamespace::LevelListTableCell* CustomListTableData::GetTableCell()
+    GlobalNamespace::LevelListTableCell* CustomBrushListDataSource::GetTableCell()
     {
         auto tableCell = reinterpret_cast<GlobalNamespace::LevelListTableCell*>(tableView->DequeueReusableCellForIdentifier(reuseIdentifier));
         if (!tableCell)
@@ -73,7 +74,7 @@ namespace QuestUI
         return tableCell;   
     }
 
-    GlobalNamespace::LevelPackTableCell* CustomListTableData::GetLevelPackTableCell()
+    GlobalNamespace::LevelPackTableCell* CustomBrushListDataSource::GetLevelPackTableCell()
     {
         auto tableCell = reinterpret_cast<GlobalNamespace::LevelPackTableCell*>(tableView->DequeueReusableCellForIdentifier(reuseIdentifier));
         if (!tableCell)
@@ -87,7 +88,7 @@ namespace QuestUI
         return tableCell;
     }
 
-    GlobalNamespace::SimpleTextTableCell* CustomListTableData::GetSimpleTextTableCell()
+    GlobalNamespace::SimpleTextTableCell* CustomBrushListDataSource::GetSimpleTextTableCell()
     {
         auto tableCell = reinterpret_cast<GlobalNamespace::SimpleTextTableCell*>(tableView->DequeueReusableCellForIdentifier(reuseIdentifier));
         if (!tableCell)
@@ -101,7 +102,7 @@ namespace QuestUI
         return tableCell;
     }
 
-    HMUI::TableCell* CustomListTableData::CellForIdx(HMUI::TableView* tableView, int idx)
+    HMUI::TableCell* CustomBrushListDataSource::CellForIdx(HMUI::TableView* tableView, int idx)
     {
         switch (listStyle)
         {
@@ -127,7 +128,7 @@ namespace QuestUI
                 authorText->set_text(cellInfo.get_subText());
                 tableCell->coverImage->set_sprite(cellInfo.get_icon());
                 tableCell->coverImage->set_color(cellInfo.color);
-                
+
                 return tableCell;
             }
             case ListStyle::Box: {
@@ -155,32 +156,32 @@ namespace QuestUI
         return nullptr;        
     }
 
-    float CustomListTableData::CellSize()
+    float CustomBrushListDataSource::CellSize()
     {
         return cellSize;
     }
 
-    int CustomListTableData::NumberOfCells()
+    int CustomBrushListDataSource::NumberOfCells()
     {
         return data.size();
     }
 
-    Il2CppString* CustomListTableData::CustomCellInfo::get_text() 
+    Il2CppString* CustomBrushListDataSource::CustomCellInfo::get_text() 
     { 
         return il2cpp_utils::newcsstr(text); 
     }
 
-    Il2CppString* CustomListTableData::CustomCellInfo::get_subText() 
+    Il2CppString* CustomBrushListDataSource::CustomCellInfo::get_subText() 
     { 
         return il2cpp_utils::newcsstr(subText); 
     }
 
-    Il2CppString* CustomListTableData::CustomCellInfo::get_combinedText()
+    Il2CppString* CustomBrushListDataSource::CustomCellInfo::get_combinedText()
     {
         return il2cpp_utils::newcsstr(string_format("%s\n%s", text.c_str(), subText.c_str())); 
     }
 
-    UnityEngine::Sprite* CustomListTableData::CustomCellInfo::get_icon()
+    UnityEngine::Sprite* CustomBrushListDataSource::CustomCellInfo::get_icon()
     {
         if (icon) return icon;
         auto texture = Texture2D::get_blackTexture();

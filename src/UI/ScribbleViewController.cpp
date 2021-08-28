@@ -63,7 +63,7 @@ namespace Scribble
             vertical->set_childControlHeight(false);
             vertical->set_spacing(2);
                 //<horizontal horizontal-fit="PreferredSize" child-expand-width="false" child-expand-height="true" child-control-width="true" child-control-height="true" spacing="5">
-                {
+                
                 auto horizontal = BeatSaberUI::CreateHorizontalLayoutGroup(vertical->get_transform());
                 auto sizeFitter = horizontal->get_gameObject()->AddComponent<ContentSizeFitter*>();
                 sizeFitter->set_horizontalFit(ContentSizeFitter::FitMode::PreferredSize);
@@ -73,7 +73,7 @@ namespace Scribble
                 horizontal->set_childControlHeight(true);
                 horizontal->set_spacing(5);
                     //<vertical pad-top="5">
-                    {
+                    
                         auto verticalTop = BeatSaberUI::CreateVerticalLayoutGroup(horizontal->get_transform());
                         verticalTop->set_padding(UnityEngine::RectOffset::New_ctor(0, 0, 5, 0));
                         verticalTop->set_spacing(2);
@@ -85,11 +85,11 @@ namespace Scribble
                         verticalTop->set_childForceExpandWidth(false);
                         
                         //<vertical spacing="2" preferred-width="12" child-control-height="true" child-control-width="true" child-expand-height="false" child-expand-width="false">
-                        {
+                        
                             auto eraserPickerVertical = BeatSaberUI::CreateVerticalLayoutGroup(verticalTop->get_transform());
                             auto layoutButtons = verticalTop->get_gameObject()->AddComponent<LayoutElement*>();
                             eraserPickerVertical->GetComponent<ContentSizeFitter*>()->set_verticalFit(ContentSizeFitter::FitMode::PreferredSize);
-                            float buttonSize = 13.5;
+                            float buttonSize = 20;
                             eraserPickerVertical->set_spacing(2);
                             layoutButtons->set_preferredWidth(buttonSize);
                             eraserPickerVertical->set_childControlHeight(true);
@@ -139,9 +139,9 @@ namespace Scribble
                             eraserImage->set_sprite(sprite);
                             */
                             //<button-with-icon id="eraser-btn" stroke-type="Clean" preferred-width="12" preferred-height="12" on-click="selectEraseMode" hover-hint="Eraser" />
-                        }
+                        
                         //  </vertical>
-                    }
+                    
                     //</vertical>
 
                     UnityEngine::Color color = {0, 0, 0, 1.0};
@@ -150,7 +150,7 @@ namespace Scribble
                     
                     //<modal id='save-dialog' hide-event='save-dialog-hide' move-to-center="true" click-off-closes="true" size-delta-x="70" size-delta-y="80">
                     saveModal = BeatSaberUI::CreateModal(horizontal->get_transform(), Vector2(80, 80), nullptr, true);
-                    {
+                    
                         //  <vertical spacing="8" pad="5">
                         auto saveHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(saveModal->get_transform());
                         saveHorizontal->set_childForceExpandWidth(false);
@@ -183,9 +183,9 @@ namespace Scribble
                                 auto saveNew = BeatSaberUI::CreateUIButton(saveConfirmHorizontal->get_transform(), "Save", [&](){ 
                                     ScribbleContainer::get_instance()->Save(string_format("%s/%s.png", drawingPath, saveFileName.c_str()));
                                 });
-                    }
+                    
                     loadModal = BeatSaberUI::CreateModal(horizontal->get_transform(), Vector2(80, 80), nullptr, true);
-                    {
+                    
                         auto loadHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(loadModal->get_transform());
                         loadHorizontal->set_childForceExpandWidth(false);
                         loadHorizontal->set_childForceExpandHeight(true);
@@ -209,19 +209,19 @@ namespace Scribble
                                 loadFileList->tableView->selectedCellIdxs->Clear();
                                 loadFileList->tableView->ReloadData();
                             });
-                    }
+                    
                     ReloadFileLists();
                     
                     brushModal = BeatSaberUI::CreateModal(horizontal->get_transform(), Vector2(80, 80), [&](auto){
                         // clear selection on menu leave
                         saveBrushList->tableView->ClearSelection();
                     }, true);
-                    {
+                    
                         auto brushHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(brushModal->get_transform());
                         brushHorizontal->set_childForceExpandWidth(false);
                         brushHorizontal->set_childForceExpandHeight(true);
 
-                        saveBrushList = BeatSaberUI::CreateScrollableList(brushHorizontal->get_transform(), Vector2(35, 60), [&](int idx){
+                        saveBrushList = BeatSaberUI::CreateScrollableCustomSourceList<CustomBrushListDataSource*>(brushHorizontal->get_transform(), Vector2(35, 60), [&](int idx){
                             brushName = saveBrushList->data[idx].text;
                             brushNameField->set_text(il2cpp_utils::newcsstr(brushName));
                         });
@@ -358,17 +358,31 @@ namespace Scribble
                     //    <button text='Close' click-event='load-dialog-hide'/>
                     //  </vertical>
                     //</modal>
-                    }
+                    
 
                     //<modal-color-picker id="color-picker-modal" value="brush-color-value" on-done="picker-selected-color" move-to-center="true" click-off-closes="true"></modal-color-picker>
-                    brushList = BeatSaberUI::CreateScrollableCustomSourceList<CustomBrushListDataSource*>(horizontal->get_transform(), {35.0f, 60.0f}, [&](int idx){
+                    auto rightVertical = BeatSaberUI::CreateVerticalLayoutGroup(horizontal->get_transform());
+                    rightVertical->set_childForceExpandWidth(true);
+                    rightVertical->set_childForceExpandHeight(false);
+                    auto rightVerticalLayout = rightVertical->GetComponent<LayoutElement*>();
+                    rightVerticalLayout->set_preferredWidth(92);
+
+                    auto listHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(rightVertical->get_transform());
+                    auto listHorizontalLayout = listHorizontal->GetComponent<LayoutElement*>();
+                    listHorizontalLayout->set_preferredWidth(92);
+
+                    listHorizontal->set_childForceExpandWidth(false);
+                    listHorizontal->set_childForceExpandHeight(false);
+                    listHorizontal->set_childControlWidth(false);
+                    listHorizontal->set_childControlHeight(false);
+                    brushList = BeatSaberUI::CreateScrollableCustomSourceList<CustomBrushListDataSource*>(listHorizontal->get_transform(), {35.0f, 60.0f}, [&](int idx){
                         SelectBrush(idx);
                     });
 
                     ReloadBrushList();
 
                     BrushTextures::LoadAllTextures();
-                    textureList = BeatSaberUI::CreateScrollableList(horizontal->get_transform(), {22.0f, 60.0f}, [&](int idx){
+                    textureList = BeatSaberUI::CreateScrollableList(listHorizontal->get_transform(), {22.0f, 60.0f}, [&](int idx){
                         SelectTexture(idx);
                     });
 
@@ -376,7 +390,7 @@ namespace Scribble
                     textureList->cellSize = 22.0f;
                     ReloadTextureList();
 
-                    effectList = BeatSaberUI::CreateScrollableList(horizontal->get_transform(), {35.0f, 60.0f}, [&](int idx){
+                    effectList = BeatSaberUI::CreateScrollableList(listHorizontal->get_transform(), {35.0f, 60.0f}, [&](int idx){
                         SelectEffect(idx);
                     });
                     
@@ -384,15 +398,22 @@ namespace Scribble
                     effectList->cellSize = 5.5f;
 
                     ReloadEffectList();
-                }
+                
                 //</horizontal>
                 //<vertical child-expand-height="false" child-control-height="false" spacing="2" pad-left='40' pad-right='20'>
                 {
-                    auto bottomVertical = BeatSaberUI::CreateVerticalLayoutGroup(vertical->get_transform());
+                    auto bottomHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(rightVertical->get_transform());
+                    auto bottomHorizontalLayout = bottomHorizontal->GetComponent<LayoutElement*>();
+                    bottomHorizontalLayout->set_preferredWidth(92);
+                    bottomHorizontal->set_childForceExpandWidth(true);
+
+                    auto bottomVertical = BeatSaberUI::CreateVerticalLayoutGroup(bottomHorizontal->get_transform());
                     bottomVertical->set_childForceExpandHeight(false);
+                    bottomVertical->set_childForceExpandWidth(true);
                     bottomVertical->set_childControlHeight(false);
+                    bottomVertical->set_childControlWidth(true);
                     bottomVertical->set_spacing(2);
-                    bottomVertical->set_padding(UnityEngine::RectOffset::New_ctor(40, 20, 0, 0));
+                    //bottomVertical->set_padding(UnityEngine::RectOffset::New_ctor(0, 0, 0, 0));
 
                     auto brush = GlobalBrushManager::get_activeBrush();
                     if (brush) size = brush->currentBrush.size;

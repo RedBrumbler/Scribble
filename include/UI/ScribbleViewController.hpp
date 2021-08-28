@@ -18,11 +18,11 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleViewController, HMUI::ViewController,
     DECLARE_OVERRIDE_METHOD(void, DidDeactivate, il2cpp_utils::FindMethodUnsafe("HMUI", "ViewController", "DidDeactivate", 2), bool, bool);
     DECLARE_INSTANCE_FIELD(QuestUI::ModalColorPicker*, colorPickerModal);
 
-    DECLARE_INSTANCE_FIELD(QuestUI::CustomBrushListDataSource*, brushList);
+    DECLARE_INSTANCE_FIELD(Scribble::CustomBrushListDataSource*, brushList);
     DECLARE_INSTANCE_FIELD(QuestUI::CustomListTableData*, textureList);
     DECLARE_INSTANCE_FIELD(QuestUI::CustomListTableData*, effectList);
     DECLARE_INSTANCE_FIELD(QuestUI::CustomListTableData*, saveFileList);
-    DECLARE_INSTANCE_FIELD(QuestUI::CustomBrushListDataSource*, saveBrushList);
+    DECLARE_INSTANCE_FIELD(Scribble::CustomBrushListDataSource*, saveBrushList);
     DECLARE_INSTANCE_FIELD(QuestUI::CustomListTableData*, loadFileList);
 
     DECLARE_INSTANCE_FIELD(QuestUI::SliderSetting*, glowSlider);

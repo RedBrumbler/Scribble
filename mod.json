@@ -6,13 +6,14 @@
   "version": "0.1.0",
   "packageId": "com.beatgames.beatsaber",
   "packageVersion": "1.16.4",
-  "description": "Quest Cosmetics on a whole new level!",
+  "description": "Let the Bob Ross in you take over!",
   "dependencies": [],
   "modFiles": [
     "libscribble.so"
   ],
   "libraryFiles": [
     "libbeatsaber-hook_2_2_5.so",
+    "libquestui.so",
     "libbeatsaber-hook_2_2_4.so"
   ],
   "fileCopies": [

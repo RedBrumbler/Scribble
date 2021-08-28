@@ -26,7 +26,7 @@ if ((-not $cover -eq "./") -and (Test-Path $cover))
     $fileList += ,$cover
 }
 
-$bannedLibList = @("modloader", "questui", "custom-types", "codegen")
+$bannedLibList = @("modloader", "custom-types", "codegen")
 
 $modlib = @()
 
