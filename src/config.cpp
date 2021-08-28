@@ -23,13 +23,28 @@ void SaveConfig()
 
     doc.AddMember("visibleDuringPlay", config.visibleDuringPlay, allocator);
     doc.AddMember("useRealGlow", config.useRealGlow, allocator);
-    doc.AddMember("drawingEnabled", config.drawingEnabled, allocator);
+    doc.AddMember("firstTimeLaunch", config.firstTimeLaunch, allocator);
     doc.AddMember("thumbnailSize", config.thumbnailSize, allocator);
 
     get_config().Write();
     INFO("Saved Configuration!");
 }
 
+#define GetBool(identifier) \
+auto identifier## _itr = doc.FindMember(#identifier); \
+    if (identifier## _itr != doc.MemberEnd()) { \
+        config.identifier = identifier## _itr->value.GetBool(); \
+    } else { \
+        foundEverything = false; \
+    }
+
+#define GetInt(identifier) \
+auto identifier## _itr = doc.FindMember(#identifier); \
+    if (identifier## _itr != doc.MemberEnd()) { \
+        config.identifier = identifier## _itr->value.GetInt(); \
+    } else { \
+        foundEverything = false; \
+    }
 
 bool LoadConfig()
 {
@@ -37,33 +52,10 @@ bool LoadConfig()
     bool foundEverything = true;
     rapidjson::Document& doc = get_config().config;
 
-    auto visibleDuringPlay_itr = doc.FindMember("visibleDuringPlay");
-    if (visibleDuringPlay_itr != doc.MemberEnd()) {
-        config.visibleDuringPlay = visibleDuringPlay_itr->value.GetBool();
-    } else {
-        foundEverything = false;
-    }
-
-    auto useRealGlow_itr = doc.FindMember("useRealGlow");
-    if (useRealGlow_itr != doc.MemberEnd()) {
-        config.useRealGlow = useRealGlow_itr->value.GetBool();
-    } else {
-        foundEverything = false;
-    }
-
-    auto drawingEnabled_itr = doc.FindMember("drawingEnabled");
-    if (drawingEnabled_itr != doc.MemberEnd()) {
-        config.drawingEnabled = drawingEnabled_itr->value.GetBool();
-    } else {
-        foundEverything = false;
-    }
-
-    auto thumbnailSize_itr = doc.FindMember("thumbnailSize");
-    if (thumbnailSize_itr != doc.MemberEnd()) {
-        config.thumbnailSize = thumbnailSize_itr->value.GetInt();
-    } else {
-        foundEverything = false;
-    }
+    GetBool(visibleDuringPlay);
+    GetBool(useRealGlow);
+    GetBool(firstTimeLaunch);
+    GetInt(thumbnailSize);
 
     if (foundEverything) INFO("Loaded Configuration!");
     return foundEverything;

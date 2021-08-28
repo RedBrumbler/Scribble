@@ -15,6 +15,9 @@
 
 #include "VRUIControls/VRGraphicRaycaster.hpp"
 
+#include "HMUI/TitleViewController.hpp"
+#include "HMUI/HierarchyManager.hpp"
+#include "HMUI/ScreenSystem.hpp"
 #include "HMUI/Screen.hpp"
 #include "HMUI/CurvedCanvasSettings.hpp"
 
@@ -28,6 +31,7 @@
 
 #include "ScribbleContainer.hpp"
 
+#include "static-defines.hpp"
 #include "icons.hpp"
 
 DEFINE_TYPE(Scribble, ScribbleUI);
@@ -76,29 +80,33 @@ namespace Scribble
 
         CreateContainer();
 
-        LoadMainView();
-
-        auto startButton = UITools::CreateSimpleButton(rectTransform, config.drawingEnabled ? "Stop Drawing" : "Start Drawing");
+        auto startButton = UITools::CreateSimpleButton(rectTransform, "Start Drawing");
         startButton.SetAnchor(0.5f, 0.5f);
         startButton.SetSize(30, 10);
         startButton.SetPosition(0, -51);
         startButton.AddListener([startButton, this]()
         {
-            config.drawingEnabled ^= 1;
-            ScribbleContainer::get_instance()->drawingEnabled = config.drawingEnabled;
-            globalContainer->get_gameObject()->SetActive(config.drawingEnabled);
+            if (!mainViewController)
+            {
+                LoadMainView();
+            }
+
+            bool on = (ScribbleContainer::get_instance()->drawingEnabled ^= 1);
+            globalContainer->get_gameObject()->SetActive(on);
             SaveConfig();
             auto btn = const_cast<ScribbleUISimpleButton*>(&startButton);
-            btn->set_text(config.drawingEnabled ? "Stop Drawing" : "Start Drawing");
+            btn->set_text(on ? "Stop Drawing" : "Start Drawing");
             
             if (config.firstTimeLaunch && !pressedToggleBefore)
             {
-                config.firstTimeLaunch = true;
+                config.firstTimeLaunch = false;
                 SaveConfig();
                 pressedToggleBefore = true;
                 //TODO
-                //ScribbleContainer::get_instance().LoadAnimated("second", 0.004f, true);
+                ScribbleContainer::get_instance()->Load(string_format("%s/%s", drawingPath, "second.png"), true, true);
             }
+
+            SetMainScreenInteractable(!on);
         });
 
         startButton.gameObject->SetActive(true);
@@ -106,6 +114,7 @@ namespace Scribble
         CreateLogo();
         CreateToolBar();
 
+        globalContainer->get_gameObject()->SetActive(false);
         get_gameObject()->SetActive(true);
     }
 
@@ -208,5 +217,18 @@ namespace Scribble
         mainViewController->get_transform()->SetParent(globalContainer, false);
         mainViewController->get_transform()->set_localPosition({0.0f, -0.1f, -0.01f});
         mainViewController->__Activate(true, true);
+    }
+
+    void ScribbleUI::SetMainScreenInteractable(bool interactable)
+    {
+        auto hierarchyManagers = Resources::FindObjectsOfTypeAll<HMUI::HierarchyManager*>();
+        HMUI::ScreenSystem* screenSystem = (hierarchyManagers && hierarchyManagers->Length() > 0) ? hierarchyManagers->values[0]->screenSystem : nullptr;
+        if (!screenSystem) return;
+
+        if (screenSystem->get_mainScreen() && screenSystem->get_mainScreen()->rootViewController) screenSystem->get_mainScreen()->rootViewController->set_enableUserInteractions(interactable);
+        if (screenSystem->get_leftScreen() && screenSystem->get_leftScreen()->rootViewController) screenSystem->get_leftScreen()->rootViewController->set_enableUserInteractions(interactable);
+        if (screenSystem->get_rightScreen() && screenSystem->get_rightScreen()->rootViewController) screenSystem->get_rightScreen()->rootViewController->set_enableUserInteractions(interactable);
+        if (screenSystem->get_topScreen() && screenSystem->get_topScreen()->rootViewController) screenSystem->get_topScreen()->rootViewController->set_enableUserInteractions(interactable);
+        if (screenSystem->get_titleViewController() && screenSystem->get_titleViewController()) screenSystem->get_titleViewController()->set_enableUserInteractions(interactable);
     }
 }

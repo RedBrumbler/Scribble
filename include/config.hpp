@@ -3,8 +3,8 @@
 struct config_t {
     bool visibleDuringPlay = false;
     bool useRealGlow = true;
-    bool drawingEnabled = false;
     bool firstTimeLaunch = true;
+    bool loadAnimated = true;
     int thumbnailSize = 1024;
 };
 

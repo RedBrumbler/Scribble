@@ -2,6 +2,7 @@
 #include "logging.hpp"
 #include "config.hpp"
 
+#include "UnityEngine/WaitForSeconds.hpp"
 #include "UnityEngine/Object.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/GameObject.hpp"
@@ -27,7 +28,7 @@ namespace Scribble
     void ScribbleContainer::Start()
     {
         instance = this;
-        drawingEnabled = config.drawingEnabled;
+        drawingEnabled = false;
         lineRenderers = List<LinerendererData*>::New_ctor();
         INFO("Scribble Container Initialized");
 
@@ -43,6 +44,11 @@ namespace Scribble
         }
         else
             SetRealGlow(config.useRealGlow);
+
+        if (config.firstTimeLaunch)
+        {
+            Load(string_format("%s/%s", drawingPath, "first.png"), true, true);
+        }
     }
 
     ScribbleContainer* ScribbleContainer::get_instance()
@@ -202,11 +208,13 @@ namespace Scribble
 
         int posCount = dist  > 0.1f ? dist * 20 : 2;
         
-        lineRenderer->set_positionCount(posCount);
+        lineRenderer->set_positionCount(posCount + 1);
         for (int i = 0; i < posCount; i++)
         {
             lineRenderer->SetPosition(i, Sombrero::FastVector3::Lerp(firstPos, position, (float)i / (float)posCount));
         }
+        
+        lineRenderer->SetPosition(posCount, position);
     }
 
     void ScribbleContainer::Clear()
@@ -299,16 +307,16 @@ namespace Scribble
         SetLayer(0);
     }   
 
-    void ScribbleContainer::Load(std::string_view path, bool clear)
+    void ScribbleContainer::Load(std::string_view path, bool clear, bool animated)
     {
         if (!fileexists(path)) return;
-        std::ifstream inStream(path, std::ios::out | std::ios::binary);
+        std::shared_ptr<std::ifstream> inStream = std::make_shared<std::ifstream>(path, std::ios::out | std::ios::binary);
         
         long size;
-        ThumbnailHelper::CheckPngData(inStream, size, true);
+        ThumbnailHelper::CheckPngData(*inStream, size, true);
         // regardless of if it had valid png data, we should now be at the point after IEND -> where our data lives
         int foundVer;
-        inStream.read(reinterpret_cast<char*>(&foundVer), sizeof(int));
+        inStream->read(reinterpret_cast<char*>(&foundVer), sizeof(int));
 
         if (foundVer != imageVersion)
         {
@@ -318,12 +326,49 @@ namespace Scribble
         
         if (clear) Clear();
         int lineCount;
-        inStream.read(reinterpret_cast<char*>(&lineCount), sizeof(int));
+        inStream->read(reinterpret_cast<char*>(&lineCount), sizeof(int));
+
+        if (animated)
+        {
+            animatedLoadRoutine = StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(custom_types::Helpers::CoroutineHelper::New(LoadAnimated(inStream, lineCount))));
+            return;
+        }
 
         for (int i = 0; i < lineCount; i++)
         {
-            LinerendererData::Deserialize(inStream);
+            LinerendererData::Deserialize(*inStream);
         }
+    }
+
+    custom_types::Helpers::Coroutine ScribbleContainer::LoadAnimated(std::shared_ptr<std::ifstream> reader, int lineCount)
+    {
+        float delay = 0.004f;
+
+        for (int i = 0; i < lineCount; i++)
+        {
+            auto brush = CustomBrush::Deserialize(*reader);
+            int posCount;
+            reader->read(reinterpret_cast<char*>(&posCount), sizeof(int));
+            auto lineRenderer = ScribbleContainer::get_instance()->InitLineRenderer(brush);
+            lineRenderer->set_enabled(true);
+            Sombrero::FastVector3 val;
+            lineRenderer->set_positionCount(2);
+            reader->read(reinterpret_cast<char*>(&val), sizeof(Sombrero::FastVector3));
+            lineRenderer->SetPosition(0, val);
+            reader->read(reinterpret_cast<char*>(&val), sizeof(Sombrero::FastVector3));
+            lineRenderer->SetPosition(1, val);
+            
+            for (int i = 2; i < posCount; i++)
+            {
+                reader->read(reinterpret_cast<char*>(&val), sizeof(Sombrero::FastVector3));
+                lineRenderer->set_positionCount(i + 1);
+                lineRenderer->SetPosition(i, val);
+                co_yield reinterpret_cast<System::Collections::IEnumerator*>(UnityEngine::WaitForSeconds::New_ctor(((float)i / (float)posCount) * delay));
+            }
+        }
+
+        animatedLoadRoutine = nullptr;
+        co_return;
     }
 
     void LinerendererData::Deserialize(std::ifstream& reader)

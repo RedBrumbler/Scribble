@@ -37,11 +37,16 @@ namespace Scribble
     {
         if (!controllerPanelTemplate) controllerPanelTemplate = ArrayUtil::First(Resources::FindObjectsOfTypeAll<GlobalNamespace::PreviousColorPanelController*>(), [](auto x){ return to_utf8(csstrtostr(x->get_name())) == "PreviousColorPanelController";});
         if (!colorPanelHistory) colorPanelHistory = List<GlobalNamespace::PreviousColorPanelController*>::New_ctor();
-        
-        // we are addign when there isn't max amount of history objects yet
+
+        // if color already in history, return
+        for (int i = 0; i < colorPanelHistory->get_Count(); i++)
+            if (colorPanelHistory->items->values[i]->color == color) return;
+
+        // we are adding when there isn't max amount of history objects yet
         if (colorPanelHistory->get_Count() < maxHistoryLength)
         {
             auto newController = CreatePreviousColorController();
+            // ew ugly color and addcolor, but due to how the component works, this is what we will do
             newController->color = color;
             newController->AddColor(color);
             colorPanelHistory->Add(newController);

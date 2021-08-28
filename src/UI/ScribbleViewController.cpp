@@ -1,5 +1,7 @@
 #include "UI/ScribbleViewController.hpp"
 #include "UI/UITools.hpp"
+#include "config.hpp"
+
 #include "ScribbleContainer.hpp"
 #include "Brushes.hpp"
 #include "Effects.hpp"
@@ -36,8 +38,21 @@ namespace Scribble
 {
     std::string ScribbleViewController::FindNextName(std::string_view name, int idx)
     {
+        INFO("Getting candidate for %s", name.data());
         // candidate, what we think might work
-        std::string candidate = idx == 0 ? std::string(name) : string_format("%s-%d", name.data(), idx);
+        int foundDash = name.find('-');
+        std::string candidate;
+        if (foundDash != std::string::npos)
+        {
+            INFO("Found a -");
+            candidate = idx == 0 ? std::string(name.substr(0, foundDash)) : string_format("%s-%d", std::string(name.substr(0, foundDash)).c_str(), idx);
+        }
+        else
+        {
+            INFO("Didnt find a -");
+            candidate = idx == 0 ? std::string(name) : string_format("%s-%d", name.data(), idx);
+        }
+        INFO("Candidate %s", candidate.c_str());
         // check all existing brushes for this name
         for (auto b : Brushes::brushes)
         {
@@ -72,12 +87,7 @@ namespace Scribble
                 horizontal->set_childControlHeight(true);
                 horizontal->set_spacing(5);
                     //<vertical pad-top="5">
-                    
-                        
-                        
                             CreateLeftToolBar(horizontal->get_transform());
-
-
                     
                     //<modal id='save-dialog' hide-event='save-dialog-hide' move-to-center="true" click-off-closes="true" size-delta-x="70" size-delta-y="80">
                     saveModal = BeatSaberUI::CreateModal(horizontal->get_transform(), Vector2(80, 80), nullptr, true);
@@ -128,17 +138,19 @@ namespace Scribble
                             auto loadInfoVertical = BeatSaberUI::CreateVerticalLayoutGroup(loadHorizontal->get_transform());
                             loadInfoVertical->get_gameObject()->AddComponent<QuestUI::Backgroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.2f); 
                             loadInfoVertical->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredHeight(40);
+                            loadInfoVertical->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredWidth(40);
                             loadInfoVertical->set_childForceExpandHeight(false);
                             loadInfoVertical->set_padding(UnityEngine::RectOffset::New_ctor(0, 0, 20, 20));
 
-                            auto loadClose = BeatSaberUI::CreateUIButton(loadInfoVertical->get_transform(), "Close", [&](){ loadModal->Hide(true, nullptr); });
-                            auto loadLoad = BeatSaberUI::CreateUIButton(loadInfoVertical->get_transform(), "Load", [&](){ 
+                            auto animatedToggle = BeatSaberUI::CreateToggle(loadInfoVertical->get_transform(), "Animated", config.loadAnimated, [](bool value){ config.loadAnimated = value; });
+                            auto loadButtonHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(loadInfoVertical->get_transform());
+                            auto loadClose = BeatSaberUI::CreateUIButton(loadButtonHorizontal->get_transform(), "Close", [&](){ loadModal->Hide(true, nullptr); });
+                            auto loadLoad = BeatSaberUI::CreateUIButton(loadButtonHorizontal->get_transform(), "Load", [&](){ 
                                 int idx = reinterpret_cast<QuestUI::TableView*>(loadFileList->tableView)->get_selectedRow();
                                 if (idx < 0) return;
                                 //loadFileList->tableView->selectedCellIdxs->items->values[0];
-                                ScribbleContainer::get_instance()->Load(string_format("%s/%s.png", drawingPath, loadFileList->data[idx].text.c_str()));
-                                loadFileList->tableView->selectedCellIdxs->Clear();
-                                loadFileList->tableView->ReloadData();
+                                ScribbleContainer::get_instance()->Load(string_format("%s/%s.png", drawingPath, loadFileList->data[idx].text.c_str()), true, config.loadAnimated);
+                                loadFileList->tableView->ClearSelection();
                             });
                     
                     ReloadFileLists();
@@ -158,6 +170,7 @@ namespace Scribble
     void ScribbleViewController::DeleteBrush()
     {
         int idx = reinterpret_cast<QuestUI::TableView*>(brushList->tableView)->get_selectedRow();
+        int row = reinterpret_cast<QuestUI::TableView*>(brushList->tableView)->get_scrolledRow();
         INFO("brush delete idx: %d", idx);
         if (idx < 0) return;
         auto& selectedBrush = brushList->data[idx];
@@ -200,7 +213,8 @@ namespace Scribble
             brushName = "";
             brushNameField->set_text(Il2CppString::_get_Empty());
         }
-
+        
+        Brushes::Save();
         ReloadBrushList();
     }
 
@@ -255,6 +269,7 @@ namespace Scribble
     {
         auto brushListVertical = BeatSaberUI::CreateVerticalLayoutGroup(parent);
         brushListVertical->get_gameObject()->GetComponent<Backgroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.5f);
+        //brushListVertical->GetComponent<LayoutElement*>()->set_preferredWidth(40);
         auto brushListHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(brushListVertical->get_transform());
         brushListHorizontal->set_childForceExpandWidth(false);
         brushListHorizontal->set_childForceExpandHeight(false);
@@ -268,7 +283,7 @@ namespace Scribble
         brushNameField = BeatSaberUI::CreateStringSetting(nameFieldhorizontal->get_transform(), "Brush Name", brushName, std::bind(&ScribbleViewController::BrushNameChanged, this, std::placeholders::_1));
         brushNameField->GetComponent<LayoutElement*>()->set_preferredWidth(20);
         
-        brushList = BeatSaberUI::CreateScrollableCustomSourceList<CustomBrushListDataSource*>(brushListHorizontal->get_transform(), {35.0f, 50.0f}, std::bind(&ScribbleViewController::SelectBrush, this, std::placeholders::_1));
+        brushList = BeatSaberUI::CreateScrollableCustomSourceList<CustomBrushListDataSource*>(brushListHorizontal->get_transform(), {45.0f, 50.0f}, std::bind(&ScribbleViewController::SelectBrush, this, std::placeholders::_1));
 
         auto brushSaveButtonsVertical = BeatSaberUI::CreateVerticalLayoutGroup(brushListHorizontal->get_transform());
         float buttonSize = 15.0f;
@@ -311,11 +326,11 @@ namespace Scribble
         listHorizontal->set_childForceExpandHeight(false);
         listHorizontal->set_childControlWidth(false);
         listHorizontal->set_childControlHeight(false);
-
+        listHorizontal->set_spacing(4);
         CreateBrushList(listHorizontal->get_transform());
 
         BrushTextures::LoadAllTextures();
-        textureList = BeatSaberUI::CreateScrollableList(listHorizontal->get_transform(), {22.0f, 67.0f}, [&](int idx){
+        textureList = BeatSaberUI::CreateScrollableList(listHorizontal->get_transform(), {17.0f, 67.0f}, [&](int idx){
             SelectTexture(idx);
         });
 
@@ -323,7 +338,7 @@ namespace Scribble
         textureList->cellSize = 17.0f;
         ReloadTextureList();
 
-        effectList = BeatSaberUI::CreateScrollableList(listHorizontal->get_transform(), {35.0f, 67.0f}, [&](int idx){
+        effectList = BeatSaberUI::CreateScrollableList(listHorizontal->get_transform(), {25.0f, 67.0f}, [&](int idx){
             SelectEffect(idx);
         });
         
@@ -462,7 +477,7 @@ namespace Scribble
 
         textureList->tableView->ReloadData();
         textureList->tableView->RefreshCells(true, true);
-        textureList->tableView->ScrollToCellWithIdx(row, HMUI::TableView::ScrollPositionType::Beginning, false);
+        textureList->tableView->ScrollToCellWithIdx(row >= 0 ? row : 0, HMUI::TableView::ScrollPositionType::Beginning, false);
     }
 
     void ScribbleViewController::ReloadEffectList()
@@ -477,14 +492,14 @@ namespace Scribble
         }
         effectList->tableView->ReloadData();
         effectList->tableView->RefreshCells(true, true);
-        effectList->tableView->ScrollToCellWithIdx(row, HMUI::TableView::ScrollPositionType::Beginning, false);
+        effectList->tableView->ScrollToCellWithIdx(row >= 0 ? row : 0, HMUI::TableView::ScrollPositionType::Beginning, false);
     }
 
     void ScribbleViewController::ReloadBrushList()
     {
         INFO("ReloadBrushList");
         brushList->data.clear();
-        int firstRow = reinterpret_cast<QuestUI::TableView*>(brushList->tableView)->get_selectedRow();
+        int firstRow = brushList->tableView->get_contentTransform() ? reinterpret_cast<QuestUI::TableView*>(brushList->tableView)->get_scrolledRow() : 0;
 
         for (auto b : Brushes::brushes)
         {

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "custom-types/shared/macros.hpp"
+#include "custom-types/shared/coroutine.hpp"
 #include "UnityEngine/MonoBehaviour.hpp"
 #include "UnityEngine/LineRenderer.hpp"
 #include "UnityEngine/Coroutine.hpp"
@@ -68,7 +69,8 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleContainer, UnityEngine::MonoBehaviour,
         void Hide();
         
         void Save(std::string_view path, bool clear = false);
-        void Load(std::string_view path, bool clear = true);
+        void Load(std::string_view path, bool clear = true, bool animated = true);
+        custom_types::Helpers::Coroutine LoadAnimated(std::shared_ptr<std::ifstream> reader, int lineCount);
 
         void CheckLine(GlobalNamespace::SaberType saberType);
     private:

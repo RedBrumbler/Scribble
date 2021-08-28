@@ -27,4 +27,5 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleUI, UnityEngine::MonoBehaviour,
         void CreateToolBar();
         void CreateLogo();
         void LoadMainView();
+        static void SetMainScreenInteractable(bool interactable);
 )
