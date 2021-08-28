@@ -28,6 +28,8 @@
 
 #include "ScribbleContainer.hpp"
 
+#include "icons.hpp"
+
 DEFINE_TYPE(Scribble, ScribbleUI);
 
 using namespace UnityEngine;
@@ -84,6 +86,7 @@ namespace Scribble
         {
             config.drawingEnabled ^= 1;
             ScribbleContainer::get_instance()->drawingEnabled = config.drawingEnabled;
+            globalContainer->get_gameObject()->SetActive(config.drawingEnabled);
             SaveConfig();
             auto btn = const_cast<ScribbleUISimpleButton*>(&startButton);
             btn->set_text(config.drawingEnabled ? "Stop Drawing" : "Start Drawing");
@@ -101,7 +104,6 @@ namespace Scribble
         startButton.gameObject->SetActive(true);
 
         CreateLogo();
-
         CreateToolBar();
 
         get_gameObject()->SetActive(true);
@@ -130,11 +132,7 @@ namespace Scribble
         rect->set_pivot(Vector2(0.5f, 0.5f));
         rect->set_offsetMin(Vector2(0, 0));
         rect->set_offsetMax(Vector2(0, 0));
-        /*
-        var img = imageContainer.AddComponent<Image>();
-        img.material = _uiMaterial;
-        img.type = Image.Type.Sliced;
-        */
+        
         auto container = GameObject::New_ctor(il2cpp_utils::newcsstr("Container"));
         container->get_transform()->SetParent(rect, false);
         globalContainer = container->AddComponent<RectTransform*>();
@@ -191,12 +189,11 @@ namespace Scribble
 
     void ScribbleUI::CreateLogo()
     {
-        /*
-        var img = _globalContainer.CreateImage(new Vector2(20, -12), new Vector2(34, 14));
-        img.rectTransform.anchorMin = new Vector2(0, 1);
-        img.rectTransform.anchorMax = new Vector2(0, 1);
-        img.sprite = Tools.LoadSpriteFromResources("Resources.logo.png", false);
-        */
+        auto img = UITools::CreateImage(globalContainer, Vector2(20, -12), Vector2(34, 14));
+        img->get_rectTransform()->set_anchorMin(Vector2(0, 1));
+        img->get_rectTransform()->set_anchorMax(Vector2(0, 1));
+        
+        img->set_sprite(UITools::Base64ToSprite(logo));
     }
 
     void ScribbleUI::LoadMainView()
@@ -208,9 +205,8 @@ namespace Scribble
             curvedCanvasSettings->values[i]->SetRadius(0);
 
         get_gameObject()->GetComponent<HMUI::Screen*>()->rootViewController = mainViewController;
-        mainViewController->get_transform()->SetParent(globalContainer->get_parent(), false);
+        mainViewController->get_transform()->SetParent(globalContainer, false);
         mainViewController->get_transform()->set_localPosition({0.0f, -0.1f, -0.01f});
-        //mainViewController->get_transform()->set_localRotation(Quaternion::Euler(-5.0f, 0.0f, 0.0f));
         mainViewController->__Activate(true, true);
     }
 }

@@ -296,7 +296,6 @@ namespace Scribble
 
                         auto saveButton = BeatSaberUI::CreateUIButton(brushSaveButtonHorizontal->get_transform(), "", "SettingsButton", Vector2(0, 0), Vector2(brushButtonSize, brushButtonSize), [&](){
                             int idx = reinterpret_cast<QuestUI::TableView*>(saveBrushList->tableView)->get_selectedRow();
-                            if (idx < 0) return;
                             // we have an index that is selected!;
                             std::string selectedBrushName = idx >= 0 ? saveBrushList->data[idx].text : "";
 
