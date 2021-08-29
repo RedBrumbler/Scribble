@@ -7,6 +7,10 @@
 #include "Effects.hpp"
 #include "BrushTextures.hpp"
 #include "GlobalBrushManager.hpp"
+#include "logging.hpp"
+#include "static-defines.hpp"
+#include "icons.hpp"
+
 #include "UnityEngine/Sprite.hpp"
 #include "UnityEngine/Rect.hpp"
 #include "UnityEngine/Vector2.hpp"
@@ -14,16 +18,17 @@
 #include "UnityEngine/RectOffset.hpp"
 #include "UnityEngine/UI/ContentSizeFitter.hpp"
 #include "UnityEngine/SpriteMeshType.hpp"
-#include "logging.hpp"
 
-#include "HMUI/TableView_ScrollPositionType.hpp"
+#include "GlobalNamespace/MainEffectContainerSO.hpp"
+#include "GlobalNamespace/BoolSO.hpp"
+
 #include "questui/shared/BeatSaberUI.hpp"
 #include "questui/shared/CustomTypes/Components/List/QuestUITableView.hpp"
 #include "questui/shared/CustomTypes/Components/Backgroundable.hpp"
-#include "static-defines.hpp"
-#include "icons.hpp"
 
 #include "System/Collections/Generic/HashSet_1.hpp"
+
+#include "HMUI/TableView_ScrollPositionType.hpp"
 
 #include "Utils/FileUtils.hpp"
 #include "Utils/ThumbnailHelper.hpp"
@@ -76,6 +81,8 @@ namespace Scribble
             vertical->set_childForceExpandHeight(false);
             vertical->set_childControlHeight(false);
             vertical->set_spacing(2);
+            vertical->set_padding(RectOffset::New_ctor(5, 5, 0, 0));
+            
                 //<horizontal horizontal-fit="PreferredSize" child-expand-width="false" child-expand-height="true" child-control-width="true" child-control-height="true" spacing="5">
                 
                 auto horizontal = BeatSaberUI::CreateHorizontalLayoutGroup(vertical->get_transform());
@@ -155,11 +162,32 @@ namespace Scribble
                     
                     ReloadFileLists();
 
+                    settingsModal = BeatSaberUI::CreateModal(horizontal->get_transform(), Vector2(50, 50), [](auto x){ SaveConfig(); }, true);
+                    auto settingsVertical = BeatSaberUI::CreateScrollableModalContainer(settingsModal);
+                    auto toggle = BeatSaberUI::CreateToggle(settingsVertical->get_transform(), "Visible during play", config.visibleDuringPlay, [](bool val){ config.visibleDuringPlay = val; SaveConfig(); });
+                    BeatSaberUI::AddHoverHint(toggle->get_gameObject(), "Whether or not your drawing is visible during gameplay");
+
+                    // if post processing enabled, allow to turn it off for scribble
+                    auto effectContainers = Resources::FindObjectsOfTypeAll<GlobalNamespace::MainEffectContainerSO*>();
+                    if (effectContainers && effectContainers->Length() > 0)
+                    {
+                        auto effectContainer = effectContainers->values[0];
+                        if (effectContainer->postProcessEnabled->get_value())
+                        {
+                            toggle = BeatSaberUI::CreateToggle(settingsVertical->get_transform(), "Use Real Glow", config.useRealGlow, [](bool val){ 
+                                config.useRealGlow = val; 
+                                SaveConfig();
+                                ScribbleContainer::SetRealGlow(val);
+                            });
+                            BeatSaberUI::AddHoverHint(toggle->get_gameObject(), "Whether the mod uses real glow or just makes lines more white when glow is high");
+                        }
+                    }
                     CreateMainVertical(horizontal->get_transform());
             
             SetModalPosition(saveModal);
             SetModalPosition(loadModal);
             SetModalPosition(colorPickerModal->modalView);
+            SetModalPosition(settingsModal);
 
             ActiveControllerChanged(GlobalBrushManager::get_activeBrush());
         }
@@ -713,5 +741,10 @@ namespace Scribble
     void ScribbleViewController::SaveSelectIdx(int idx)
     {
         fileNameField->set_text(il2cpp_utils::newcsstr(saveFileList->data[idx].text));
+    }
+
+    void ScribbleViewController::ShowSettings()
+    {
+        if (settingsModal) settingsModal->Show(true, true, nullptr);
     }
 }

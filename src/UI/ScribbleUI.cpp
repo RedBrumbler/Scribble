@@ -165,35 +165,52 @@ namespace Scribble
         toolBar->set_offsetMin(Vector2(0, 65));
         toolBar->set_offsetMax(Vector2(0, 65));
         toolBar->set_localRotation(Quaternion::Euler(-30, 0, 0));
-        toolBar->set_sizeDelta(Vector2(200, 10));
+        toolBar->set_sizeDelta(Vector2(150, 10));
 
         auto sizeFitter = topToolbar->AddComponent<ContentSizeFitter*>();
         sizeFitter->set_horizontalFit(ContentSizeFitter::FitMode::PreferredSize);
+        auto topBarLayout = topToolbar->AddComponent<HorizontalLayoutGroup*>();
+        topBarLayout->set_childAlignment(TextAnchor::UpperLeft);
+        topBarLayout->set_spacing(5);
+        //topBarLayout->set_childControlWidth(false);
+        //topBarLayout->set_childForceExpandWidth(false);
 
-        auto horizontalLayout = topToolbar->AddComponent<HorizontalLayoutGroup*>();
+        auto horizontalLayout = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(toolBar);
+        horizontalLayout->set_childForceExpandWidth(false);
         horizontalLayout->set_childControlWidth(false);
-        horizontalLayout->set_childAlignment(TextAnchor::UpperLeft);
-        horizontalLayout->set_spacing(5.0f);
-
-        auto btn = UITools::CreateSimpleButton(toolBar, "Clear");
+        horizontalLayout->set_spacing(2.0f);
+        horizontalLayout->GetComponent<UI::LayoutElement*>()->set_preferredWidth(120);
+        
+        auto btn = QuestUI::BeatSaberUI::CreateUIButton(horizontalLayout->get_transform(), "Clear", [](){ if (ScribbleContainer::get_instance() && !ScribbleContainer::get_instance()->get_IsInAnimation()) ScribbleContainer::get_instance()->Clear(); });
+        btn = QuestUI::BeatSaberUI::CreateUIButton(horizontalLayout->get_transform(), "Undo", [](){ if (ScribbleContainer::get_instance() && !ScribbleContainer::get_instance()->get_IsInAnimation()) ScribbleContainer::get_instance()->Undo(); });
+        btn = QuestUI::BeatSaberUI::CreateUIButton(horizontalLayout->get_transform(), "Save", [&]() { mainViewController->ShowSaveFile(); });
+        btn = QuestUI::BeatSaberUI::CreateUIButton(horizontalLayout->get_transform(), "Load", [&]() { mainViewController->ShowLoadFile(); });
+        /*
+        auto btn = UITools::CreateSimpleButton(horizontalLayout->get_transform(), "Clear");
         btn.strokeEnabled = false;
         btn.AddListener([]() { if (ScribbleContainer::get_instance() && !ScribbleContainer::get_instance()->get_IsInAnimation()) ScribbleContainer::get_instance()->Clear(); });
         btn.gameObject->SetActive(true);
 
-        btn = UITools::CreateSimpleButton(toolBar, "Undo");
+        btn = UITools::CreateSimpleButton(horizontalLayout->get_transform(), "Undo");
         btn.strokeEnabled = false;
         btn.AddListener([]() { if (ScribbleContainer::get_instance() && !ScribbleContainer::get_instance()->get_IsInAnimation()) ScribbleContainer::get_instance()->Undo(); });
         btn.gameObject->SetActive(true);
 
-        btn = UITools::CreateSimpleButton(toolBar, "Save");
+        btn = UITools::CreateSimpleButton(horizontalLayout->get_transform(), "Save");
         btn.strokeEnabled = false;
         btn.AddListener([&]() { mainViewController->ShowSaveFile(); });
         btn.gameObject->SetActive(true);
 
-        btn = UITools::CreateSimpleButton(toolBar, "Load");
+        btn = UITools::CreateSimpleButton(horizontalLayout->get_transform(), "Load");
         btn.strokeEnabled = false;
         btn.AddListener([&]() { mainViewController->ShowLoadFile(); });
         btn.gameObject->SetActive(true);
+        */
+
+        auto settingsButton = QuestUI::BeatSaberUI::CreateUIButton(toolBar->get_transform(), "", "SettingsButton", Vector2(8, 8), [&](){ mainViewController->ShowSettings(); });
+        reinterpret_cast<RectTransform*>(settingsButton->get_transform()->GetChild(0))->set_sizeDelta({8, 8});
+
+        QuestUI::BeatSaberUI::SetButtonSprites(settingsButton, UITools::Base64ToSprite(settings_inactive), UITools::Base64ToSprite(settings));
     }
 
     void ScribbleUI::CreateLogo()

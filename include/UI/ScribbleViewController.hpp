@@ -41,7 +41,7 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleViewController, HMUI::ViewController,
     
     DECLARE_INSTANCE_FIELD(HMUI::ModalView*, saveModal);
     DECLARE_INSTANCE_FIELD(HMUI::ModalView*, loadModal);
-    DECLARE_INSTANCE_FIELD(HMUI::ModalView*, brushModal);
+    DECLARE_INSTANCE_FIELD(HMUI::ModalView*, settingsModal);
 
     private:
         void ReloadBrushList();
@@ -50,6 +50,9 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleViewController, HMUI::ViewController,
         void ReloadFileLists();
         void SelectForBrush(const CustomBrush& brush);
         void ActiveControllerChanged(BrushBehaviour* newBrush);
+        void SaveFilenameChanged(std::string val);
+        void BrushNameChanged(std::string val);
+
         void SetModalPosition(HMUI::ModalView* modal);
         void SaveSelectIdx(int idx);
         void DeleteBrush();
@@ -78,6 +81,6 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleViewController, HMUI::ViewController,
 
         void ShowSaveFile();
         void ShowLoadFile();
-        void SaveFilenameChanged(std::string val);
-        void BrushNameChanged(std::string val);
+        void ShowSettings();
+
 )

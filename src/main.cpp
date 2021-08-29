@@ -158,5 +158,5 @@ extern "C" void load()
     Hooks::InstallHooks(::Scribble::Logging::getLogger());
     custom_types::Register::AutoRegister();
 
-    QuestUI::Register::RegisterModSettingsViewController<ScribbleSettingsViewController*>({ID, VERSION});
+    //QuestUI::Register::RegisterModSettingsViewController<ScribbleSettingsViewController*>({ID, VERSION});
 }

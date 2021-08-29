@@ -40,6 +40,14 @@
     {
       "name": "plant.png",
       "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/BrushTextures/plant.png"
+    },
+    {
+      "name": "first.png",
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/Drawings/first.png"
+    },
+    {
+      "name": "second.png",
+      "destination": "/sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/Drawings/second.png"
     }
   ]
 }
