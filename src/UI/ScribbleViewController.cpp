@@ -296,7 +296,7 @@ namespace Scribble
     void ScribbleViewController::CreateBrushList(UnityEngine::Transform* parent)
     {
         auto brushListVertical = BeatSaberUI::CreateVerticalLayoutGroup(parent);
-        brushListVertical->get_gameObject()->GetComponent<Backgroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.5f);
+        brushListVertical->get_gameObject()->GetComponent<Backgroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.8f);
         //brushListVertical->GetComponent<LayoutElement*>()->set_preferredWidth(40);
         auto brushListHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(brushListVertical->get_transform());
         brushListHorizontal->set_childForceExpandWidth(false);

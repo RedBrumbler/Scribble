@@ -111,8 +111,8 @@ namespace Scribble
 
         startButton.gameObject->SetActive(true);
 
-        CreateLogo();
         CreateToolBar();
+        CreateLogo();
 
         globalContainer->get_gameObject()->SetActive(false);
         get_gameObject()->SetActive(true);
@@ -179,7 +179,7 @@ namespace Scribble
         horizontalLayout->set_childForceExpandWidth(false);
         horizontalLayout->set_childControlWidth(false);
         horizontalLayout->set_spacing(2.0f);
-        horizontalLayout->GetComponent<UI::LayoutElement*>()->set_preferredWidth(120);
+        horizontalLayout->GetComponent<UI::LayoutElement*>()->set_preferredWidth(80);
         
         auto btn = QuestUI::BeatSaberUI::CreateUIButton(horizontalLayout->get_transform(), "Clear", [](){ if (ScribbleContainer::get_instance() && !ScribbleContainer::get_instance()->get_IsInAnimation()) ScribbleContainer::get_instance()->Clear(); });
         btn = QuestUI::BeatSaberUI::CreateUIButton(horizontalLayout->get_transform(), "Undo", [](){ if (ScribbleContainer::get_instance() && !ScribbleContainer::get_instance()->get_IsInAnimation()) ScribbleContainer::get_instance()->Undo(); });
@@ -215,7 +215,12 @@ namespace Scribble
 
     void ScribbleUI::CreateLogo()
     {
-        auto img = UITools::CreateImage(globalContainer, Vector2(20, -12), Vector2(34, 14));
+        auto horizontal = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(toolBar);
+        horizontal->get_transform()->SetAsFirstSibling();
+        auto layout = horizontal->GetComponent<LayoutElement*>();
+        layout->set_preferredWidth(20);
+        layout->set_preferredHeight(8);
+        auto img = UITools::CreateImage(horizontal->get_transform(), Vector2(0, -12), Vector2(34, 14));
         img->get_rectTransform()->set_anchorMin(Vector2(0, 1));
         img->get_rectTransform()->set_anchorMax(Vector2(0, 1));
         
