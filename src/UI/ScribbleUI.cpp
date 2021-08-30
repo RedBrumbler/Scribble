@@ -21,6 +21,8 @@
 #include "HMUI/Screen.hpp"
 #include "HMUI/CurvedCanvasSettings.hpp"
 
+#include "GlobalNamespace/PauseMenuManager.hpp"
+
 #include "UI/UITools.hpp"
 
 #include "Zenject/MonoInstaller.hpp"
@@ -80,11 +82,11 @@ namespace Scribble
 
         CreateContainer();
 
-        auto startButton = UITools::CreateSimpleButton(rectTransform, "Start Drawing");
+        startButton = UITools::CreateSimpleButton(rectTransform, "Start Drawing");
         startButton.SetAnchor(0.5f, 0.5f);
         startButton.SetSize(30, 10);
         startButton.SetPosition(0, -51);
-        startButton.AddListener([startButton, this]()
+        startButton.AddListener([this]()
         {
             if (!mainViewController)
             {
@@ -94,8 +96,8 @@ namespace Scribble
             bool on = (ScribbleContainer::get_instance()->drawingEnabled ^= 1);
             globalContainer->get_gameObject()->SetActive(on);
             SaveConfig();
-            auto btn = const_cast<ScribbleUISimpleButton*>(&startButton);
-            btn->set_text(on ? "Stop Drawing" : "Start Drawing");
+            
+            startButton.set_text(on ? "Stop Drawing" : "Start Drawing");
             
             if (config.firstTimeLaunch && !pressedToggleBefore)
             {
@@ -241,16 +243,44 @@ namespace Scribble
         mainViewController->__Activate(true, true);
     }
 
+    // goes down the entire hierarchy to disable all view controllers
+    #define SET_INTERACTABLE(getter) \
+    if (screenSystem->get_ ##getter() && screenSystem->get_ ##getter()->rootViewController) { \
+        auto current = screenSystem->get_ ##getter()->rootViewController; \
+        current->set_enableUserInteractions(interactable); \
+        while (current && current->childViewController) { \
+            current->childViewController->set_enableUserInteractions(interactable); \
+            current = current->childViewController; \
+        } \
+    } \
+
     void ScribbleUI::SetMainScreenInteractable(bool interactable)
     {
-        auto hierarchyManagers = Resources::FindObjectsOfTypeAll<HMUI::HierarchyManager*>();
-        HMUI::ScreenSystem* screenSystem = (hierarchyManagers && hierarchyManagers->Length() > 0) ? hierarchyManagers->values[0]->screenSystem : nullptr;
-        if (!screenSystem) return;
+        auto viewControllers = Resources::FindObjectsOfTypeAll<HMUI::ViewController*>();
+        int length = viewControllers->Length();
+        for (int i = 0; i < length; i++)
+        {
+            auto viewController = viewControllers->values[i];
+            if (!strcmp(viewController->klass->name, "ScribbleViewController")) continue;
+            viewController->set_enableUserInteractions(interactable);
+        }
 
-        if (screenSystem->get_mainScreen() && screenSystem->get_mainScreen()->rootViewController) screenSystem->get_mainScreen()->rootViewController->set_enableUserInteractions(interactable);
-        if (screenSystem->get_leftScreen() && screenSystem->get_leftScreen()->rootViewController) screenSystem->get_leftScreen()->rootViewController->set_enableUserInteractions(interactable);
-        if (screenSystem->get_rightScreen() && screenSystem->get_rightScreen()->rootViewController) screenSystem->get_rightScreen()->rootViewController->set_enableUserInteractions(interactable);
-        if (screenSystem->get_topScreen() && screenSystem->get_topScreen()->rootViewController) screenSystem->get_topScreen()->rootViewController->set_enableUserInteractions(interactable);
-        if (screenSystem->get_titleViewController() && screenSystem->get_titleViewController()) screenSystem->get_titleViewController()->set_enableUserInteractions(interactable);
+        if (inPause)
+        {
+            auto pauseMenuManagers = Resources::FindObjectsOfTypeAll<GlobalNamespace::PauseMenuManager*>();
+            if (pauseMenuManagers && pauseMenuManagers->Length() > 0) 
+            {
+                auto pauseMenuManager = pauseMenuManagers->values[0];
+                pauseMenuManager->continueButton->set_interactable(interactable);
+                pauseMenuManager->restartButton->set_interactable(interactable);
+                pauseMenuManager->backButton->set_interactable(interactable);
+            }
+        }
+    }
+
+    void ScribbleUI::Reset()
+    {
+        auto ui = UnityEngine::Resources::FindObjectsOfTypeAll<ScribbleUI*>();
+        if (ui && ui->Length() > 0) UnityEngine::Object::DestroyImmediate(ui->values[0]->get_gameObject());
     }
 }

@@ -370,6 +370,13 @@ namespace Scribble
         animatedLoadRoutine = nullptr;
         co_return;
     }
+    
+    void ScribbleContainer::Reset()
+    {
+        auto scribbles = UnityEngine::Resources::FindObjectsOfTypeAll<ScribbleContainer*>();
+        if (scribbles && scribbles->Length() > 0) UnityEngine::Object::DestroyImmediate(scribbles->values[0]->get_gameObject());
+        instance = nullptr;
+    }
 
     void LinerendererData::Deserialize(std::ifstream& reader)
     {
@@ -411,4 +418,5 @@ namespace Scribble
         data->brush.copy(brush);
         return data;
     }
+
 }

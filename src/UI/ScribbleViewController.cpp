@@ -487,6 +487,7 @@ namespace Scribble
     void ScribbleViewController::ReloadTextureList()
     {
         INFO("ReloadTextureList");
+        if (!textureList) return;
         textureList->data.clear();
         int row = reinterpret_cast<QuestUI::TableView*>(textureList->tableView)->get_selectedRow();
         auto textures = BrushTextures::GetTextures();
@@ -511,6 +512,7 @@ namespace Scribble
     void ScribbleViewController::ReloadEffectList()
     {
         INFO("ReloadEffectList");
+        if (!effectList) return;
         effectList->data.clear();
         int row = reinterpret_cast<QuestUI::TableView*>(effectList->tableView)->get_selectedRow();
         auto& effects = Effects::GetEffects();
@@ -526,11 +528,13 @@ namespace Scribble
     void ScribbleViewController::ReloadBrushList()
     {
         INFO("ReloadBrushList");
+        if (!brushList) return;
         brushList->data.clear();
         int firstRow = brushList->tableView->get_contentTransform() ? reinterpret_cast<QuestUI::TableView*>(brushList->tableView)->get_scrolledRow() : 0;
 
         for (auto b : Brushes::brushes)
         {
+            INFO("Brush: %s", b.name.c_str());
             auto texture = BrushTextures::GetTexture(b.textureName);
             if (texture)
             {

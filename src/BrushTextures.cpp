@@ -35,7 +35,7 @@ namespace Scribble::BrushTextures
 
     Texture2D* GetTexture(std::string_view name)
     {
-        if (!textures) textures = Dictionary<Il2CppString*, UnityEngine::Texture2D*>::New_ctor();
+        if (!textures || !((Dictionary<Il2CppString*, UnityEngine::Texture2D*>*)textures)) textures = Dictionary<Il2CppString*, UnityEngine::Texture2D*>::New_ctor();
         auto key = il2cpp_utils::newcsstr(name);
         Texture2D* tex = nullptr;
         if (textures->ContainsKey(key)) {
@@ -73,5 +73,10 @@ namespace Scribble::BrushTextures
             tex.emplace_back(key, textures->entries->values[i].value);
         }
         return tex;
+    }
+
+    void Reset()
+    {
+        textures.emplace(nullptr);
     }
 }

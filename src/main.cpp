@@ -12,11 +12,17 @@
 #include "GlobalNamespace/BeatmapObjectSpawnController.hpp"
 #include "GlobalNamespace/BeatmapObjectSpawnController_InitData.hpp"
 #include "GlobalNamespace/BeatmapEventData.hpp"
+#include "GlobalNamespace/MenuTransitionsHelper.hpp"
+#include "GlobalNamespace/GamePause.hpp"
+
+#include "System/Action_1.hpp"
+#include "Zenject/DiContainer.hpp"
 
 #include "CustomTypes/BrushBehaviour.hpp"
 
 #include "Effects.hpp"
 #include "Brushes.hpp"
+#include "BrushTextures.hpp"
 #include "ScribbleContainer.hpp"
 #include "AssetLoader.hpp"
 
@@ -140,6 +146,42 @@ MAKE_AUTO_HOOK_MATCH(VariableBpmProcessor_ProcessBeatmapEventData, &GlobalNamesp
         ScribbleContainer::SetBPM((float)beatmapEventData->value);
     }
     return true;
+}
+
+MAKE_AUTO_HOOK_MATCH(MenuTransitionsHelper_RestartGame, &GlobalNamespace::MenuTransitionsHelper::RestartGame, void, GlobalNamespace::MenuTransitionsHelper* self, System::Action_1<Zenject::DiContainer*>* finishCallback)
+{
+    ScribbleUI::Reset();
+    ScribbleContainer::Reset();
+    BrushTextures::Reset();
+    MenuTransitionsHelper_RestartGame(self, finishCallback);
+}
+
+MAKE_AUTO_HOOK_MATCH(GamePause_Pause, &GlobalNamespace::GamePause::Pause, void, GlobalNamespace::GamePause* self)
+{
+    auto ui = UnityEngine::Resources::FindObjectsOfTypeAll<ScribbleUI*>();
+    if (ui && ui->Length() > 0) 
+    {
+        ScribbleUI::inPause = true;
+        ui->values[0]->Show(true);
+    }
+    GamePause_Pause(self);
+}
+
+MAKE_AUTO_HOOK_MATCH(GamePause_Resume, &GlobalNamespace::GamePause::Resume, void, GlobalNamespace::GamePause* self)
+{
+    GamePause_Resume(self);
+    auto ui = UnityEngine::Resources::FindObjectsOfTypeAll<ScribbleUI*>();
+    if (ui && ui->Length() > 0) 
+    {
+        auto scribbleUI = ui->values[0];
+        if (scribbleUI->globalContainer->get_gameObject()->get_active())
+        {
+            scribbleUI->startButton.noTransitionsButton->get_onClick()->Invoke();
+        }
+
+        scribbleUI->Show(false);
+        ScribbleUI::inPause = false;
+    }
 }
 
 extern "C" void setup(ModInfo& info)
