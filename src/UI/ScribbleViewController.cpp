@@ -116,7 +116,7 @@ namespace Scribble
                                 auto saveFileNameHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(saveInfoVertical->get_transform());
                                 saveFileNameHorizontal->set_childForceExpandHeight(false);
                                 
-                                fileNameField = BeatSaberUI::CreateStringSetting(saveFileNameHorizontal->get_transform(), "filename", "", std::bind(&ScribbleViewController::SaveFilenameChanged, this, std::placeholders::_1) );
+                                fileNameField = BeatSaberUI::CreateStringSetting(saveFileNameHorizontal->get_transform(), u"filename", "", std::bind(&ScribbleViewController::SaveFilenameChanged, this, std::placeholders::_1) );
                                 auto nameFieldLayout = fileNameField->GetComponent<LayoutElement*>();
                                 nameFieldLayout->set_preferredWidth(30);
 
@@ -129,6 +129,7 @@ namespace Scribble
                                     ReloadFileLists();
                                 });
                                 auto saveNew = BeatSaberUI::CreateUIButton(saveConfirmHorizontal->get_transform(), "Save", [&](){ 
+                                if (ScribbleContainer::get_instance()->get_IsInAnimation()) return;
                                     ScribbleContainer::get_instance()->Save(string_format("%s/%s.png", drawingPath, saveFileName.c_str()));
                                 });
                     
@@ -156,6 +157,7 @@ namespace Scribble
                                 int idx = reinterpret_cast<QuestUI::TableView*>(loadFileList->tableView)->get_selectedRow();
                                 if (idx < 0) return;
                                 //loadFileList->tableView->selectedCellIdxs->items->values[0];
+                                if (ScribbleContainer::get_instance()->get_IsInAnimation()) return;
                                 ScribbleContainer::get_instance()->Load(string_format("%s/%s.png", drawingPath, loadFileList->data[idx].text.c_str()), true, config.loadAnimated);
                                 loadFileList->tableView->ClearSelection();
                             });
@@ -693,12 +695,12 @@ namespace Scribble
         if (loadModal) loadModal->Show(true, true, nullptr);
     }
 
-    void ScribbleViewController::SaveFilenameChanged(std::string val)
+    void ScribbleViewController::SaveFilenameChanged(std::string_view val)
     {
         saveFileName = val;
     }
 
-    void ScribbleViewController::BrushNameChanged(std::string val)
+    void ScribbleViewController::BrushNameChanged(std::string_view val)
     {
         brushName = val;
     }

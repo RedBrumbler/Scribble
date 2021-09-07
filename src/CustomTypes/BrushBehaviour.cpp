@@ -64,7 +64,6 @@ namespace Scribble
         {
             Sombrero::FastVector3 position = get_transform()->get_position();
             float sqrDistance = position.sqrDistance(lastPoint);
-            INFO("%.5f > %.5f = %d", sqrDistance, minDistance, sqrDistance < minDistance);
             if (sqrDistance > minDistance)
             {
                 ScribbleContainer::get_instance()->AddPoint(position, saberType);

@@ -50,8 +50,8 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleViewController, HMUI::ViewController,
         void ReloadFileLists();
         void SelectForBrush(const CustomBrush& brush);
         void ActiveControllerChanged(BrushBehaviour* newBrush);
-        void SaveFilenameChanged(std::string val);
-        void BrushNameChanged(std::string val);
+        void SaveFilenameChanged(std::string_view val);
+        void BrushNameChanged(std::string_view val);
 
         void SetModalPosition(HMUI::ModalView* modal);
         void SaveSelectIdx(int idx);

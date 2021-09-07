@@ -215,6 +215,7 @@ namespace Scribble
         }
         
         lineRenderer->SetPosition(posCount, position);
+        CheckLine(type);
     }
 
     void ScribbleContainer::Clear()
@@ -239,6 +240,7 @@ namespace Scribble
         if (index < 0 || index > lineRenderers->get_Count() - 1) return;
         INFO("Deleting index %d", index);
         auto lr = lineRenderers->items->values[index]->lineRenderer;
+        if (lr == currentLineRendererLeft || lr == currentLineRendererRight) return;
         lineRenderers->RemoveAt(index);
         Object::Destroy(lr->get_gameObject());
     }
@@ -278,6 +280,16 @@ namespace Scribble
             auto data = lineRenderers->items->values[i];
             if (data->lineRenderer == lineRenderer && lineRenderer->get_positionCount() < minPositionCount) Delete(data);
         }
+
+        switch(saberType)
+        {
+            case GlobalNamespace::SaberType::SaberA: 
+                currentLineRendererLeft = nullptr;
+                break;
+            case GlobalNamespace::SaberType::SaberB:
+                currentLineRendererRight = nullptr;
+                break;
+        }
     }
 
     void ScribbleContainer::Save(std::string_view path, bool clear)
@@ -310,6 +322,7 @@ namespace Scribble
     void ScribbleContainer::Load(std::string_view path, bool clear, bool animated)
     {
         if (!fileexists(path)) return;
+        if (get_IsInAnimation()) return;
         std::shared_ptr<std::ifstream> inStream = std::make_shared<std::ifstream>(path, std::ios::out | std::ios::binary);
         
         long size;

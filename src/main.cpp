@@ -164,6 +164,7 @@ MAKE_AUTO_HOOK_MATCH(GamePause_Pause, &GlobalNamespace::GamePause::Pause, void, 
         ScribbleUI::inPause = true;
         ui->values[0]->Show(true);
     }
+    ScribbleContainer::get_instance()->Show();
     GamePause_Pause(self);
 }
 
@@ -182,6 +183,11 @@ MAKE_AUTO_HOOK_MATCH(GamePause_Resume, &GlobalNamespace::GamePause::Resume, void
         scribbleUI->Show(false);
         ScribbleUI::inPause = false;
     }
+
+    if (config.visibleDuringPlay)
+        ScribbleContainer::get_instance()->Show();
+    else
+        ScribbleContainer::get_instance()->Hide();
 }
 
 extern "C" void setup(ModInfo& info)
