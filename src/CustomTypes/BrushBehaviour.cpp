@@ -2,6 +2,7 @@
 #include "CustomTypes/Eraser.hpp"
 #include "CustomTypes/Bucket.hpp"
 #include "CustomTypes/Ruler.hpp"
+#include "CustomTypes/Mover.hpp"
 #include "Effects.hpp"
 #include "Brushes.hpp"
 #include "GlobalBrushManager.hpp"
@@ -55,6 +56,11 @@ namespace Scribble
         auto ruler = get_gameObject()->AddComponent<Ruler*>();
         ruler->Init(this);
 
+        auto mover = get_gameObject()->AddComponent<Mover*>();
+        mover->Init(this);
+
+        mode = BrushMode::Brush;
+
         set_enabled(false);
     }
 
@@ -87,20 +93,28 @@ namespace Scribble
         if (!ScribbleContainer::get_instance()) return;
         if (!ScribbleContainer::drawingEnabled) return;
         set_menuHandleActive(false);
-        if (eraseMode)
+
+        switch (mode)
         {
-            GetComponent<Eraser*>()->StartErasing();
-            return;
-        }
-        else if (bucketMode)
-        {
-            GetComponent<Bucket*>()->StartBucketing();
-            return;
-        }
-        else if (rulerMode)
-        {
-            GetComponent<Ruler*>()->StartRuling();
-            return;
+            case BrushMode::Brush: {
+                break;
+            }
+            case BrushMode::Erase: {
+                GetComponent<Eraser*>()->StartErasing();
+                return;
+            }
+            case BrushMode::Bucket: {
+                GetComponent<Bucket*>()->StartBucketing();
+                return;
+            }
+            case BrushMode::Ruler: {
+                GetComponent<Ruler*>()->StartRuling();
+                return;
+            }
+            case BrushMode::Move: {
+                GetComponent<Mover*>()->StartMoving();
+                return;
+            }
         }
 
         lastPoint = get_transform()->get_position();
@@ -113,20 +127,27 @@ namespace Scribble
     void BrushBehaviour::OnRelease()
     {
         set_menuHandleActive(true);
-        if (eraseMode)
+        switch (mode)
         {
-            GetComponent<Eraser*>()->StopErasing();
-            return;
-        }
-        else if (bucketMode)
-        {
-            GetComponent<Bucket*>()->StopBucketing();
-            return;
-        }
-        else if (rulerMode)
-        {
-            GetComponent<Ruler*>()->StopRuling();
-            return;
+            case BrushMode::Brush: {
+                break;
+            }
+            case BrushMode::Erase: {
+                GetComponent<Eraser*>()->StopErasing();
+                return;
+            }
+            case BrushMode::Bucket: {
+                GetComponent<Bucket*>()->StopBucketing();
+                return;
+            }
+            case BrushMode::Ruler: {
+                GetComponent<Ruler*>()->StopRuling();
+                return;
+            }
+            case BrushMode::Move: {
+                GetComponent<Mover*>()->StopMoving();
+                return;
+            }
         }
         if (!pressed) return;
         pressed = false;

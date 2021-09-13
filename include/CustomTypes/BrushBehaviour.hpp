@@ -21,11 +21,17 @@ DECLARE_CLASS_CODEGEN(Scribble, BrushBehaviour, UnityEngine::MonoBehaviour,
     DECLARE_INSTANCE_METHOD(void, Update);
     DECLARE_INSTANCE_METHOD(void, Start);
     public:
+        enum class BrushMode {
+            Brush,
+            Erase,
+            Bucket,
+            Ruler,
+            Move
+        };
+
         GlobalNamespace::SaberType saberType;
         CustomBrush currentBrush;
-        bool eraseMode;
-        bool bucketMode;
-        bool rulerMode;
+        BrushMode mode = BrushMode::Brush;
         void GetMenuHandle();
         UnityEngine::GameObject* CreateBrushMesh();
         void UpdateBrushMesh();

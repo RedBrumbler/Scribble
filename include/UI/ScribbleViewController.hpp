@@ -38,6 +38,7 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleViewController, HMUI::ViewController,
     DECLARE_INSTANCE_FIELD(HMUI::ImageView*, eraserImage);
     DECLARE_INSTANCE_FIELD(HMUI::ImageView*, bucketImage);
     DECLARE_INSTANCE_FIELD(HMUI::ImageView*, rulerImage);
+    DECLARE_INSTANCE_FIELD(HMUI::ImageView*, moveImage);
     
     DECLARE_INSTANCE_FIELD(HMUI::ModalView*, saveModal);
     DECLARE_INSTANCE_FIELD(HMUI::ModalView*, loadModal);
@@ -61,6 +62,7 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleViewController, HMUI::ViewController,
         void CreateBrushList(UnityEngine::Transform* parent);
         void CreateLeftToolBar(UnityEngine::Transform* parent);
         void CreateMainVertical(UnityEngine::Transform* parent);
+        void UpdateBrushModeButtonsColors(BrushBehaviour* brushBehaviour);
 
         std::string FindNextName(std::string_view name, int idx);
 
@@ -78,6 +80,7 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleViewController, HMUI::ViewController,
         void SelectEraseMode();
         void SelectBucketMode();
         void SelectRulerMode();
+        void SelectMoverMode();
 
         void ShowSaveFile();
         void ShowLoadFile();

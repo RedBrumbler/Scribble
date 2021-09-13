@@ -56,6 +56,7 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleContainer, UnityEngine::MonoBehaviour,
         std::vector<Sombrero::FastVector3> GetAllPoints();
         void Erase(Sombrero::FastVector3 position, float size);
         void Bucket(Sombrero::FastVector3 position, float size, const CustomBrush& brush);
+        void Move(Sombrero::FastVector3 delta);
         void StartRuler(Sombrero::FastVector3 position, GlobalNamespace::SaberType type, const CustomBrush& brush);
         void UpdateRuler(Sombrero::FastVector3 position, GlobalNamespace::SaberType type);
         void FinishRuler(Sombrero::FastVector3 position, GlobalNamespace::SaberType type);

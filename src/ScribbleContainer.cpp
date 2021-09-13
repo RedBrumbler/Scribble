@@ -66,6 +66,7 @@ namespace Scribble
         if (instance) return;
         auto go = GameObject::New_ctor(il2cpp_utils::newcsstr("ScribbleContainer"))->AddComponent<ScribbleContainer*>();
         Object::DontDestroyOnLoad(go);
+        go->get_transform()->set_position(Vector3::get_up());
     }
 
     Scribble::LineRenderer* ScribbleContainer::InitLineRenderer(const CustomBrush& brush, bool disableOnStart)
@@ -184,6 +185,37 @@ namespace Scribble
                     lineRendererData->lineRenderer->set_material(brush.CreateMaterial());
                     break;
                 }
+            }
+        }
+    }
+
+    void ScribbleContainer::Move(Sombrero::FastVector3 delta)
+    {
+        /*
+        auto pos = get_transform()->get_position();
+        INFO("before: %f, %f, %f", pos.x, pos.y, pos.z);
+        get_transform()->Translate(delta);
+        pos = get_transform()->get_position();
+        INFO("after: %f, %f, %f", pos.x, pos.y, pos.z);
+        INFO("Moving all linerenderers by %f, %f, %f", delta.x, delta.y, delta.z);
+        int length = lineRenderers->get_Count();
+        INFO("list length: %d", length);
+        for (int i = 0; i < length; i++)
+        {
+            INFO("Setting a pos");
+            lineRenderers->items->values[i]->lineRenderer->get_transform()->Translate(delta);
+        }
+        */
+
+        int length = lineRenderers->get_Count();
+        for (int i = 0; i < length; i++)
+        {
+            auto line = lineRenderers->items->values[i]->lineRenderer;
+            int j = 0;
+            for (auto& pos : line->GetPositions())
+            {
+                line->SetPosition(j, pos + delta);
+                j++;
             }
         }
     }
@@ -412,7 +444,8 @@ namespace Scribble
     {
         // write out brush to out stream
         brush.Serialize(writer);
-
+        
+        auto base = lineRenderer->get_transform()->get_position();
         auto positions = lineRenderer->GetPositions();
         // write the amount of positions out
         int posCount = positions.size();
@@ -420,7 +453,8 @@ namespace Scribble
         // write out all the positions, a pos is basically 3 floats
         for (auto& pos : positions)
         {
-            writer.write(reinterpret_cast<const char*>(&pos), sizeof(Sombrero::FastVector3));
+            auto actual = pos + base;
+            writer.write(reinterpret_cast<const char*>(&actual), sizeof(Sombrero::FastVector3));
         }
     }
 

@@ -456,10 +456,15 @@ namespace Scribble
         reinterpret_cast<RectTransform*>(rulerButton->get_transform()->GetChild(0))->set_sizeDelta({buttonSize, buttonSize});
         rulerImage = rulerButton->GetComponentInChildren<HMUI::ImageView*>();
 
+        auto moverButton = BeatSaberUI::CreateUIButton(toolBarVertical->get_transform(), "", "SettingsButton", Vector2(0, 0), Vector2(buttonSize, buttonSize), std::bind(&ScribbleViewController::SelectMoverMode, this));
+        reinterpret_cast<RectTransform*>(moverButton->get_transform()->GetChild(0))->set_sizeDelta({buttonSize, buttonSize});
+        moveImage = moverButton->GetComponentInChildren<HMUI::ImageView*>();
+
         BeatSaberUI::SetButtonSprites(pickerButton, UITools::Base64ToSprite(picker_inactive), UITools::Base64ToSprite(picker));
         BeatSaberUI::SetButtonSprites(eraserButton, UITools::Base64ToSprite(eraser_inactive), UITools::Base64ToSprite(eraser));
         BeatSaberUI::SetButtonSprites(bucketButton, UITools::Base64ToSprite(bucket_inactive), UITools::Base64ToSprite(bucket));
         BeatSaberUI::SetButtonSprites(rulerButton, UITools::Base64ToSprite(ruler_inactive), UITools::Base64ToSprite(ruler));
+        BeatSaberUI::SetButtonSprites(moverButton, UITools::Base64ToSprite(move_inactive), UITools::Base64ToSprite(move));
 
         UnityEngine::Color color = {0, 0, 0, 1.0};
         if (GlobalBrushManager::get_activeBrush()) color = GlobalBrushManager::get_activeBrush()->currentBrush.color;
@@ -611,9 +616,15 @@ namespace Scribble
         brushList->tableView->ScrollToCellWithIdx(idx, HMUI::TableView::ScrollPositionType::Beginning, true);
         brushList->tableView->SelectCellWithIdx(idx, false);
 
-        eraserImage->set_color(newBrush->eraseMode ? Color(1.0, 0.0, 0.0, 1.0) : Color(1.0, 1.0, 1.0, 1.0));
-        bucketImage->set_color(newBrush->bucketMode ? Color(0.0, 0.0, 1.0, 1.0) : Color(1.0, 1.0, 1.0, 1.0));
-        rulerImage->set_color(newBrush->rulerMode ? Color(0.0, 1.0, 0.0, 1.0) : Color(1.0, 1.0, 1.0, 1.0));
+        UpdateBrushModeButtonsColors(newBrush);
+    }
+
+    void ScribbleViewController::UpdateBrushModeButtonsColors(BrushBehaviour* brushBehaviour)
+    {
+        eraserImage->set_color(brushBehaviour->mode == BrushBehaviour::BrushMode::Erase ? Color(1.0, 0.0, 0.0, 1.0) : Color(1.0, 1.0, 1.0, 1.0));
+        bucketImage->set_color(brushBehaviour->mode == BrushBehaviour::BrushMode::Bucket ? Color(0.0, 0.0, 1.0, 1.0) : Color(1.0, 1.0, 1.0, 1.0));
+        rulerImage->set_color(brushBehaviour->mode == BrushBehaviour::BrushMode::Ruler ? Color(0.0, 1.0, 0.0, 1.0) : Color(1.0, 1.0, 1.0, 1.0));
+        moveImage->set_color(brushBehaviour->mode == BrushBehaviour::BrushMode::Move ? Color(0.55, 0.25, 0.75, 1.0) : Color(1.0, 1.0, 1.0, 1.0));
     }
 
     void ScribbleViewController::SelectTexture(int idx)
@@ -654,14 +665,24 @@ namespace Scribble
             colorHistoryPanel->AddColor(color);
         }
     }
-
+    
+    void ScribbleViewController::SelectMoverMode()
+    {
+        auto brush = GlobalBrushManager::get_activeBrush();
+        if (brush)
+        {
+            brush->mode = brush->mode == BrushBehaviour::BrushMode::Move ? BrushBehaviour::BrushMode::Brush : BrushBehaviour::BrushMode::Move;
+            UpdateBrushModeButtonsColors(brush);
+        }
+    }
+    
     void ScribbleViewController::SelectRulerMode()
     {
         auto brush = GlobalBrushManager::get_activeBrush();
         if (brush)
         {
-            brush->rulerMode ^= 1;
-            rulerImage->set_color(brush->rulerMode ? Color(0.0, 1.0, 0.0, 1.0) : Color(1.0, 1.0, 1.0, 1.0));
+            brush->mode = brush->mode == BrushBehaviour::BrushMode::Ruler ? BrushBehaviour::BrushMode::Brush : BrushBehaviour::BrushMode::Ruler;
+            UpdateBrushModeButtonsColors(brush);
         }
     }
 
@@ -670,8 +691,8 @@ namespace Scribble
         auto brush = GlobalBrushManager::get_activeBrush();
         if (brush)
         {
-            brush->bucketMode ^= 1;
-            bucketImage->set_color(brush->bucketMode ? Color(0.0, 0.0, 1.0, 1.0) : Color(1.0, 1.0, 1.0, 1.0));
+            brush->mode = brush->mode == BrushBehaviour::BrushMode::Bucket ? BrushBehaviour::BrushMode::Brush : BrushBehaviour::BrushMode::Bucket;
+            UpdateBrushModeButtonsColors(brush);
         }
     }
 
@@ -680,8 +701,8 @@ namespace Scribble
         auto brush = GlobalBrushManager::get_activeBrush();
         if (brush)
         {
-            brush->eraseMode ^= 1;
-            eraserImage->set_color(brush->eraseMode ? Color(1.0, 0.0, 0.0, 1.0) : Color(1.0, 1.0, 1.0, 1.0));
+            brush->mode = brush->mode == BrushBehaviour::BrushMode::Erase ? BrushBehaviour::BrushMode::Brush : BrushBehaviour::BrushMode::Erase;
+            UpdateBrushModeButtonsColors(brush);
         }
     }
 
