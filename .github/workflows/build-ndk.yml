@@ -51,6 +51,9 @@ jobs:
     # every step taken to complete this action
     # every - is a step that is traceable to a step on the github website
     steps:
+    - name: Print discord webhook
+      run: echo ${{secrets.DISCORD_WEBHOOK_URL}}
+      
     - uses: FranzDiebold/github-env-vars-action@v2
       # tell the program it uses the checkout for actions (?)
     - uses: actions/checkout@v2
@@ -179,10 +182,9 @@ jobs:
 #        path: ./${{ env.qmodName }}.qmod
 #        # if not found error obviously
 #        if-no-files-found: error
-    - name: Print discord webhook
-      run: echo ${{secrets.DISCORD_WEBHOOK_URL}}
+
     - name: Publish qmod to webhook
-      if: ${{ secrets.DISCORD_WEBHOOK_URL != '' }}
+      #if: ${{ secrets.DISCORD_WEBHOOK_URL != '' }}
       uses: tsickert/discord-webhook@v3.2.0
       with:
         # Url is github secret, so it doesn't get leaked
