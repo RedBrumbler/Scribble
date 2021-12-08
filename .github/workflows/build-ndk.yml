@@ -179,13 +179,15 @@ jobs:
 #        path: ./${{ env.qmodName }}.qmod
 #        # if not found error obviously
 #        if-no-files-found: error
-
+    - name: Check if webhook secret set
+      id: webhook-set
+      run: echo ::set-output name=EXISTS::"${{secrets.DISCORD_WEBHOOK_URL != ''}}"
     - name: Publish qmod to webhook
-      if: ${{ ${{secrets.DISCORD_WEBHOOK_URL}} != '' }}
+      if: ${{ steps.webhook-set.outputs.EXISTS }}
       uses: tsickert/discord-webhook@v3.2.0
       with:
         # Url is github secret, so it doesn't get leaked
-        webhook-url: ${{secrets.DISCORD_WEBHOOK_URL}}
+        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
         # last commit message will be the given text
         content: "${{ env.CI_SHA_SHORT }} - `${{ github.event.head_commit.message }}`"
         # user is repo name
