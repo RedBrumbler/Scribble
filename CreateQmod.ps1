@@ -26,7 +26,7 @@ if ((-not $cover -eq "./") -and (Test-Path $cover))
     $fileList += ,$cover
 }
 
-$bannedLibList = @("modloader", "custom-types", "codegen")
+$bannedLibList = @("modloader", "custom-types", "codegen", "questui")
 
 $modlib = @()
 
@@ -107,8 +107,8 @@ $qpm = "./qpm.json"
 $qpmJson = Get-Content $qpm | ConvertFrom-Json 
 $modJson.version = $qpmJson.info.version
 
-#$libs += ,"libbeatsaber-hook_2_2_4.so";
-#$fileList += ,"./extern/libbeatsaber-hook_2_2_4.so";
+#$libs += ,"libbeatsaber-hook_2_3_0.so";
+#$fileList += ,"./extern/libbeatsaber-hook_2_3_0.so";
 
 # add the thing to the libs list because we don't need it as a mod file
 $modJson.modFiles = $modlib

@@ -5,7 +5,7 @@
     "name": "Scribble",
     "id": "scribble",
     "version": "0.1.0",
-    "url": null,
+    "url": "https://github.com/RedBrumbler/Scribble",
     "additionalData": {
       "overrideSoName": "libscribble.so"
     }
@@ -13,7 +13,7 @@
   "dependencies": [
     {
       "id": "beatsaber-hook",
-      "versionRange": "*",
+      "versionRange": "^2.3.0",
       "additionalData": {
         "extraFiles": [
           "src/inline-hook"
@@ -22,22 +22,22 @@
     },
     {
       "id": "questui",
-      "versionRange": "*",
+      "versionRange": "^0.11.1",
       "additionalData": {}
     },
     {
       "id": "custom-types",
-      "versionRange": "*",
+      "versionRange": "^0.12.7",
       "additionalData": {}
     },
     {
       "id": "sombrero",
-      "versionRange": "*",
+      "versionRange": "=0.1.24",
       "additionalData": {}
     },
     {
       "id": "codegen",
-      "versionRange": "*",
+      "versionRange": "^0.14.0",
       "additionalData": {}
     }
   ],
