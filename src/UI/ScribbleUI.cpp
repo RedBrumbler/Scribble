@@ -1,25 +1,25 @@
 #include "UI/ScribbleUI.hpp"
 
+#include "UnityEngine/Camera.hpp"
+#include "UnityEngine/Canvas.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Object.hpp"
+#include "UnityEngine/Quaternion.hpp"
+#include "UnityEngine/RenderMode.hpp"
+#include "UnityEngine/TextAnchor.hpp"
+#include "UnityEngine/UI/CanvasScaler.hpp"
+#include "UnityEngine/UI/ContentSizeFitter.hpp"
+#include "UnityEngine/UI/HorizontalLayoutGroup.hpp"
 #include "UnityEngine/Vector2.hpp"
 #include "UnityEngine/Vector3.hpp"
-#include "UnityEngine/Quaternion.hpp"
-#include "UnityEngine/Canvas.hpp"
-#include "UnityEngine/RenderMode.hpp"
-#include "UnityEngine/Camera.hpp"
-#include "UnityEngine/UI/ContentSizeFitter.hpp"
-#include "UnityEngine/UI/CanvasScaler.hpp"
-#include "UnityEngine/TextAnchor.hpp"
-#include "UnityEngine/UI/HorizontalLayoutGroup.hpp"
 
 #include "VRUIControls/VRGraphicRaycaster.hpp"
 
-#include "HMUI/TitleViewController.hpp"
-#include "HMUI/HierarchyManager.hpp"
-#include "HMUI/ScreenSystem.hpp"
-#include "HMUI/Screen.hpp"
 #include "HMUI/CurvedCanvasSettings.hpp"
+#include "HMUI/HierarchyManager.hpp"
+#include "HMUI/Screen.hpp"
+#include "HMUI/ScreenSystem.hpp"
+#include "HMUI/TitleViewController.hpp"
 
 #include "GlobalNamespace/PauseMenuManager.hpp"
 
@@ -33,8 +33,8 @@
 
 #include "ScribbleContainer.hpp"
 
-#include "static-defines.hpp"
 #include "icons.hpp"
+#include "static-defines.hpp"
 
 DEFINE_TYPE(Scribble, ScribbleUI);
 
@@ -87,29 +87,29 @@ namespace Scribble
         startButton.SetSize(30, 10);
         startButton.SetPosition(0, -51);
         startButton.AddListener([this]()
-        {
-            if (!mainViewController)
-            {
-                LoadMainView();
-            }
+                                {
+                                    if (!mainViewController)
+                                    {
+                                        LoadMainView();
+                                    }
 
-            bool on = (ScribbleContainer::get_instance()->drawingEnabled ^= 1);
-            globalContainer->get_gameObject()->SetActive(on);
-            SaveConfig();
-            
-            startButton.set_text(on ? "Stop Drawing" : "Start Drawing");
-            
-            if (config.firstTimeLaunch && !pressedToggleBefore)
-            {
-                config.firstTimeLaunch = false;
-                SaveConfig();
-                pressedToggleBefore = true;
-                //TODO
-                ScribbleContainer::get_instance()->Load(string_format("%s/%s", drawingPath, "second.png"), true, true);
-            }
+                                    bool on = (ScribbleContainer::get_instance()->drawingEnabled ^= 1);
+                                    globalContainer->get_gameObject()->SetActive(on);
+                                    SaveConfig();
 
-            SetMainScreenInteractable(!on);
-        });
+                                    startButton.set_text(on ? "Stop Drawing" : "Start Drawing");
+
+                                    if (config.firstTimeLaunch && !pressedToggleBefore)
+                                    {
+                                        config.firstTimeLaunch = false;
+                                        SaveConfig();
+                                        pressedToggleBefore = true;
+                                        //TODO
+                                        ScribbleContainer::get_instance()->Load(string_format("%s/%s", drawingPath, "second.png"), true, true);
+                                    }
+
+                                    SetMainScreenInteractable(!on);
+                                });
 
         startButton.gameObject->SetActive(true);
 
@@ -124,7 +124,7 @@ namespace Scribble
     {
         auto go = GameObject::New_ctor(il2cpp_utils::newcsstr("ScribbleUI"));
         Object::DontDestroyOnLoad(go);
-        return go->AddComponent<ScribbleUI*>(); 
+        return go->AddComponent<ScribbleUI*>();
     }
 
     void ScribbleUI::Show(bool shouldShow)
@@ -143,7 +143,7 @@ namespace Scribble
         rect->set_pivot(Vector2(0.5f, 0.5f));
         rect->set_offsetMin(Vector2(0, 0));
         rect->set_offsetMax(Vector2(0, 0));
-        
+
         auto container = GameObject::New_ctor(il2cpp_utils::newcsstr("Container"));
         container->get_transform()->SetParent(rect, false);
         globalContainer = container->AddComponent<RectTransform*>();
@@ -182,11 +182,24 @@ namespace Scribble
         horizontalLayout->set_childControlWidth(false);
         horizontalLayout->set_spacing(2.0f);
         horizontalLayout->GetComponent<UI::LayoutElement*>()->set_preferredWidth(80);
-        
-        auto btn = QuestUI::BeatSaberUI::CreateUIButton(horizontalLayout->get_transform(), "Clear", [](){ if (ScribbleContainer::get_instance() && !ScribbleContainer::get_instance()->get_IsInAnimation()) ScribbleContainer::get_instance()->Clear(); });
-        btn = QuestUI::BeatSaberUI::CreateUIButton(horizontalLayout->get_transform(), "Undo", [](){ if (ScribbleContainer::get_instance() && !ScribbleContainer::get_instance()->get_IsInAnimation()) ScribbleContainer::get_instance()->Undo(); });
-        btn = QuestUI::BeatSaberUI::CreateUIButton(horizontalLayout->get_transform(), "Save", [&]() { mainViewController->ShowSaveFile(); });
-        btn = QuestUI::BeatSaberUI::CreateUIButton(horizontalLayout->get_transform(), "Load", [&]() { mainViewController->ShowLoadFile(); });
+
+        auto btn = QuestUI::BeatSaberUI::CreateUIButton(horizontalLayout->get_transform(), "Clear", []()
+                                                        {
+                                                            if (ScribbleContainer::get_instance() && !ScribbleContainer::get_instance()->get_IsInAnimation())
+                                                                ScribbleContainer::get_instance()->Clear();
+                                                        });
+        btn = QuestUI::BeatSaberUI::CreateUIButton(horizontalLayout->get_transform(), "Undo", []()
+                                                   {
+                                                       if (ScribbleContainer::get_instance() && !ScribbleContainer::get_instance()->get_IsInAnimation())
+                                                           ScribbleContainer::get_instance()->Undo();
+                                                   });
+        btn = QuestUI::BeatSaberUI::CreateUIButton(horizontalLayout->get_transform(), "Save", [&]()
+                                                   { mainViewController->ShowSaveFile(); });
+        btn = QuestUI::BeatSaberUI::CreateUIButton(horizontalLayout->get_transform(), "Load", [&]()
+                                                   { mainViewController->ShowLoadFile(); });
+        btn = QuestUI::BeatSaberUI::CreateUIButton(horizontalLayout->get_transform(), "Models", [&]()
+                                                   { mainViewController->ShowModels(); });
+
         /*
         auto btn = UITools::CreateSimpleButton(horizontalLayout->get_transform(), "Clear");
         btn.strokeEnabled = false;
@@ -209,7 +222,8 @@ namespace Scribble
         btn.gameObject->SetActive(true);
         */
 
-        auto settingsButton = QuestUI::BeatSaberUI::CreateUIButton(toolBar->get_transform(), "", "SettingsButton", Vector2(8, 8), [&](){ mainViewController->ShowSettings(); });
+        auto settingsButton = QuestUI::BeatSaberUI::CreateUIButton(toolBar->get_transform(), "", "SettingsButton", Vector2(8, 8), [&]()
+                                                                   { mainViewController->ShowSettings(); });
         reinterpret_cast<RectTransform*>(settingsButton->get_transform()->GetChild(0))->set_sizeDelta({8, 8});
 
         QuestUI::BeatSaberUI::SetButtonSprites(settingsButton, UITools::Base64ToSprite(settings_inactive), UITools::Base64ToSprite(settings));
@@ -225,7 +239,7 @@ namespace Scribble
         auto img = UITools::CreateImage(horizontal->get_transform(), Vector2(0, -12), Vector2(34, 14));
         img->get_rectTransform()->set_anchorMin(Vector2(0, 1));
         img->get_rectTransform()->set_anchorMax(Vector2(0, 1));
-        
+
         img->set_sprite(UITools::Base64ToSprite(logo));
     }
 
@@ -234,7 +248,7 @@ namespace Scribble
         mainViewController = QuestUI::BeatSaberUI::CreateViewController<ScribbleViewController*>();
         auto curvedCanvasSettings = mainViewController->GetComponentsInChildren<HMUI::CurvedCanvasSettings*>();
         int length = curvedCanvasSettings->Length();
-        for ( int i = 0; i < length; i++)
+        for (int i = 0; i < length; i++)
             curvedCanvasSettings->values[i]->SetRadius(0);
 
         get_gameObject()->GetComponent<HMUI::Screen*>()->rootViewController = mainViewController;
@@ -243,16 +257,18 @@ namespace Scribble
         mainViewController->__Activate(true, true);
     }
 
-    // goes down the entire hierarchy to disable all view controllers
-    #define SET_INTERACTABLE(getter) \
-    if (screenSystem->get_ ##getter() && screenSystem->get_ ##getter()->rootViewController) { \
-        auto current = screenSystem->get_ ##getter()->rootViewController; \
-        current->set_enableUserInteractions(interactable); \
-        while (current && current->childViewController) { \
-            current->childViewController->set_enableUserInteractions(interactable); \
-            current = current->childViewController; \
-        } \
-    } \
+// goes down the entire hierarchy to disable all view controllers
+#define SET_INTERACTABLE(getter)                                                          \
+    if (screenSystem->get_##getter() && screenSystem->get_##getter()->rootViewController) \
+    {                                                                                     \
+        auto current = screenSystem->get_##getter()->rootViewController;                  \
+        current->set_enableUserInteractions(interactable);                                \
+        while (current && current->childViewController)                                   \
+        {                                                                                 \
+            current->childViewController->set_enableUserInteractions(interactable);       \
+            current = current->childViewController;                                       \
+        }                                                                                 \
+    }
 
     void ScribbleUI::SetMainScreenInteractable(bool interactable)
     {
@@ -261,14 +277,15 @@ namespace Scribble
         for (int i = 0; i < length; i++)
         {
             auto viewController = viewControllers->values[i];
-            if (!strcmp(viewController->klass->name, "ScribbleViewController")) continue;
+            if (!strcmp(viewController->klass->name, "ScribbleViewController"))
+                continue;
             viewController->set_enableUserInteractions(interactable);
         }
 
         if (inPause)
         {
             auto pauseMenuManagers = Resources::FindObjectsOfTypeAll<GlobalNamespace::PauseMenuManager*>();
-            if (pauseMenuManagers && pauseMenuManagers->Length() > 0) 
+            if (pauseMenuManagers && pauseMenuManagers->Length() > 0)
             {
                 auto pauseMenuManager = pauseMenuManagers->values[0];
                 pauseMenuManager->continueButton->set_interactable(interactable);
@@ -281,6 +298,7 @@ namespace Scribble
     void ScribbleUI::Reset()
     {
         auto ui = UnityEngine::Resources::FindObjectsOfTypeAll<ScribbleUI*>();
-        if (ui && ui->Length() > 0) UnityEngine::Object::DestroyImmediate(ui->values[0]->get_gameObject());
+        if (ui && ui->Length() > 0)
+            UnityEngine::Object::DestroyImmediate(ui->values[0]->get_gameObject());
     }
 }

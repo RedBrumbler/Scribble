@@ -1,5 +1,5 @@
 param($p1, $p2)
-$NDKPath = Get-Content ndkpath.txt
+$NDKPath = "S:\NDK\android-ndk-r22b" #Get-Content ndkpath.txt
 
 if ($p1 -and $p2)
 {

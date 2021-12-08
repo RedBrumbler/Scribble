@@ -11,6 +11,8 @@ Configuration& get_config()
     return config;
 }
 
+#define Save(identifier) doc.AddMember(#identifier, config.identifier, allocator)
+
 void SaveConfig()
 {
     INFO("Saving Configuration...");
@@ -18,32 +20,40 @@ void SaveConfig()
 
     doc.RemoveAllMembers();
     doc.SetObject();
-    
+
     rapidjson::Document::AllocatorType& allocator = doc.GetAllocator();
 
-    doc.AddMember("visibleDuringPlay", config.visibleDuringPlay, allocator);
-    doc.AddMember("useRealGlow", config.useRealGlow, allocator);
-    doc.AddMember("firstTimeLaunch", config.firstTimeLaunch, allocator);
-    doc.AddMember("thumbnailSize", config.thumbnailSize, allocator);
+    Save(visibleDuringPlay);
+    Save(useRealGlow);
+    Save(firstTimeLaunch);
+    Save(modelAnimated);
+    Save(loadAnimated);
+    Save(thumbnailSize);
 
     get_config().Write();
     INFO("Saved Configuration!");
 }
 
-#define GetBool(identifier) \
-auto identifier## _itr = doc.FindMember(#identifier); \
-    if (identifier## _itr != doc.MemberEnd()) { \
-        config.identifier = identifier## _itr->value.GetBool(); \
-    } else { \
-        foundEverything = false; \
+#define GetBool(identifier)                                    \
+    auto identifier##_itr = doc.FindMember(#identifier);       \
+    if (identifier##_itr != doc.MemberEnd())                   \
+    {                                                          \
+        config.identifier = identifier##_itr->value.GetBool(); \
+    }                                                          \
+    else                                                       \
+    {                                                          \
+        foundEverything = false;                               \
     }
 
-#define GetInt(identifier) \
-auto identifier## _itr = doc.FindMember(#identifier); \
-    if (identifier## _itr != doc.MemberEnd()) { \
-        config.identifier = identifier## _itr->value.GetInt(); \
-    } else { \
-        foundEverything = false; \
+#define GetInt(identifier)                                    \
+    auto identifier##_itr = doc.FindMember(#identifier);      \
+    if (identifier##_itr != doc.MemberEnd())                  \
+    {                                                         \
+        config.identifier = identifier##_itr->value.GetInt(); \
+    }                                                         \
+    else                                                      \
+    {                                                         \
+        foundEverything = false;                              \
     }
 
 bool LoadConfig()
@@ -55,8 +65,11 @@ bool LoadConfig()
     GetBool(visibleDuringPlay);
     GetBool(useRealGlow);
     GetBool(firstTimeLaunch);
+    GetBool(loadAnimated);
+    GetBool(modelAnimated);
     GetInt(thumbnailSize);
 
-    if (foundEverything) INFO("Loaded Configuration!");
+    if (foundEverything)
+        INFO("Loaded Configuration!");
     return foundEverything;
 }

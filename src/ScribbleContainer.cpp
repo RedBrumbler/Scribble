@@ -1,13 +1,13 @@
 #include "ScribbleContainer.hpp"
-#include "config.hpp"
-#include "logging.hpp"
-
+#include "GlobalBrushManager.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Object.hpp"
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/Shader.hpp"
 #include "UnityEngine/Transform.hpp"
 #include "UnityEngine/WaitForSeconds.hpp"
+#include "config.hpp"
+#include "logging.hpp"
 
 #include "GlobalNamespace/BeatmapObjectSpawnController.hpp"
 #include "GlobalNamespace/BoolSO.hpp"
@@ -96,6 +96,7 @@ namespace Scribble
         return lineRenderer;
     }
 
+#pragma region set_data
     void ScribbleContainer::SetRealGlow(bool real)
     {
         INFO("Setting real glow usage to: %d", real);
@@ -120,7 +121,9 @@ namespace Scribble
                 "_StartOffset");
         Shader::SetGlobalFloat(_StartOffset, offset);
     }
+#pragma endregion
 
+#pragma region point_mutations
     void ScribbleContainer::InitPoint(Sombrero::FastVector3 point,
                                       GlobalNamespace::SaberType saberType,
                                       const CustomBrush& brush)
@@ -159,7 +162,9 @@ namespace Scribble
         }
         return result;
     }
+#pragma endregion
 
+#pragma region tools
     void ScribbleContainer::Erase(Sombrero::FastVector3 position, float size)
     {
         int length = lineRenderers->get_Count();
@@ -170,9 +175,11 @@ namespace Scribble
         {
             auto lineRendererData = lineRenderers->items->values[i];
             auto positions = lineRendererData->lineRenderer->GetPositions();
+            Sombrero::FastVector3 offset = lineRendererData->lineRenderer->get_transform()->get_position();
+
             for (auto& point : positions)
             {
-                float dist = point.sqrDistance(position);
+                float dist = (offset + point).sqrDistance(position);
                 if (dist < sizeSqr)
                 {
                     toDelete.push_back(lineRendererData);
@@ -197,9 +204,11 @@ namespace Scribble
             if (lineRendererData->brush == brush)
                 continue;
             auto positions = lineRendererData->lineRenderer->GetPositions();
+            Sombrero::FastVector3 offset = lineRendererData->lineRenderer->get_transform()->get_position();
+
             for (auto& point : positions)
             {
-                float dist = point.sqrDistance(position);
+                float dist = (offset + point).sqrDistance(position);
                 if (dist < sizeSqr)
                 {
                     lineRendererData->brush = brush;
@@ -273,6 +282,7 @@ namespace Scribble
         lineRenderer->SetPosition(posCount, position);
         CheckLine(type);
     }
+#pragma endregion
 
     void ScribbleContainer::Clear()
     {
@@ -388,6 +398,13 @@ namespace Scribble
             return;
         if (get_IsInAnimation())
             return;
+
+        if (path.ends_with(".obj"))
+        {
+            // this is a 3d .obj file, we should load that instead
+            LoadObj(path, clear, animated);
+            return;
+        }
         std::shared_ptr<std::ifstream> inStream =
             std::make_shared<std::ifstream>(path, std::ios::out | std::ios::binary);
 
@@ -429,10 +446,10 @@ namespace Scribble
                                     int lineCount)
     {
         float delay = 0.004f;
+        auto brush = CustomBrush::Deserialize(*reader);
 
         for (int i = 0; i < lineCount; i++)
         {
-            auto brush = CustomBrush::Deserialize(*reader);
             int posCount;
             reader->read(reinterpret_cast<char*>(&posCount), sizeof(int));
             auto lineRenderer =
@@ -455,6 +472,83 @@ namespace Scribble
                     UnityEngine::WaitForSeconds::New_ctor(((float)i / (float)posCount) *
                                                           delay));
             }
+        }
+
+        animatedLoadRoutine = nullptr;
+        co_return;
+    }
+
+    void ScribbleContainer::LoadObj(std::string_view path, bool clear, bool animated)
+    {
+        if (clear)
+            Clear();
+        std::shared_ptr<std::ifstream> inStream =
+            std::make_shared<std::ifstream>(path, std::ios::out | std::ios::binary);
+
+        auto obj = SimpleObj::Deserialize(*inStream);
+        if (animated)
+        {
+            animatedLoadRoutine =
+                StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(
+                    custom_types::Helpers::CoroutineHelper::New(
+                        LoadObjAnimated(obj))));
+            return;
+        }
+
+        auto brush = GlobalBrushManager::get_activeBrush()->currentBrush;
+        int i = 0;
+        int lineCount = obj.edges.size();
+        for (auto& pair : obj.edges)
+        {
+            Sombrero::FastVector3& pos1 = obj.vertices[pair.first];
+            Sombrero::FastVector3& pos2 = obj.vertices[pair.second];
+
+            auto lineRenderer =
+                ScribbleContainer::get_instance()->InitLineRenderer(brush);
+
+            lineRenderer->set_enabled(true);
+
+            // increase position count so that it can be erased properly
+            float dist = pos1.Distance(pos2);
+
+            int posCount = dist > 0.1f ? dist * 20 : 2;
+
+            lineRenderer->set_positionCount(posCount + 1);
+            for (int i = 0; i < posCount; i++)
+            {
+                lineRenderer->SetPosition(
+                    i, Sombrero::FastVector3::Lerp(pos1, pos2,
+                                                   (float)i / (float)posCount));
+            }
+
+            lineRenderer->SetPosition(posCount, pos2);
+        }
+    }
+
+    custom_types::Helpers::Coroutine
+    ScribbleContainer::LoadObjAnimated(SimpleObj obj)
+    {
+        float delay = 0.004f;
+        auto brush = GlobalBrushManager::get_activeBrush()->currentBrush;
+        int i = 0;
+        int lineCount = obj.edges.size();
+        for (auto& edge : obj.edges)
+        {
+            Sombrero::FastVector3& pos1 = obj.vertices[edge.first];
+            Sombrero::FastVector3& pos2 = obj.vertices[edge.second];
+
+            auto lineRenderer =
+                ScribbleContainer::get_instance()->InitLineRenderer(brush);
+
+            lineRenderer->set_enabled(true);
+            lineRenderer->set_positionCount(3);
+            lineRenderer->SetPosition(0, pos1);
+            lineRenderer->SetPosition(1, (pos1 + pos2) / 2);
+            lineRenderer->SetPosition(2, pos2);
+
+            co_yield reinterpret_cast<System::Collections::IEnumerator*>(
+                UnityEngine::WaitForSeconds::New_ctor(((float)i / (float)lineCount) *
+                                                      delay));
         }
 
         animatedLoadRoutine = nullptr;
