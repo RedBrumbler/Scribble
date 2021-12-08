@@ -40,7 +40,11 @@ on:
     # on branch master
     branches: master
 
-
+inputs:
+    discord-webhook-url:
+        description: "The discord webhook url to post to with the webhook action"
+        default: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        required: false
 
 # building a mod consists of a few steps
 
@@ -183,11 +187,11 @@ jobs:
 #        if-no-files-found: error
 
     - name: Publish qmod to webhook
-      if: ${{ secrets.DISCORD_WEBHOOK_URL != '' }}
+      if: ${{ inputs.discord-webhook-url != '' }}
       uses: tsickert/discord-webhook@v3.2.0
       with:
         # Url is github secret, so it doesn't get leaked
-        webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+        webhook-url: inputs.discord-webhook-url
         # last commit message will be the given text
         content: "${{ env.CI_SHA_SHORT }} - `${{ github.event.head_commit.message }}`"
         # user is repo name
