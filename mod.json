@@ -12,8 +12,7 @@
     "libscribble.so"
   ],
   "libraryFiles": [
-    "libbeatsaber-hook_2_3_2.so",
-    "libquestui.so"
+    "libbeatsaber-hook_2_3_2.so"
   ],
   "fileCopies": [
     {

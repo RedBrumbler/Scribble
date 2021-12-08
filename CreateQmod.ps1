@@ -63,7 +63,7 @@ foreach ($lib in $allLibs)
     $libs += ,$lib
 }
 
-$bannedFiles = @("xcf", "Icons", "psd")
+$bannedFiles = @("xcf", "Icons", "psd", "Promotion")
 
 $extraFiles = @()
 
