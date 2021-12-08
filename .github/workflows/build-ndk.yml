@@ -183,7 +183,7 @@ jobs:
 #        if-no-files-found: error
 
     - name: Publish qmod to webhook
-      if: ${{ github.secrets.DISCORD_WEBHOOK_URL != ''' }}
+      if: ${{ github.secrets.DISCORD_WEBHOOK_URL != '' }}
       uses: tsickert/discord-webhook@v3.2.0
       with:
         # Url is github secret, so it doesn't get leaked
