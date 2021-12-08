@@ -81,8 +81,8 @@ namespace Scribble
         auto lineRenderer = go->AddComponent<Scribble::LineRenderer*>();
         lineRenderer->set_enabled(!disableOnStart);
         lineRenderer->set_widthMultiplier(brush.size * lineWidth);
-        lineRenderer->set_numCornerVertices(5);
-        lineRenderer->set_numCapVertices(5);
+        lineRenderer->set_numCornerVertices(3);
+        lineRenderer->set_numCapVertices(3);
         lineRenderer->set_useWorldSpace(false);
         if (brush.textureMode == CustomBrush::TextureMode::Stretch)
             lineRenderer->set_textureMode(
