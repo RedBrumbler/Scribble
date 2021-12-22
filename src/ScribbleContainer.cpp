@@ -445,27 +445,35 @@ namespace Scribble
     ScribbleContainer::LoadAnimated(std::shared_ptr<std::ifstream> reader,
                                     int lineCount)
     {
+        INFO("Loading animated linecount: %d", lineCount);
         float delay = 0.004f;
-        auto brush = CustomBrush::Deserialize(*reader);
 
         for (int i = 0; i < lineCount; i++)
         {
+            INFO("Line: %d", i);
+            auto brush = CustomBrush::Deserialize(*reader);
             int posCount;
             reader->read(reinterpret_cast<char*>(&posCount), sizeof(int));
+            INFO("poscount: %d", posCount);
             auto lineRenderer =
                 ScribbleContainer::get_instance()->InitLineRenderer(brush);
             lineRenderer->set_enabled(true);
             Sombrero::FastVector3 val;
             lineRenderer->set_positionCount(2);
+            static_assert(sizeof(Sombrero::FastVector3) == sizeof(float) * 3);
+
             reader->read(reinterpret_cast<char*>(&val), sizeof(Sombrero::FastVector3));
+            INFO("pos: %.2f, %.2f, %.2f", val.x, val.y, val.z);
             lineRenderer->SetPosition(0, val);
             reader->read(reinterpret_cast<char*>(&val), sizeof(Sombrero::FastVector3));
+            INFO("pos: %.2f, %.2f, %.2f", val.x, val.y, val.z);
             lineRenderer->SetPosition(1, val);
 
             for (int i = 2; i < posCount; i++)
             {
                 reader->read(reinterpret_cast<char*>(&val),
                              sizeof(Sombrero::FastVector3));
+                INFO("pos: %.2f, %.2f, %.2f", val.x, val.y, val.z);
                 lineRenderer->set_positionCount(i + 1);
                 lineRenderer->SetPosition(i, val);
                 co_yield reinterpret_cast<System::Collections::IEnumerator*>(
