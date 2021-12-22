@@ -70,6 +70,12 @@ addr2line.bat
 PhotoshopFiles/
 log.bat
 tombstone_*
+build/
+extern.cmake
+qpm_defines.cmake
+ExtraFiles/Textures/Promotion
+extern/
+
 # =============== #
 # Unity generated #
 # =============== #
@@ -159,4 +165,3 @@ ehthumbs.db
 [Dd]esktop.ini
 Corridor/Library/ShaderCache/
 Corridor/Library/metadata/
-

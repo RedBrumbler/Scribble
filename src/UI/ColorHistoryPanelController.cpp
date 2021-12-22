@@ -40,7 +40,7 @@ namespace Scribble
 
         // if color already in history, return
         for (int i = 0; i < colorPanelHistory->get_Count(); i++)
-            if (colorPanelHistory->items->values[i]->color == color) return;
+            if (colorPanelHistory->items[i]->color == color) return;
 
         // we are adding when there isn't max amount of history objects yet
         if (colorPanelHistory->get_Count() < maxHistoryLength)
@@ -56,12 +56,12 @@ namespace Scribble
         {
             for (int i = 0; i < maxHistoryLength - 1; i++)
             {
-                colorPanelHistory->items->values[i]->color = colorPanelHistory->items->values[i + 1]->color;
-                colorPanelHistory->items->values[i]->AddColor(colorPanelHistory->items->values[i + 1]->color);
+                colorPanelHistory->items[i]->color = colorPanelHistory->items[i + 1]->color;
+                colorPanelHistory->items[i]->AddColor(colorPanelHistory->items[i + 1]->color);
             }
             
-            colorPanelHistory->items->values[maxHistoryLength - 1]->color = color;
-            colorPanelHistory->items->values[maxHistoryLength - 1]->AddColor(color);
+            colorPanelHistory->items[maxHistoryLength - 1]->color = color;
+            colorPanelHistory->items[maxHistoryLength - 1]->AddColor(color);
         }
     }
 

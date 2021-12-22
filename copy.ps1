@@ -1,8 +1,24 @@
-& ./build.ps1
-& adb push libs/arm64-v8a/libscribble.so /sdcard/Android/data/com.beatgames.beatsaber/files/mods/libscribble.so
-#& adb push ExtraFiles/scribbleassets /sdcard/ModData/com.beatgames.beatsaber/Mods/Scribble/scribbleassets
+param (
+    [Parameter(Mandatory=$false)]
+    [Switch]$debug_so,
+    [Parameter(Mandatory=$false)]
+    [Switch]$log
+)
 
-Start-Sleep -Milliseconds 500
+& ./build.ps1
+if (-not ($LastExitCode -eq 0)) {
+    echo "build failed, not copying"
+    exit
+}
+
+if ($debug.IsPresent) {
+    & adb push build/debug_libscribble.so /sdcard/Android/data/com.beatgames.beatsaber/files/mods/libscribble.so
+} else {
+    & adb push build/libscribble.so /sdcard/Android/data/com.beatgames.beatsaber/files/mods/libscribble.so
+}
+
 & adb shell am force-stop com.beatgames.beatsaber
 & adb shell am start com.beatgames.beatsaber/com.unity3d.player.UnityPlayerActivity
-& ./log.ps1
+if ($log.IsPresent) {
+    & ./log.ps1
+}

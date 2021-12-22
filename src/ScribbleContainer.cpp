@@ -37,10 +37,10 @@ namespace Scribble
         // turn on / off glow capability in scribble
         auto effectContainers = Resources::FindObjectsOfTypeAll<
             GlobalNamespace::MainEffectContainerSO*>();
-        if (effectContainers && effectContainers->Length() > 0)
+        if (effectContainers && effectContainers.Length() > 0)
         {
             INFO("Found Effect Container");
-            auto container = effectContainers->values[0];
+            auto container = effectContainers[0];
             SetRealGlow(container->postProcessEnabled->get_value() &&
                         config.useRealGlow);
         }
@@ -155,7 +155,7 @@ namespace Scribble
         int length = lineRenderers->get_Count();
         for (int i = 0; i < length; i++)
         {
-            auto lineRendererData = lineRenderers->items->values[i];
+            auto lineRendererData = lineRenderers->items[i];
             auto positions = lineRendererData->lineRenderer->GetPositions();
             for (auto pos : positions)
                 result.push_back(pos);
@@ -173,7 +173,7 @@ namespace Scribble
         std::vector<LinerendererData*> toDelete = {};
         for (int i = 0; i < length; i++)
         {
-            auto lineRendererData = lineRenderers->items->values[i];
+            auto lineRendererData = lineRenderers->items[i];
             auto positions = lineRendererData->lineRenderer->GetPositions();
             Sombrero::FastVector3 offset = lineRendererData->lineRenderer->get_transform()->get_position();
 
@@ -200,7 +200,7 @@ namespace Scribble
         float sizeSqr = size * size;
         for (int i = 0; i < length; i++)
         {
-            auto lineRendererData = lineRenderers->items->values[i];
+            auto lineRendererData = lineRenderers->items[i];
             if (lineRendererData->brush == brush)
                 continue;
             auto positions = lineRendererData->lineRenderer->GetPositions();
@@ -232,7 +232,7 @@ namespace Scribble
         int length = lineRenderers->get_Count();
         for (int i = 0; i < length; i++)
         {
-            auto line = lineRenderers->items->values[i]->lineRenderer;
+            auto line = lineRenderers->items[i]->lineRenderer;
             int j = 0;
             for (auto& pos : line->GetPositions())
             {
@@ -290,7 +290,7 @@ namespace Scribble
         for (int i = 0; i < length; i++)
         {
             Object::Destroy(
-                lineRenderers->items->values[i]->lineRenderer->get_gameObject());
+                lineRenderers->items[i]->lineRenderer->get_gameObject());
         }
 
         lineRenderers->Clear();
@@ -307,7 +307,7 @@ namespace Scribble
         if (index < 0 || index > lineRenderers->get_Count() - 1)
             return;
         INFO("Deleting index %d", index);
-        auto lr = lineRenderers->items->values[index]->lineRenderer;
+        auto lr = lineRenderers->items[index]->lineRenderer;
         if (lr == currentLineRendererLeft || lr == currentLineRendererRight)
             return;
         lineRenderers->RemoveAt(index);
@@ -326,7 +326,7 @@ namespace Scribble
     {
         int length = lineRenderers->get_Count();
         for (int i = 0; i < length; i++)
-            lineRenderers->items->values[i]->lineRenderer->get_gameObject()->set_layer(
+            lineRenderers->items[i]->lineRenderer->get_gameObject()->set_layer(
                 layer);
     }
 
@@ -344,7 +344,7 @@ namespace Scribble
 
         for (int i = 0; i < lineRenderers->get_Count(); i++)
         {
-            auto data = lineRenderers->items->values[i];
+            auto data = lineRenderers->items[i];
             if (data->lineRenderer == lineRenderer &&
                 lineRenderer->get_positionCount() < minPositionCount)
                 Delete(data);
@@ -445,11 +445,15 @@ namespace Scribble
     ScribbleContainer::LoadAnimated(std::shared_ptr<std::ifstream> reader,
                                     int lineCount)
     {
+        INFO("Loading animated: %d", lineCount);
+
         float delay = 0.004f;
         auto brush = CustomBrush::Deserialize(*reader);
 
         for (int i = 0; i < lineCount; i++)
         {
+            INFO("line: %d", i);
+            
             int posCount;
             reader->read(reinterpret_cast<char*>(&posCount), sizeof(int));
             auto lineRenderer =
@@ -468,9 +472,9 @@ namespace Scribble
                              sizeof(Sombrero::FastVector3));
                 lineRenderer->set_positionCount(i + 1);
                 lineRenderer->SetPosition(i, val);
+                float actualDelay = ((float)i / (float)posCount) * delay;
                 co_yield reinterpret_cast<System::Collections::IEnumerator*>(
-                    UnityEngine::WaitForSeconds::New_ctor(((float)i / (float)posCount) *
-                                                          delay));
+                    UnityEngine::WaitForSeconds::New_ctor(actualDelay));
             }
         }
 
@@ -559,9 +563,9 @@ namespace Scribble
     {
         auto scribbles =
             UnityEngine::Resources::FindObjectsOfTypeAll<ScribbleContainer*>();
-        if (scribbles && scribbles->Length() > 0)
+        if (scribbles && scribbles.Length() > 0)
             UnityEngine::Object::DestroyImmediate(
-                scribbles->values[0]->get_gameObject());
+                scribbles[0]->get_gameObject());
         instance = nullptr;
     }
 

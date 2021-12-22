@@ -247,9 +247,9 @@ namespace Scribble
     {
         mainViewController = QuestUI::BeatSaberUI::CreateViewController<ScribbleViewController*>();
         auto curvedCanvasSettings = mainViewController->GetComponentsInChildren<HMUI::CurvedCanvasSettings*>();
-        int length = curvedCanvasSettings->Length();
+        int length = curvedCanvasSettings.Length();
         for (int i = 0; i < length; i++)
-            curvedCanvasSettings->values[i]->SetRadius(0);
+            curvedCanvasSettings[i]->SetRadius(0);
 
         get_gameObject()->GetComponent<HMUI::Screen*>()->rootViewController = mainViewController;
         mainViewController->get_transform()->SetParent(globalContainer, false);
@@ -273,10 +273,10 @@ namespace Scribble
     void ScribbleUI::SetMainScreenInteractable(bool interactable)
     {
         auto viewControllers = Resources::FindObjectsOfTypeAll<HMUI::ViewController*>();
-        int length = viewControllers->Length();
+        int length = viewControllers.Length();
         for (int i = 0; i < length; i++)
         {
-            auto viewController = viewControllers->values[i];
+            auto viewController = viewControllers[i];
             if (!strcmp(viewController->klass->name, "ScribbleViewController"))
                 continue;
             viewController->set_enableUserInteractions(interactable);
@@ -285,9 +285,9 @@ namespace Scribble
         if (inPause)
         {
             auto pauseMenuManagers = Resources::FindObjectsOfTypeAll<GlobalNamespace::PauseMenuManager*>();
-            if (pauseMenuManagers && pauseMenuManagers->Length() > 0)
+            if (pauseMenuManagers && pauseMenuManagers.Length() > 0)
             {
-                auto pauseMenuManager = pauseMenuManagers->values[0];
+                auto pauseMenuManager = pauseMenuManagers[0];
                 pauseMenuManager->continueButton->set_interactable(interactable);
                 pauseMenuManager->restartButton->set_interactable(interactable);
                 pauseMenuManager->backButton->set_interactable(interactable);
@@ -298,7 +298,7 @@ namespace Scribble
     void ScribbleUI::Reset()
     {
         auto ui = UnityEngine::Resources::FindObjectsOfTypeAll<ScribbleUI*>();
-        if (ui && ui->Length() > 0)
-            UnityEngine::Object::DestroyImmediate(ui->values[0]->get_gameObject());
+        if (ui && ui.Length() > 0)
+            UnityEngine::Object::DestroyImmediate(ui[0]->get_gameObject());
     }
 }

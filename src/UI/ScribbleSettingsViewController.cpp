@@ -25,9 +25,9 @@ namespace Scribble
             
             // if post processing enabled, allow to turn it off for scribble
             auto effectContainers = Resources::FindObjectsOfTypeAll<GlobalNamespace::MainEffectContainerSO*>();
-            if (effectContainers && effectContainers->Length() > 0)
+            if (effectContainers && effectContainers.Length() > 0)
             {
-                auto effectContainer = effectContainers->values[0];
+                auto effectContainer = effectContainers[0];
                 if (effectContainer->postProcessEnabled->get_value())
                 {
                     toggle = BeatSaberUI::CreateToggle(container->get_transform(), "Use Real Glow", config.useRealGlow, [](bool val){ 

@@ -164,7 +164,7 @@ namespace Scribble
                                                             int idx = reinterpret_cast<QuestUI::TableView*>(loadFileList->tableView)->get_selectedRow();
                                                             if (idx < 0)
                                                                 return;
-                                                            //loadFileList->tableView->selectedCellIdxs->items->values[0];
+                                                            //loadFileList->tableView->selectedCellIdxs->items[0];
                                                             if (ScribbleContainer::get_instance()->get_IsInAnimation())
                                                                 return;
                                                             ScribbleContainer::get_instance()->Load(string_format("%s/%s.png", drawingPath, loadFileList->data[idx].text.c_str()), true, config.loadAnimated);
@@ -199,7 +199,7 @@ namespace Scribble
                                                              int idx = reinterpret_cast<QuestUI::TableView*>(modelFileList->tableView)->get_selectedRow();
                                                              if (idx < 0)
                                                                  return;
-                                                             //modelFileList->tableView->selectedCellIdxs->items->values[0];
+                                                             //modelFileList->tableView->selectedCellIdxs->items[0];
                                                              if (ScribbleContainer::get_instance()->get_IsInAnimation())
                                                                  return;
                                                              ScribbleContainer::get_instance()->Load(string_format("%s/%s.obj", modelsPath, modelFileList->data[idx].text.c_str()), true, config.modelAnimated);
@@ -222,9 +222,9 @@ namespace Scribble
 
             // if post processing enabled, allow to turn it off for scribble
             auto effectContainers = Resources::FindObjectsOfTypeAll<GlobalNamespace::MainEffectContainerSO*>();
-            if (effectContainers && effectContainers->Length() > 0)
+            if (effectContainers && effectContainers.Length() > 0)
             {
-                auto effectContainer = effectContainers->values[0];
+                auto effectContainer = effectContainers[0];
                 if (effectContainer->postProcessEnabled->get_value())
                 {
                     toggle = BeatSaberUI::CreateToggle(settingsVertical->get_transform(), "Use Real Glow", config.useRealGlow, [](bool val)

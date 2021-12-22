@@ -105,17 +105,17 @@ namespace UITools
     void SetSkewForChildren(UnityEngine::GameObject* root, float skew)
     {
         auto imageViews = root->GetComponentsInChildren<HMUI::ImageView*>(true);
-        int length = imageViews->Length();
+        int length = imageViews.Length();
         for (int i = 0; i < length; i++)
         {
-            imageViews->values[i]->skew = skew;
+            imageViews[i]->skew = skew;
         }
 
     }
 
     UnityEngine::Sprite* Base64ToSprite(std::string_view base64)
     {
-        Array<uint8_t>* bytes = System::Convert::FromBase64String(il2cpp_utils::createcsstr(base64));
+        ArrayW<uint8_t> bytes = System::Convert::FromBase64String(il2cpp_utils::newcsstr(base64));
         return QuestUI::BeatSaberUI::ArrayToSprite(bytes);
     }
 }

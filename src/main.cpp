@@ -64,18 +64,18 @@ MAKE_AUTO_HOOK_MATCH(SceneManager_SetActiveScene, &UnityEngine::SceneManagement:
     {
         firstMenu = false;
         auto ui = UnityEngine::Resources::FindObjectsOfTypeAll<ScribbleUI*>();
-        if (ui && ui->Length() > 0)
-            ui->values[0]->Show();
+        if (ui && ui.Length() > 0)
+            ui[0]->Show();
         auto scribbles = UnityEngine::Resources::FindObjectsOfTypeAll<ScribbleContainer*>();
-        if (scribbles && scribbles->Length() > 0)
-            scribbles->values[0]->Show();
+        if (scribbles && scribbles.Length() > 0)
+            scribbles[0]->Show();
     }
 
     if (name == "GameCore")
     {
         auto ui = UnityEngine::Resources::FindObjectsOfTypeAll<ScribbleUI*>();
-        if (ui && ui->Length() > 0)
-            ui->values[0]->Show(false);
+        if (ui && ui.Length() > 0)
+            ui[0]->Show(false);
 
         if (config.visibleDuringPlay)
             ScribbleContainer::get_instance()->Show();
@@ -138,7 +138,7 @@ MAKE_AUTO_HOOK_MATCH(BeatmapObjectSpawnController_Start, &GlobalNamespace::Beatm
 {
     BeatmapObjectSpawnController_Start(self);
     ScribbleContainer::SetBPM((float)self->initData->beatsPerMinute);
-    ScribbleContainer::SetOffset((float)self->initData->noteJumpStartBeatOffset);
+    ScribbleContainer::SetOffset((float)self->initData->noteJumpValue);
 }
 
 MAKE_AUTO_HOOK_MATCH(VariableBpmProcessor_ProcessBeatmapEventData, &GlobalNamespace::VariableBpmProcessor::ProcessBeatmapEventData, bool, GlobalNamespace::VariableBpmProcessor* self, GlobalNamespace::BeatmapEventData* beatmapEventData)
@@ -164,10 +164,10 @@ MAKE_AUTO_HOOK_MATCH(MenuTransitionsHelper_RestartGame, &GlobalNamespace::MenuTr
 MAKE_AUTO_HOOK_MATCH(GamePause_Pause, &GlobalNamespace::GamePause::Pause, void, GlobalNamespace::GamePause* self)
 {
     auto ui = UnityEngine::Resources::FindObjectsOfTypeAll<ScribbleUI*>();
-    if (ui && ui->Length() > 0)
+    if (ui && ui.Length() > 0)
     {
         ScribbleUI::inPause = true;
-        ui->values[0]->Show(true);
+        ui[0]->Show(true);
     }
     ScribbleContainer::get_instance()->Show();
     GamePause_Pause(self);
@@ -177,9 +177,9 @@ MAKE_AUTO_HOOK_MATCH(GamePause_Resume, &GlobalNamespace::GamePause::Resume, void
 {
     GamePause_Resume(self);
     auto ui = UnityEngine::Resources::FindObjectsOfTypeAll<ScribbleUI*>();
-    if (ui && ui->Length() > 0)
+    if (ui && ui.Length() > 0)
     {
-        auto scribbleUI = ui->values[0];
+        auto scribbleUI = ui[0];
         if (scribbleUI->globalContainer->get_gameObject()->get_active())
         {
             scribbleUI->startButton.noTransitionsButton->get_onClick()->Invoke();
@@ -216,5 +216,6 @@ extern "C" void load()
     Hooks::InstallHooks(::Scribble::Logging::getLogger());
     custom_types::Register::AutoRegister();
 
+    INFO("Scribble Loaded!");
     //QuestUI::Register::RegisterModSettingsViewController<ScribbleSettingsViewController*>({ID, VERSION});
 }

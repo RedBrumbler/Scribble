@@ -59,7 +59,7 @@ namespace Scribble::BrushTextures
     std::string GetTextureName(int idx)
     {
         if (!textures || idx < 0 || idx >= textures->get_Count()) return "brush";
-        return to_utf8(csstrtostr(textures->entries->values[idx].key));
+        return to_utf8(csstrtostr(textures->entries[idx].key));
     }
 
     const std::vector<std::pair<std::string, UnityEngine::Texture2D*>> GetTextures()
@@ -69,8 +69,8 @@ namespace Scribble::BrushTextures
         int count = textures->get_Count();
         for (int i = 0; i < count; i++)
         {
-            std::string key = to_utf8(csstrtostr(textures->entries->values[i].key));
-            tex.emplace_back(key, textures->entries->values[i].value);
+            std::string key = to_utf8(csstrtostr(textures->entries[i].key));
+            tex.emplace_back(key, textures->entries[i].value);
         }
         return tex;
     }
