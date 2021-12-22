@@ -19,9 +19,9 @@ $allLibs = Get-ChildItem ./libs/arm64-v8a/*.so | Select -Expand Name
 $libs = @()
 
 $cover = "./" + $modJson.coverImage
-
 $fileList = @($mod)
-if ((-not $cover -eq "./") -and (Test-Path $cover))
+
+if ((-not ($cover -eq "./")) -and (Test-Path $cover))
 {
     $fileList += ,$cover
 }
