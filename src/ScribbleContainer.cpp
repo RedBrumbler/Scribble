@@ -445,22 +445,20 @@ namespace Scribble
     ScribbleContainer::LoadAnimated(std::shared_ptr<std::ifstream> reader,
                                     int lineCount)
     {
-        INFO("Loading animated: %d", lineCount);
-
         float delay = 0.004f;
-        auto brush = CustomBrush::Deserialize(*reader);
 
         for (int i = 0; i < lineCount; i++)
         {
-            INFO("line: %d", i);
-            
+            auto brush = CustomBrush::Deserialize(*reader);
             int posCount;
             reader->read(reinterpret_cast<char*>(&posCount), sizeof(int));
             auto lineRenderer =
-                ScribbleContainer::get_instance()->InitLineRenderer(brush);
+            ScribbleContainer::get_instance()->InitLineRenderer(brush);
             lineRenderer->set_enabled(true);
             Sombrero::FastVector3 val;
             lineRenderer->set_positionCount(2);
+            static_assert(sizeof(Sombrero::FastVector3) == sizeof(float) * 3);
+
             reader->read(reinterpret_cast<char*>(&val), sizeof(Sombrero::FastVector3));
             lineRenderer->SetPosition(0, val);
             reader->read(reinterpret_cast<char*>(&val), sizeof(Sombrero::FastVector3));
