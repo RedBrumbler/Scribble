@@ -8,6 +8,7 @@
   "packageVersion": "1.19.0",
   "description": "Let the Bob Ross in you take over!",
   "dependencies": [],
+  "coverImage": "cover.gif",
   "modFiles": [
   ],
   "libraryFiles": [

@@ -15,9 +15,11 @@ $modJson = Get-Content $mod -Raw | ConvertFrom-Json
 $filelist = @($mod)
 
 $cover = "./" + $modJson.coverImage
+$fileList = @($mod)
+
 if ((-not ($cover -eq "./")) -and (Test-Path $cover))
-{ 
-    $filelist += ,$cover
+{
+    $fileList += ,$cover
 }
 
 foreach ($mod in $modJson.modFiles)
