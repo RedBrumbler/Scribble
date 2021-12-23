@@ -537,14 +537,9 @@ namespace Scribble
         colorPickerModal = BeatSaberUI::CreateColorPickerModal(get_transform(), "", color, std::bind(&ScribbleViewController::PickerSelectedColor, this, std::placeholders::_1));
 
         colorHistoryPanel = ColorHistoryPanelController::CreateColorHistoryPanel(colorPickerModal->modalView->get_transform(), Vector2(10, 50), [&](Sombrero::FastColor color)
-                                                                                 {
-                                                                                     auto brush = GlobalBrushManager::get_activeBrush();
-                                                                                     if (brush)
-                                                                                     {
-                                                                                         brush->currentBrush.color = color;
-                                                                                         pickerImage->set_color(color);
-                                                                                     }
-                                                                                 });
+                                                                                {
+                                                                                    colorPickerModal->set_color(color);
+                                                                                });
     }
 
     void ScribbleViewController::SetModalPosition(HMUI::ModalView* modal)
