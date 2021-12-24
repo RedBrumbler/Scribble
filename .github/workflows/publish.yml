@@ -21,12 +21,6 @@ jobs:
       with:
         submodules: true
         lfs: true
-    
-    - name: Setup NDK
-      id: setup-ndk
-      uses: nttld/setup-ndk@v1.0.3
-      with:
-        ndk-version: r22
       
     - name: Create ndkpath.txt
       run: |
