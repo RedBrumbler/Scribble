@@ -63,7 +63,7 @@ namespace Scribble
         canvas = get_gameObject()->AddComponent<Canvas*>();
         canvas->set_renderMode(RenderMode::WorldSpace);
         canvas->set_worldCamera(Camera::get_main());
-        get_gameObject()->AddComponent<VRUIControls::VRGraphicRaycaster*>()->physicsRaycaster = QuestUI::BeatSaberUI::GetPhysicsRaycasterWithCache();
+        get_gameObject()->AddComponent<VRUIControls::VRGraphicRaycaster*>()->dyn__physicsRaycaster() = QuestUI::BeatSaberUI::GetPhysicsRaycasterWithCache();
 
         rectTransform = reinterpret_cast<RectTransform*>(canvas->get_transform());
         rectTransform->set_sizeDelta(Vector2(250, 150));
@@ -122,7 +122,7 @@ namespace Scribble
 
     ScribbleUI* ScribbleUI::Create()
     {
-        auto go = GameObject::New_ctor(il2cpp_utils::newcsstr("ScribbleUI"));
+        auto go = GameObject::New_ctor("ScribbleUI");
         Object::DontDestroyOnLoad(go);
         return go->AddComponent<ScribbleUI*>();
     }
@@ -134,7 +134,7 @@ namespace Scribble
 
     void ScribbleUI::CreateContainer()
     {
-        auto imageContainer = GameObject::New_ctor(il2cpp_utils::newcsstr("ImageContainer"));
+        auto imageContainer = GameObject::New_ctor("ImageContainer");
         imageContainer->get_transform()->SetParent(rectTransform, false);
         auto rect = imageContainer->AddComponent<RectTransform*>();
         rect->set_anchoredPosition3D(Vector3(0, 0, 0.01f));
@@ -144,7 +144,7 @@ namespace Scribble
         rect->set_offsetMin(Vector2(0, 0));
         rect->set_offsetMax(Vector2(0, 0));
 
-        auto container = GameObject::New_ctor(il2cpp_utils::newcsstr("Container"));
+        auto container = GameObject::New_ctor("Container");
         container->get_transform()->SetParent(rect, false);
         globalContainer = container->AddComponent<RectTransform*>();
         globalContainer->set_anchoredPosition3D(Vector3(0, 0, -0.01f));
@@ -157,7 +157,7 @@ namespace Scribble
 
     void ScribbleUI::CreateToolBar()
     {
-        auto topToolbar = GameObject::New_ctor(il2cpp_utils::newcsstr("Top_Toolbar"));
+        auto topToolbar = GameObject::New_ctor("Top_Toolbar");
         topToolbar->get_transform()->SetParent(globalContainer, false);
         toolBar = topToolbar->AddComponent<RectTransform*>();
         toolBar->set_anchoredPosition3D(Vector3(0, 0, -2));
@@ -229,7 +229,7 @@ namespace Scribble
         QuestUI::BeatSaberUI::SetButtonSprites(settingsButton, UITools::Base64ToSprite(settings_inactive), UITools::Base64ToSprite(settings));
     }
 
-    void ScribbleUI::CreateLogo()
+    void ScribbleUI::CreateLogo() const
     {
         auto horizontal = QuestUI::BeatSaberUI::CreateHorizontalLayoutGroup(toolBar);
         horizontal->get_transform()->SetAsFirstSibling();
@@ -251,7 +251,7 @@ namespace Scribble
         for (int i = 0; i < length; i++)
             curvedCanvasSettings->values[i]->SetRadius(0);
 
-        get_gameObject()->GetComponent<HMUI::Screen*>()->rootViewController = mainViewController;
+        get_gameObject()->GetComponent<HMUI::Screen*>()->dyn__rootViewController() = mainViewController;
         mainViewController->get_transform()->SetParent(globalContainer, false);
         mainViewController->get_transform()->set_localPosition({0.0f, -0.1f, -0.01f});
         mainViewController->__Activate(true, true);
@@ -288,9 +288,9 @@ namespace Scribble
             if (pauseMenuManagers && pauseMenuManagers->Length() > 0)
             {
                 auto pauseMenuManager = pauseMenuManagers->values[0];
-                pauseMenuManager->continueButton->set_interactable(interactable);
-                pauseMenuManager->restartButton->set_interactable(interactable);
-                pauseMenuManager->backButton->set_interactable(interactable);
+                pauseMenuManager->dyn__continueButton()->set_interactable(interactable);
+                pauseMenuManager->dyn__restartButton()->set_interactable(interactable);
+                pauseMenuManager->dyn__backButton()->set_interactable(interactable);
             }
         }
     }

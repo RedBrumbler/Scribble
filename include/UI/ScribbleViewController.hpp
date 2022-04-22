@@ -52,11 +52,11 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleViewController, HMUI::ViewController,
                       void ReloadBrushList();
                       void ReloadTextureList();
                       void ReloadEffectList();
-                      void ReloadFileLists();
+                      void ReloadFileLists() const;
                       void SelectForBrush(const CustomBrush& brush);
                       void ActiveControllerChanged(BrushBehaviour* newBrush);
-                      void SaveFilenameChanged(std::string_view val);
-                      void BrushNameChanged(std::string_view val);
+                      void SaveFilenameChanged(std::string val);
+                      void BrushNameChanged(std::string val);
 
                       void SetModalPosition(HMUI::ModalView* modal);
                       void SaveSelectIdx(int idx);
@@ -68,10 +68,10 @@ DECLARE_CLASS_CODEGEN(Scribble, ScribbleViewController, HMUI::ViewController,
                       void CreateMainVertical(UnityEngine::Transform* parent);
                       void UpdateBrushModeButtonsColors(BrushBehaviour* brushBehaviour);
 
-                      std::string FindNextName(std::string_view name, int idx);
+                      std::string FindNextName(std::string name, int idx);
 
-                      std::string saveFileName = "";
-                      std::string brushName = "";
+                      std::string saveFileName;
+                      std::string brushName;
                       public
                       : int size = 1;
                       float glow = 0.5f;

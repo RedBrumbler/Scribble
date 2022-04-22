@@ -1,6 +1,6 @@
 #pragma once
 
-#define DATAPATH "/sdcard/ModData/com.beatgames.beatsaber/Mods/" ID "/"
+#define DATAPATH "/sdcard/ModData/com.beatgames.beatsaber/Mods/" MOD_ID "/"
 
 constexpr const int imageVersion = 1;
 constexpr const char* brushTexturePath = DATAPATH "BrushTextures";

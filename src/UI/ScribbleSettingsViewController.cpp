@@ -28,7 +28,7 @@ namespace Scribble
             if (effectContainers && effectContainers->Length() > 0)
             {
                 auto effectContainer = effectContainers->values[0];
-                if (effectContainer->postProcessEnabled->get_value())
+                if (effectContainer->dyn__postProcessEnabled()->get_value())
                 {
                     toggle = BeatSaberUI::CreateToggle(container->get_transform(), "Use Real Glow", config.useRealGlow, [](bool val){ 
                         config.useRealGlow = val; 

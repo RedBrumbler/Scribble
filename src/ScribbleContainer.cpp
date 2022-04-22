@@ -41,7 +41,7 @@ namespace Scribble
         {
             INFO("Found Effect Container");
             auto container = effectContainers->values[0];
-            SetRealGlow(container->postProcessEnabled->get_value() &&
+            SetRealGlow(container->dyn__postProcessEnabled()->get_value() &&
                         config.useRealGlow);
         }
         else
@@ -100,26 +100,18 @@ namespace Scribble
     void ScribbleContainer::SetRealGlow(bool real)
     {
         INFO("Setting real glow usage to: %d", real);
-        static auto _ScribbleRealGlow =
-            il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>(
-                "_ScribbleRealGlow");
-        UnityEngine::Shader::SetGlobalFloat(_ScribbleRealGlow, real);
+        UnityEngine::Shader::SetGlobalFloat("_ScribbleRealGlow", real);
     }
 
     void ScribbleContainer::SetBPM(float BPM)
     {
-        static auto _BPM =
-            il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("_BPM");
         // bpm / 60 means per second, 60 bpm is once per second
-        Shader::SetGlobalFloat(_BPM, BPM / 60);
+        Shader::SetGlobalFloat("_BPM", BPM / 60);
     }
 
     void ScribbleContainer::SetOffset(float offset)
     {
-        static auto _StartOffset =
-            il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>(
-                "_StartOffset");
-        Shader::SetGlobalFloat(_StartOffset, offset);
+        Shader::SetGlobalFloat("_StartOffset", offset);
     }
 #pragma endregion
 
@@ -429,9 +421,7 @@ namespace Scribble
         if (animated)
         {
             animatedLoadRoutine =
-                StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(
-                    custom_types::Helpers::CoroutineHelper::New(
-                        LoadAnimated(inStream, lineCount))));
+                StartCoroutine(custom_types::Helpers::CoroutineHelper::New(LoadAnimated(inStream, lineCount)));
             return;
         }
 
@@ -497,9 +487,7 @@ namespace Scribble
         if (animated)
         {
             animatedLoadRoutine =
-                StartCoroutine(reinterpret_cast<System::Collections::IEnumerator*>(
-                    custom_types::Helpers::CoroutineHelper::New(
-                        LoadObjAnimated(obj))));
+                StartCoroutine(custom_types::Helpers::CoroutineHelper::New(LoadObjAnimated(obj)));
             return;
         }
 

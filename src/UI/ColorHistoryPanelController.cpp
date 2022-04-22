@@ -1,5 +1,7 @@
 #include "UI/ColorHistoryPanelController.hpp"
 
+#include <utility>
+
 #include "UnityEngine/Resources.hpp"
 #include "UnityEngine/GameObject.hpp"
 #include "UnityEngine/Object.hpp"
@@ -29,7 +31,7 @@ namespace Scribble
         horizontal->set_spacing(1);
         horizontal->GetComponent<UI::LayoutElement*>()->set_preferredWidth(54);
         auto panelController = horizontal->get_gameObject()->AddComponent<ColorHistoryPanelController*>();
-        panelController->onColorSelected = onColorSelected;
+        panelController->onColorSelected = std::move(onColorSelected);
         return panelController;
     }
 
@@ -40,14 +42,14 @@ namespace Scribble
 
         // if color already in history, return
         for (int i = 0; i < colorPanelHistory->get_Count(); i++)
-            if (colorPanelHistory->items->values[i]->color == color) return;
+            if (colorPanelHistory->items->values[i]->dyn__color() == color) return;
 
         // we are adding when there isn't max amount of history objects yet
         if (colorPanelHistory->get_Count() < maxHistoryLength)
         {
             auto newController = CreatePreviousColorController();
             // ew ugly color and addcolor, but due to how the component works, this is what we will do
-            newController->color = color;
+            newController->dyn__color() = color;
             newController->AddColor(color);
             colorPanelHistory->Add(newController);
         }
@@ -56,11 +58,11 @@ namespace Scribble
         {
             for (int i = 0; i < maxHistoryLength - 1; i++)
             {
-                colorPanelHistory->items->values[i]->color = colorPanelHistory->items->values[i + 1]->color;
-                colorPanelHistory->items->values[i]->AddColor(colorPanelHistory->items->values[i + 1]->color);
+                colorPanelHistory->items->values[i]->dyn__color() = colorPanelHistory->items->values[i + 1]->dyn__color();
+                colorPanelHistory->items->values[i]->AddColor(colorPanelHistory->items->values[i + 1]->dyn__color());
             }
             
-            colorPanelHistory->items->values[maxHistoryLength - 1]->color = color;
+            colorPanelHistory->items->values[maxHistoryLength - 1]->dyn__color() = color;
             colorPanelHistory->items->values[maxHistoryLength - 1]->AddColor(color);
         }
     }
@@ -74,7 +76,7 @@ namespace Scribble
         auto gameObject = Object::Instantiate(controllerPanelTemplate->get_gameObject(), wrapper->get_transform());
 
         auto panel = gameObject->GetComponent<GlobalNamespace::PreviousColorPanelController*>();
-        std::function<void(UnityEngine::Color)> fun = std::bind(&ColorHistoryPanelController::OnColorSelected, this, std::placeholders::_1);
+        std::function<void(UnityEngine::Color)> fun = [this](auto && PH1) { OnColorSelected(std::forward<decltype(PH1)>(PH1)); };
         auto delegate = il2cpp_utils::MakeDelegate<System::Action_1<UnityEngine::Color>*>(classof(System::Action_1<UnityEngine::Color>*), fun);
         panel->add_colorWasSelectedEvent(delegate);
         wrapper->SetAsFirstSibling();
@@ -82,7 +84,7 @@ namespace Scribble
         return panel;
     }
 
-    void ColorHistoryPanelController::OnColorSelected(UnityEngine::Color color)
+    void ColorHistoryPanelController::OnColorSelected(UnityEngine::Color color) const
     {
         if (onColorSelected) onColorSelected(color);
     }

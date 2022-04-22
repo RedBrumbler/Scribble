@@ -111,7 +111,7 @@ namespace Scribble::ThumbnailHelper
         int num1;
         int num2;
         
-        std::array<uint8_t, 4> half1;
+        std::array<uint8_t, 4> half1{};
 
         bool flag = true;
         while (flag)

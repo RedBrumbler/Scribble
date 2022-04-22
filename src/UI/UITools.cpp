@@ -25,7 +25,7 @@ namespace UITools
         textGo->SetActive(false);
         auto textComp = textGo->AddComponent<TMPro::TextMeshProUGUI*>();
         auto font = QuestUI::ArrayUtil::First(UnityEngine::Resources::FindObjectsOfTypeAll<TMPro::TMP_FontAsset*>(), [](auto t){ 
-            static auto font_cs = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("Teko-Medium SDF");
+            static StringW font_cs = "Teko-Medium SDF";
             return t && t->get_name() && font_cs->Equals(t->get_name());
         });
         textComp->set_font(font);
@@ -54,12 +54,12 @@ namespace UITools
         if (!raycaster) raycaster = go->AddComponent<VRUIControls::VRGraphicRaycaster*>();
         // dont need to set, property not used and always null
         //raycaster->set_eventCamera(UnityEngine::Camera::get_main());
-        if(canvas) raycaster->canvas = canvas;
+        if(canvas) raycaster->dyn__canvas() = canvas;
     }
 
     UnityEngine::UI::Image* CreateImage(UnityEngine::Transform* parent, UnityEngine::Vector2 anchoredPosition, UnityEngine::Vector2 sizeDelta)
     {
-        auto image_go = UnityEngine::GameObject::New_ctor(il2cpp_utils::newcsstr("Image"));
+        auto image_go = UnityEngine::GameObject::New_ctor("Image");
         auto imageComp = image_go->AddComponent<UnityEngine::UI::Image*>();
         imageComp->get_rectTransform()->SetParent(parent, false);
         imageComp->get_rectTransform()->set_anchorMin(UnityEngine::Vector2(0.5f, 0.5f));
@@ -108,14 +108,14 @@ namespace UITools
         int length = imageViews->Length();
         for (int i = 0; i < length; i++)
         {
-            imageViews->values[i]->skew = skew;
+            imageViews->values[i]->dyn__skew() = skew;
         }
 
     }
 
     UnityEngine::Sprite* Base64ToSprite(std::string_view base64)
     {
-        Array<uint8_t>* bytes = System::Convert::FromBase64String(il2cpp_utils::createcsstr(base64));
+        ArrayW<uint8_t> bytes = System::Convert::FromBase64String(base64);
         return QuestUI::BeatSaberUI::ArrayToSprite(bytes);
     }
 }

@@ -12,7 +12,7 @@
 #include "GlobalNamespace/GamePause.hpp"
 #include "GlobalNamespace/MenuTransitionsHelper.hpp"
 #include "GlobalNamespace/VRController.hpp"
-#include "GlobalNamespace/VariableBpmProcessor.hpp"
+#include "GlobalNamespace/BpmController.hpp"
 #include "VRUIControls/VRPointer.hpp"
 
 #include "System/Action_1.hpp"
@@ -93,8 +93,8 @@ MAKE_AUTO_HOOK_MATCH(VRPointer_Awake, &VRUIControls::VRPointer::Awake, void, VRU
     if (!pastLoad)
         return;
 
-    auto leftController = self->leftVRController;
-    auto rightController = self->rightVRController;
+    auto leftController = self->dyn__leftVRController();
+    auto rightController = self->dyn__rightVRController();
 
     if (!leftController->get_gameObject()->GetComponent<BrushBehaviour*>())
     {
@@ -137,20 +137,18 @@ MAKE_AUTO_HOOK_MATCH(MainFlowCoordinator_TopViewControllerWillChange, &GlobalNam
 MAKE_AUTO_HOOK_MATCH(BeatmapObjectSpawnController_Start, &GlobalNamespace::BeatmapObjectSpawnController::Start, void, GlobalNamespace::BeatmapObjectSpawnController* self)
 {
     BeatmapObjectSpawnController_Start(self);
-    ScribbleContainer::SetBPM((float)self->initData->beatsPerMinute);
-    ScribbleContainer::SetOffset((float)self->initData->noteJumpStartBeatOffset);
+    ScribbleContainer::SetBPM((float)self->dyn__initData()->dyn_beatsPerMinute());
+    ScribbleContainer::SetOffset((float)self->dyn__initData()->dyn_noteJumpValue());
 }
 
-MAKE_AUTO_HOOK_MATCH(VariableBpmProcessor_ProcessBeatmapEventData, &GlobalNamespace::VariableBpmProcessor::ProcessBeatmapEventData, bool, GlobalNamespace::VariableBpmProcessor* self, GlobalNamespace::BeatmapEventData* beatmapEventData)
+MAKE_AUTO_HOOK_MATCH(VariableBpmProcessor_ProcessBeatmapEventData, &GlobalNamespace::BpmController::HandleBpmChangeBeatmapEvent, void, GlobalNamespace::BpmController* self, GlobalNamespace::BPMChangeBeatmapEventData* bpmChangeBeatmapEventData)
 {
-    if (!VariableBpmProcessor_ProcessBeatmapEventData(self, beatmapEventData))
-        return false;
-    // bpm change event is event10
-    if (beatmapEventData->type == GlobalNamespace::BeatmapEventType::Event10)
+    VariableBpmProcessor_ProcessBeatmapEventData(self, bpmChangeBeatmapEventData);
+
+    if (bpmChangeBeatmapEventData)
     {
-        ScribbleContainer::SetBPM((float)beatmapEventData->value);
+        ScribbleContainer::SetBPM(self->dyn__currentBpm());
     }
-    return true;
 }
 
 MAKE_AUTO_HOOK_MATCH(MenuTransitionsHelper_RestartGame, &GlobalNamespace::MenuTransitionsHelper::RestartGame, void, GlobalNamespace::MenuTransitionsHelper* self, System::Action_1<Zenject::DiContainer*>* finishCallback)
@@ -197,7 +195,7 @@ MAKE_AUTO_HOOK_MATCH(GamePause_Resume, &GlobalNamespace::GamePause::Resume, void
 
 extern "C" void setup(ModInfo& info)
 {
-    info.id = ID;
+    info.id = MOD_ID;
     info.version = VERSION;
 }
 

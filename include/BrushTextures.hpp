@@ -9,6 +9,6 @@ namespace Scribble::BrushTextures
     void LoadAllTextures();
     UnityEngine::Texture2D* GetTexture(std::string_view name);
     std::string GetTextureName(int idx);
-    const std::vector<std::pair<std::string, UnityEngine::Texture2D*>> GetTextures();
+    std::vector<std::pair<std::string, UnityEngine::Texture2D*>> GetTextures();
     void Reset();
 }

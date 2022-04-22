@@ -41,7 +41,7 @@ using namespace UnityEngine::UI;
 
 namespace Scribble
 {
-    std::string ScribbleViewController::FindNextName(std::string_view name, int idx)
+    std::string ScribbleViewController::FindNextName(std::string name, int idx)
     {
         INFO("Getting candidate for %s", name.data());
         // candidate, what we think might work
@@ -77,7 +77,7 @@ namespace Scribble
 
             //<vertical anchor-pos-y="-25" child-expand-height="false" child-control-height="false" spacing="2" xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:schemaLocation='https://monkeymanboy.github.io/BSML-Docs/ https://raw.githubusercontent.com/monkeymanboy/BSML-Docs/gh-pages/BSMLSchema.xsd'>
             auto vertical = BeatSaberUI::CreateVerticalLayoutGroup(get_transform());
-            vertical->get_gameObject()->GetComponent<Backgroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.5f);
+            vertical->get_gameObject()->GetComponent<Backgroundable*>()->ApplyBackgroundWithAlpha("round-rect-panel", 0.5f);
             vertical->get_rectTransform()->set_anchoredPosition({0.0f, -25.0f});
             vertical->set_childForceExpandHeight(false);
             vertical->set_childControlHeight(false);
@@ -110,7 +110,7 @@ namespace Scribble
             saveFileList->cellSize = 30.0f;
 
             auto saveInfoVertical = BeatSaberUI::CreateVerticalLayoutGroup(saveHorizontal->get_transform());
-            saveInfoVertical->get_gameObject()->AddComponent<QuestUI::Backgroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.2f);
+            saveInfoVertical->get_gameObject()->AddComponent<QuestUI::Backgroundable*>()->ApplyBackgroundWithAlpha("round-rect-panel", 0.2f);
             saveInfoVertical->set_padding(UnityEngine::RectOffset::New_ctor(0, 0, 20, 20));
             saveInfoVertical->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredHeight(40);
             saveInfoVertical->set_childForceExpandHeight(false);
@@ -148,7 +148,7 @@ namespace Scribble
             loadFileList->cellSize = 30.0f;
 
             auto loadInfoVertical = BeatSaberUI::CreateVerticalLayoutGroup(loadHorizontal->get_transform());
-            loadInfoVertical->get_gameObject()->AddComponent<QuestUI::Backgroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.2f);
+            loadInfoVertical->get_gameObject()->AddComponent<QuestUI::Backgroundable*>()->ApplyBackgroundWithAlpha("round-rect-panel", 0.2f);
             loadInfoVertical->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredHeight(40);
             loadInfoVertical->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredWidth(40);
             loadInfoVertical->set_childForceExpandHeight(false);
@@ -183,7 +183,7 @@ namespace Scribble
             //modelFileList->cellSize = 30.0f;
 
             auto modelInfoVertical = BeatSaberUI::CreateVerticalLayoutGroup(modelHorizontal->get_transform());
-            modelInfoVertical->get_gameObject()->AddComponent<QuestUI::Backgroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.2f);
+            modelInfoVertical->get_gameObject()->AddComponent<QuestUI::Backgroundable*>()->ApplyBackgroundWithAlpha("round-rect-panel", 0.2f);
             modelInfoVertical->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredHeight(40);
             modelInfoVertical->get_gameObject()->AddComponent<LayoutElement*>()->set_preferredWidth(40);
             modelInfoVertical->set_childForceExpandHeight(false);
@@ -225,7 +225,7 @@ namespace Scribble
             if (effectContainers && effectContainers->Length() > 0)
             {
                 auto effectContainer = effectContainers->values[0];
-                if (effectContainer->postProcessEnabled->get_value())
+                if (effectContainer->dyn__postProcessEnabled()->get_value())
                 {
                     toggle = BeatSaberUI::CreateToggle(settingsVertical->get_transform(), "Use Real Glow", config.useRealGlow, [](bool val)
                                                        {
@@ -357,7 +357,7 @@ namespace Scribble
     void ScribbleViewController::CreateBrushList(UnityEngine::Transform* parent)
     {
         auto brushListVertical = BeatSaberUI::CreateVerticalLayoutGroup(parent);
-        brushListVertical->get_gameObject()->GetComponent<Backgroundable*>()->ApplyBackgroundWithAlpha(il2cpp_utils::newcsstr("round-rect-panel"), 0.8f);
+        brushListVertical->get_gameObject()->GetComponent<Backgroundable*>()->ApplyBackgroundWithAlpha("round-rect-panel", 0.8f);
         //brushListVertical->GetComponent<LayoutElement*>()->set_preferredWidth(40);
         auto brushListHorizontal = BeatSaberUI::CreateHorizontalLayoutGroup(brushListVertical->get_transform());
         brushListHorizontal->set_childForceExpandWidth(false);
@@ -369,10 +369,10 @@ namespace Scribble
         //nameFieldhorizontal->set_childForceExpandHeight(false);
         //nameFieldhorizontal->GetComponent<LayoutElement*>()->set_preferredHeight(10.0f);
         nameFieldhorizontal->set_padding(RectOffset::New_ctor(0, 0, 2, 2));
-        brushNameField = BeatSaberUI::CreateStringSetting(nameFieldhorizontal->get_transform(), "Brush Name", brushName, std::bind(&ScribbleViewController::BrushNameChanged, this, std::placeholders::_1));
+        brushNameField = BeatSaberUI::CreateStringSetting(nameFieldhorizontal->get_transform(), "Brush Name", brushName, [this](auto && PH1) { BrushNameChanged(std::forward<decltype(PH1)>(PH1)); });
         brushNameField->GetComponent<LayoutElement*>()->set_preferredWidth(20);
 
-        brushList = BeatSaberUI::CreateScrollableCustomSourceList<CustomBrushListDataSource*>(brushListHorizontal->get_transform(), {45.0f, 50.0f}, std::bind(&ScribbleViewController::SelectBrush, this, std::placeholders::_1));
+        brushList = BeatSaberUI::CreateScrollableCustomSourceList<CustomBrushListDataSource*>(brushListHorizontal->get_transform(), {45.0f, 50.0f}, [this](auto && PH1) { SelectBrush(std::forward<decltype(PH1)>(PH1)); });
 
         auto brushSaveButtonsVertical = BeatSaberUI::CreateVerticalLayoutGroup(brushListHorizontal->get_transform());
         float buttonSize = 15.0f;
@@ -654,7 +654,7 @@ namespace Scribble
         tileSlider->set_value(brush.tiling.x);
         colorPickerModal->set_color(brush.color);
         pickerImage->set_color(brush.color);
-        brushNameField->set_text(il2cpp_utils::newcsstr(brush.name));
+        brushNameField->set_text(brush.name);
     }
 
     void ScribbleViewController::SelectBrush(int idx)
@@ -787,17 +787,17 @@ namespace Scribble
             loadModal->Show(true, true, nullptr);
     }
 
-    void ScribbleViewController::SaveFilenameChanged(std::string_view val)
+    void ScribbleViewController::SaveFilenameChanged(std::string val)
     {
         saveFileName = val;
     }
 
-    void ScribbleViewController::BrushNameChanged(std::string_view val)
+    void ScribbleViewController::BrushNameChanged(std::string val)
     {
         brushName = val;
     }
 
-    void ScribbleViewController::ReloadFileLists()
+    void ScribbleViewController::ReloadFileLists() const
     {
         std::vector<std::string> fileNames = {};
         FileUtils::GetFilesInFolderPath("png", drawingPath, fileNames);
@@ -871,7 +871,7 @@ namespace Scribble
 
     void ScribbleViewController::SaveSelectIdx(int idx)
     {
-        fileNameField->set_text(il2cpp_utils::newcsstr(saveFileList->data[idx].text));
+        fileNameField->set_text(saveFileList->data[idx].text);
     }
 
     void ScribbleViewController::ShowSettings()

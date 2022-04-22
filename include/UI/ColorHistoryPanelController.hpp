@@ -21,5 +21,5 @@ DECLARE_CLASS_CODEGEN(Scribble, ColorHistoryPanelController, UnityEngine::MonoBe
         int maxHistoryLength = 5;
         std::function<void(Sombrero::FastColor)> onColorSelected = nullptr;
         void AddColor(Sombrero::FastColor color);
-        void OnColorSelected(UnityEngine::Color color);
+        void OnColorSelected(UnityEngine::Color color) const;
 )

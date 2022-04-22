@@ -11,7 +11,7 @@
 #include "HMUI/SelectableCell.hpp"
 
 #include "GlobalNamespace/LevelListTableCell.hpp"
-#include "GlobalNamespace/AnnotatedBeatmapLevelCollectionTableCell.hpp"
+#include "GlobalNamespace/AnnotatedBeatmapLevelCollectionCell.hpp"
 #include "GlobalNamespace/SimpleTextTableCell.hpp"
 
 #include "sombrero/shared/ColorUtils.hpp"
@@ -20,7 +20,7 @@
 
 // this is what that used to be called, but this is more clear and understandable (Blame BSML) we just copy this
 namespace GlobalNamespace {
-    using LevelPackTableCell = AnnotatedBeatmapLevelCollectionTableCell;
+    using LevelPackTableCell = AnnotatedBeatmapLevelCollectionCell;
 }
 
 ___DECLARE_TYPE_WRAPPER_INHERITANCE(Scribble, CustomBrushListDataSource, Il2CppTypeEnum::IL2CPP_TYPE_CLASS, UnityEngine::MonoBehaviour, "Scribble", { classof(HMUI::TableView::IDataSource*) }, 0, nullptr,
@@ -49,7 +49,6 @@ ___DECLARE_TYPE_WRAPPER_INHERITANCE(Scribble, CustomBrushListDataSource, Il2CppT
     DECLARE_INSTANCE_FIELD(GlobalNamespace::LevelPackTableCell*, levelPackTableCellInstance);
     DECLARE_INSTANCE_FIELD(GlobalNamespace::SimpleTextTableCell*, simpleTextTableCellInstance);
 
-    DECLARE_INSTANCE_FIELD(Il2CppString*, reuseIdentifier);
     DECLARE_INSTANCE_FIELD(float, cellSize);
     DECLARE_INSTANCE_FIELD(HMUI::TableView*, tableView);
     DECLARE_INSTANCE_FIELD(bool, expandCell);

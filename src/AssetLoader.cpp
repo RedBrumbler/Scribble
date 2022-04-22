@@ -29,14 +29,13 @@ namespace Scribble::AssetLoader
     Shader* LoadShader(std::string_view name)
     {
         //if (!shaders) shaders = Dictionary<Il2CppString*, Material*>::New_ctor();
-        auto key = il2cpp_utils::newcsstr(name);
         /*
         if (shaders->ContainsKey(key)) {
             // has key, so shader was already loaded once
             return shaders->get_Item(key)->get_shader();
         }   else {*/
             if (!bundle) LoadBundle();
-            auto shader = bundle->LoadAsset<Shader*>(key);
+            auto shader = bundle->LoadAsset<Shader*>(name);
             auto mat = Material::New_ctor(shader);
             Object::DontDestroyOnLoad(mat);
             //shaders->Add(key, mat);

@@ -1,57 +1,36 @@
-param($p1)
+Param(
+    [Parameter(Mandatory=$false)]
+    [Switch] $clean,
 
-$NDKPath = Get-Content $PSScriptRoot/ndkpath.txt
+    [Parameter(Mandatory=$false)]
+    [Switch] $help
+)
 
-$buildScript = "$NDKPath/build/ndk-build"
+if ($help -eq $true) {
+    echo "`"Build`" - Copiles your mod into a `".so`" or a `".a`" library"
+    echo "`n-- Arguments --`n"
 
-$OS = $PSVersionTable.OS
-if ($OS)
-{
-    $windows = $OS.Contains("Windows")
-}
-else
-{
-    $windows = 'True'
-}
+    echo "-Clean `t`t Deletes the `"build`" folder, so that the entire library is rebuilt"
 
-# when core, or when on windows we want to add .cmd to the end
-if ((-not ($PSVersionTable.PSEdition -eq "Core")) -or $windows) {
-    $buildScript += ".cmd"
-}
-$coreCount = 0
-#get amount of processors
-# if on a windows system
-if ($windows)
-{
-    $prop = WMIC CPU Get NumberOfCores 
-    
-    $coreCount = $prop.split('\n')[2]
-    $coreCount = $coreCount.Trim()
-}
-# if on a linux system
-else
-{
-    $coreCount = & nproc
-}
-# if all fails, just assume 4
-if (-not $coreCount)
-{
-    echo "Couldn't get core count, assuming 4"
-    $coreCount = 4
+    exit
 }
 
-$msg = "Building with " + $coreCount + " Cores!"
-echo $msg
-if ($p1 -eq "clean")
+# if user specified clean, remove all build files
+if ($clean.IsPresent)
 {
-    echo "Removing obj dir for clean build"
-    remove-item ./obj -Recurse
+    if (Test-Path -Path "build")
+    {
+        remove-item build -R
+    }
 }
 
-& $buildScript NDK_PROJECT_PATH=$PSScriptRoot APP_BUILD_SCRIPT=$PSScriptRoot/Android.mk NDK_APPLICATION_MK=$PSScriptRoot/Application.mk -j $coreCount -Oline
-echo "Build Finished!"
-if (-not ($LastExitCode -eq 0)) {
-    $msg = "exit code " + $LastExitCode
-    echo $msg
-    exit $LastExitCode
-}
+
+if (($clean.IsPresent) -or (-not (Test-Path -Path "build")))
+{
+    $out = new-item -Path build -ItemType Directory
+} 
+
+cd build
+& cmake -G "Ninja" -DCMAKE_BUILD_TYPE="RelWithDebInfo" ../
+& cmake --build .
+cd ..
