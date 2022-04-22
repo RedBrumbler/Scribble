@@ -6,11 +6,10 @@
 #include "UnityEngine/Rect.hpp"
 #include "UnityEngine/Vector2.hpp"
 #include "UnityEngine/UI/Image.hpp"
+#include "HMUI/ImageView.hpp"
 
 #include "TMPro/TextMeshProUGUI.hpp"
 #include "questui/shared/ArrayUtil.hpp"
-
-#include "HMUI/ImageView.hpp"
 
 DEFINE_TYPE(Scribble, CustomBrushListDataSource);
 
@@ -27,7 +26,6 @@ namespace Scribble
         INVOKE_CTOR();
         set_listStyle(CustomBrushListDataSource::ListStyle::List);
         expandCell = false;
-        reuseIdentifier = il2cpp_utils::newcsstr("ScribbleCustomBrushListTableCell");
         tableView = nullptr;
     }
     
@@ -60,7 +58,7 @@ namespace Scribble
 
     GlobalNamespace::LevelListTableCell* CustomBrushListDataSource::GetTableCell()
     {
-        auto tableCell = reinterpret_cast<GlobalNamespace::LevelListTableCell*>(tableView->DequeueReusableCellForIdentifier(reuseIdentifier));
+        auto tableCell = reinterpret_cast<GlobalNamespace::LevelListTableCell*>(tableView->DequeueReusableCellForIdentifier("ScribbleCustomBrushListTableCell"));
         if (!tableCell)
         {
             if (!songListTableCellInstance)
@@ -70,47 +68,27 @@ namespace Scribble
         }
 
         //tableCell.SetField("_beatmapCharacteristicImages", new Image[0]);
-        tableCell->notOwned = false;
+        tableCell->dyn__notOwned() = false;
 
-        tableCell->set_reuseIdentifier(reuseIdentifier);
+        tableCell->set_reuseIdentifier("ScribbleCustomBrushListTableCell");
         return tableCell;   
     }
 
-    QuestUIBoxTableCell* CustomBrushListDataSource::GetBoxTableCell()
+    GlobalNamespace::LevelPackTableCell* CustomBrushListDataSource::GetLevelPackTableCell()
     {
-        auto tableCell = reinterpret_cast<QuestUIBoxTableCell*>(tableView->DequeueReusableCellForIdentifier(reuseIdentifier));
+        auto tableCell = reinterpret_cast<GlobalNamespace::LevelPackTableCell*>(tableView->DequeueReusableCellForIdentifier("ScribbleCustomBrushListTableCell"));
         if (!tableCell)
         {
             if (!levelPackTableCellInstance)
-                levelPackTableCellInstance = ArrayUtil::First(Resources::FindObjectsOfTypeAll<GlobalNamespace::LevelPackCell*>(), [](auto x){ return to_utf8(csstrtostr(x->get_name())) == "AnnotatedBeatmapLevelCollectionCell"; });
-            tableCell = InstantiateBoxTableCell(levelPackTableCellInstance);
+                levelPackTableCellInstance = ArrayUtil::First(Resources::FindObjectsOfTypeAll<GlobalNamespace::LevelPackTableCell*>(), [](auto x){ return to_utf8(csstrtostr(x->get_name())) == "AnnotatedBeatmapLevelCollectionTableCell"; });
+            tableCell = Instantiate(levelPackTableCellInstance);
         }
-        tableCell->set_reuseIdentifier(reuseIdentifier);
         return tableCell;
-    }
-
-    QuestUIBoxTableCell* CustomBrushListDataSource::InstantiateBoxTableCell(GlobalNamespace::LevelPackCell* levelPackTableCell)
-    {
-        levelPackTableCell = Instantiate(levelPackTableCell);
-        ImageView* coverImage = levelPackTableCell->dyn__coverImage();
-        ImageView* selectionImage = levelPackTableCell->dyn__selectionImage();
-
-        auto transform = coverImage->get_transform();
-        for (int i = 0; i < transform->GetChildCount(); i++)
-        {
-            Object::Destroy(transform->GetChild(i)->get_gameObject());
-        }
-
-        GameObject* cellObject = levelPackTableCell->get_gameObject();
-        Object::Destroy(levelPackTableCell);
-        QuestUIBoxTableCell* boxTableCell = cellObject->AddComponent<QuestUIBoxTableCell*>();
-        boxTableCell->SetComponents(coverImage, selectionImage);
-        return boxTableCell;
     }
 
     GlobalNamespace::SimpleTextTableCell* CustomBrushListDataSource::GetSimpleTextTableCell()
     {
-        auto tableCell = reinterpret_cast<GlobalNamespace::SimpleTextTableCell*>(tableView->DequeueReusableCellForIdentifier(reuseIdentifier));
+        auto tableCell = reinterpret_cast<GlobalNamespace::SimpleTextTableCell*>(tableView->DequeueReusableCellForIdentifier("ScribbleCustomBrushListTableCell"));
         if (!tableCell)
         {
             if (!simpleTextTableCellInstance)
@@ -118,7 +96,7 @@ namespace Scribble
             tableCell = Instantiate(simpleTextTableCellInstance);
         }
 
-        tableCell->set_reuseIdentifier(reuseIdentifier);
+        tableCell->set_reuseIdentifier("ScribbleCustomBrushListTableCell");
         return tableCell;
     }
 
@@ -129,13 +107,12 @@ namespace Scribble
             case ListStyle::List: {
                 auto tableCell = GetTableCell();
 
-                TextMeshProUGUI* nameText = tableCell->songNameText;
-                TextMeshProUGUI* authorText = tableCell->songAuthorText;
-                tableCell->songBpmText->get_gameObject()->SetActive(false);
-                tableCell->songDurationText->get_gameObject()->SetActive(false);
-                tableCell->favoritesBadgeImage->get_gameObject()->SetActive(false);
-                static auto BpmIcon = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("BpmIcon");
-                tableCell->get_transform()->Find(BpmIcon)->get_gameObject()->SetActive(false);
+                TextMeshProUGUI* nameText = tableCell->dyn__songNameText();
+                TextMeshProUGUI* authorText = tableCell->dyn__songAuthorText();
+                tableCell->dyn__songBpmText()->get_gameObject()->SetActive(false);
+                tableCell->dyn__songDurationText()->get_gameObject()->SetActive(false);
+                tableCell->dyn__favoritesBadgeImage()->get_gameObject()->SetActive(false);
+                tableCell->get_transform()->Find("BpmIcon")->get_gameObject()->SetActive(false);
                 
                 if (expandCell)
                 {
@@ -146,22 +123,27 @@ namespace Scribble
                 auto& cellInfo = data[idx];
                 nameText->set_text(cellInfo.get_text());
                 authorText->set_text(cellInfo.get_subText());
-                tableCell->coverImage->set_sprite(cellInfo.get_icon());
-                tableCell->coverImage->set_color(cellInfo.color);
+                tableCell->dyn__coverImage()->set_sprite(cellInfo.get_icon());
+                tableCell->dyn__coverImage()->set_color(cellInfo.color);
 
                 return tableCell;
             }
             case ListStyle::Box: {
+                auto cell = GetLevelPackTableCell();
+                cell->set_showNewRibbon(false);
                 auto& cellInfo = data[idx];
-                QuestUIBoxTableCell* cell = GetBoxTableCell();
-                cell->SetData(cellInfo.get_icon());
+                cell->dyn__infoText()->set_text(cellInfo.get_combinedText());
+                auto packCoverImage = cell->dyn__coverImage();
 
-                return cell;
+                packCoverImage->set_sprite(cellInfo.get_icon());
+                packCoverImage->set_color(cellInfo.color);
+
+                return reinterpret_cast<TableCell*>(cell);
             }
             case ListStyle::Simple: {
                 auto simpleCell = GetSimpleTextTableCell();
-                simpleCell->text->set_richText(true);
-                simpleCell->text->set_enableWordWrapping(true);
+                simpleCell->dyn__text()->set_richText(true);
+                simpleCell->dyn__text()->set_enableWordWrapping(true);
                 simpleCell->set_text(data[idx].get_text());
 
                 return simpleCell;

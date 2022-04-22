@@ -27,25 +27,25 @@ namespace Scribble
         UnityEngine::GameObject* gameObject;
         UnityEngine::RectTransform* rectTransform;
 
-        ScribbleUIElement(UnityEngine::GameObject* go) : gameObject(go), rectTransform(go->GetComponent<UnityEngine::RectTransform*>()) {};
+        explicit ScribbleUIElement(UnityEngine::GameObject* go) : gameObject(go), rectTransform(go->GetComponent<UnityEngine::RectTransform*>()) {};
 
         void SetAnchor(float x, float y)
         {
             SetAnchor(x, y, x, y);
         }
 
-        void SetAnchor(float minX, float minY, float maxX, float maxY)
+        void SetAnchor(float minX, float minY, float maxX, float maxY) const
         {
             rectTransform->set_anchorMin({minX, minY});
             rectTransform->set_anchorMax({maxX, maxY});
         }
 
-        void SetPosition(float x, float y)
+        void SetPosition(float x, float y) const
         {
             rectTransform->set_anchoredPosition({x, y});
         }
 
-        void SetSize(float x, float y)
+        void SetSize(float x, float y) const
         {
             rectTransform->set_sizeDelta({x, y});
         }
@@ -57,35 +57,35 @@ namespace Scribble
             HMUI::RangeValuesTextSlider* slider;
             TMPro::TextMeshProUGUI* textMesh;
 
-            bool get_enableDragging()
+            bool get_enableDragging() const
             {
-                return slider->enableDragging;
+                return slider->dyn__enableDragging();
             }
 
-            void set_enableDragging(bool value)
+            void set_enableDragging(bool value) const
             {
-                slider->enableDragging = value;
+                slider->dyn__enableDragging() = value;
             }
 
-            void set_text(std::string_view value)
+            void set_text(std::string_view value) const
             {
                 textMesh->set_text(il2cpp_utils::newcsstr(value));
             }
 
-            ScribbleUISlider(UnityEngine::GameObject* go) : ScribbleUIElement(go), slider(go->GetComponentInChildren<HMUI::RangeValuesTextSlider*>()), textMesh(go->GetComponentInChildren<TMPro::TextMeshProUGUI*>()) {};
+            explicit ScribbleUISlider(UnityEngine::GameObject* go) : ScribbleUIElement(go), slider(go->GetComponentInChildren<HMUI::RangeValuesTextSlider*>()), textMesh(go->GetComponentInChildren<TMPro::TextMeshProUGUI*>()) {};
 
-            void SetRange(float min, float max)
+            void SetRange(float min, float max) const
             {
                 slider->set_minValue(min);
                 slider->set_maxValue(max);
             }
 
-            void SetValue(float val)
+            void SetValue(float val) const
             {
                 slider->set_value(val);
             }
 
-            void AddListener(std::function<void(HMUI::RangeValuesTextSlider*, float)> fun)
+            void AddListener(std::function<void(HMUI::RangeValuesTextSlider*, float)> fun) const
             {
                 slider->add_valueDidChangeEvent(il2cpp_utils::MakeDelegate<System::Action_2<HMUI::RangeValuesTextSlider*, float>*>(classof(System::Action_2<HMUI::RangeValuesTextSlider*, float>*), fun));
             }
@@ -96,14 +96,14 @@ namespace Scribble
         public:
             HMUI::NoTransitionsButton* noTransitionsButton;
             TMPro::TextMeshProUGUI* textMesh;
-            bool strokeEnabled;
+            bool strokeEnabled{};
 
-            void set_text(std::string_view value)
+            void set_text(std::string_view value) const
             {
                 textMesh->set_text(il2cpp_utils::newcsstr(value));
             }
 
-            ScribbleUISimpleButton(UnityEngine::GameObject* go, std::string_view text = "button") : ScribbleUIElement(go), textMesh(go->GetComponentInChildren<TMPro::TextMeshProUGUI*>()), noTransitionsButton(go->GetComponent<HMUI::NoTransitionsButton*>())
+            explicit ScribbleUISimpleButton(UnityEngine::GameObject* go, std::string_view text = "button") : ScribbleUIElement(go), textMesh(go->GetComponentInChildren<TMPro::TextMeshProUGUI*>()), noTransitionsButton(go->GetComponent<HMUI::NoTransitionsButton*>())
             {
                 auto textCS = il2cpp_utils::newcsstr(text);
                 go->set_name(textCS);
@@ -111,7 +111,7 @@ namespace Scribble
                 textMesh->set_text(textCS);
             }
 
-            void AddListener(std::function<void()> fun)
+            void AddListener(std::function<void()> fun) const
             {
                 noTransitionsButton->get_onClick()->AddListener(il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction*>(classof(UnityEngine::Events::UnityAction*), fun));
             }
@@ -123,16 +123,16 @@ namespace Scribble
             UnityEngine::UI::Toggle* toggle;
             TMPro::TextMeshProUGUI* textMesh;
 
-            void set_text(std::string_view value)
+            [[maybe_unused]] void set_text(std::string_view value) const
             {
                 textMesh->set_text(il2cpp_utils::newcsstr(value));
             }
 
-            ScribbleUICheckbox(UnityEngine::GameObject* go) : ScribbleUIElement(go), toggle(go->GetComponentInChildren<UnityEngine::UI::Toggle*>()), textMesh(go->GetComponentInChildren<TMPro::TextMeshProUGUI*>()) {};
+            explicit ScribbleUICheckbox(UnityEngine::GameObject* go) : ScribbleUIElement(go), toggle(go->GetComponentInChildren<UnityEngine::UI::Toggle*>()), textMesh(go->GetComponentInChildren<TMPro::TextMeshProUGUI*>()) {};
 
-            void AddListener(std::function<void(bool)> fun)
+            void AddListener(std::function<void(bool)> fun) const
             {
-                toggle->onValueChanged->AddListener(il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction_1<bool>*>(classof(UnityEngine::Events::UnityAction_1<bool>*), fun));
+                toggle->dyn_onValueChanged()->AddListener(il2cpp_utils::MakeDelegate<UnityEngine::Events::UnityAction_1<bool>*>(classof(UnityEngine::Events::UnityAction_1<bool>*), fun));
             }
     };
 }

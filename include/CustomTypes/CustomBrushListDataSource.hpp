@@ -1,6 +1,5 @@
 #pragma once
 
-#include "questui/shared/CustomTypes/Components/List/QuestUIBoxTableCell.hpp"
 #include "custom-types/shared/macros.hpp"
 #include "UnityEngine/MonoBehaviour.hpp"
 #include "UnityEngine/GameObject.hpp"
@@ -21,7 +20,7 @@
 
 // this is what that used to be called, but this is more clear and understandable (Blame BSML) we just copy this
 namespace GlobalNamespace {
-    using LevelPackCell = AnnotatedBeatmapLevelCollectionCell;
+    using LevelPackTableCell = AnnotatedBeatmapLevelCollectionCell;
 }
 
 ___DECLARE_TYPE_WRAPPER_INHERITANCE(Scribble, CustomBrushListDataSource, Il2CppTypeEnum::IL2CPP_TYPE_CLASS, UnityEngine::MonoBehaviour, "Scribble", { classof(HMUI::TableView::IDataSource*) }, 0, nullptr,
@@ -47,10 +46,9 @@ ___DECLARE_TYPE_WRAPPER_INHERITANCE(Scribble, CustomBrushListDataSource, Il2CppT
     };
 
     DECLARE_INSTANCE_FIELD(GlobalNamespace::LevelListTableCell*, songListTableCellInstance);
-    DECLARE_INSTANCE_FIELD(GlobalNamespace::LevelPackCell*, levelPackTableCellInstance);
+    DECLARE_INSTANCE_FIELD(GlobalNamespace::LevelPackTableCell*, levelPackTableCellInstance);
     DECLARE_INSTANCE_FIELD(GlobalNamespace::SimpleTextTableCell*, simpleTextTableCellInstance);
 
-    DECLARE_INSTANCE_FIELD(Il2CppString*, reuseIdentifier);
     DECLARE_INSTANCE_FIELD(float, cellSize);
     DECLARE_INSTANCE_FIELD(HMUI::TableView*, tableView);
     DECLARE_INSTANCE_FIELD(bool, expandCell);
@@ -72,7 +70,6 @@ ___DECLARE_TYPE_WRAPPER_INHERITANCE(Scribble, CustomBrushListDataSource, Il2CppT
         std::vector<CustomCellInfo> data;
 
         GlobalNamespace::LevelListTableCell* GetTableCell();
-        QuestUI::QuestUIBoxTableCell* GetBoxTableCell();
-        QuestUI::QuestUIBoxTableCell* InstantiateBoxTableCell(GlobalNamespace::LevelPackCell* levelPackTableCell);
+        GlobalNamespace::LevelPackTableCell* GetLevelPackTableCell();
         GlobalNamespace::SimpleTextTableCell* GetSimpleTextTableCell();
 )

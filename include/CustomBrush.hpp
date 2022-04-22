@@ -20,10 +20,10 @@ namespace Scribble
                 Tile
             };
 
-            CustomBrush(const rapidjson::Value& val);
+            explicit CustomBrush(const rapidjson::Value& val);
 
             CustomBrush();
-            CustomBrush(std::string_view name);
+            explicit CustomBrush(std::string_view name);
             CustomBrush(std::string_view name, Sombrero::FastColor color);
             CustomBrush(std::string_view name, Sombrero::FastColor color, float glow);
             CustomBrush(std::string_view name, Sombrero::FastColor color, std::string_view textureName, float glow);
@@ -42,10 +42,10 @@ namespace Scribble
             TextureMode textureMode = TextureMode::Stretch;
             Sombrero::FastVector2 tiling = Sombrero::FastVector2::one();
             
-            UnityEngine::Material* CreateMaterial() const;
+            [[nodiscard]] UnityEngine::Material* CreateMaterial() const;
             static UnityEngine::Material* CreateMaterial(const CustomBrush& brush);
 
-            UnityEngine::Vector4 get_tiling() const { return UnityEngine::Vector4(tiling.x, tiling.y, 0.0f, 0.0f); };
+            [[nodiscard]] UnityEngine::Vector4 get_tiling() const { return {tiling.x, tiling.y, 0.0f, 0.0f}; };
             
             rapidjson::Value ToJson(rapidjson::Document::AllocatorType& allocator) const;
             static rapidjson::Value ToJson(const CustomBrush& brush, rapidjson::Document::AllocatorType& allocator);
