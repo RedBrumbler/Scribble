@@ -32,8 +32,8 @@ namespace Scribble
             std::string shader;
         public:
             Effect(std::string_view name, std::string_view shader) : name(name), shader(shader) {}; 
-            UnityEngine::Shader* get_shader() const;
-            std::string get_name() const;
+            [[nodiscard]] UnityEngine::Shader* get_shader() const;
+            [[nodiscard]] std::string get_name() const;
             virtual UnityEngine::Material* CreateMaterial(const CustomBrush& brush);
             friend Effect* Effects::GetEffect(std::string_view name);
             friend UnityEngine::GameObject* BrushBehaviour::CreateBrushMesh();
@@ -43,35 +43,35 @@ namespace Scribble
     {
         public:
             StandardEffect(std::string_view name, std::string_view shader) : Effect(name, shader) {};
-            UnityEngine::Material* CreateMaterial(const CustomBrush& brush);
+            UnityEngine::Material* CreateMaterial(const CustomBrush& brush) override;
     };
 
     class AnimatedEffect : public Effect
     {
         public:
             AnimatedEffect(std::string_view name, std::string_view shader) : Effect(name, shader) {};
-            UnityEngine::Material* CreateMaterial(const CustomBrush& brush);
+            UnityEngine::Material* CreateMaterial(const CustomBrush& brush) override;
     };
 
     class DotBPM : public Effect
     {
         public:
             DotBPM(std::string_view name, std::string_view shader) : Effect(name, shader) {};
-            UnityEngine::Material* CreateMaterial(const CustomBrush& brush);
+            UnityEngine::Material* CreateMaterial(const CustomBrush& brush) override;
     };
 
     class Rainbow : public Effect
     {
         public:
             Rainbow(std::string_view name, std::string_view shader) : Effect(name, shader) {};
-            UnityEngine::Material* CreateMaterial(const CustomBrush& brush);
+            UnityEngine::Material* CreateMaterial(const CustomBrush& brush) override;
     };
 
     class LollyPop : public Effect
     {
         public:
             LollyPop(std::string_view name, std::string_view shader) : Effect(name, shader) {};
-            UnityEngine::Material* CreateMaterial(const CustomBrush& brush);
+            UnityEngine::Material* CreateMaterial(const CustomBrush& brush) override;
     };
 
     class Outline : public Effect

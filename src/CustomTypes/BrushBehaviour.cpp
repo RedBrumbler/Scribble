@@ -170,7 +170,7 @@ namespace Scribble
 
     void BrushBehaviour::ShowBrushMesh(bool show)
     {
-        auto mr = pointer->vrController->get_gameObject()->GetComponent<MeshRenderer*>();
+        auto mr = pointer->dyn__vrController()->get_gameObject()->GetComponent<MeshRenderer*>();
         if (mr) mr->set_enabled(!show);
         if (brushMesh) brushMesh->SetActive(show);
         set_enabled(show);
@@ -178,7 +178,7 @@ namespace Scribble
 
     bool BrushBehaviour::CheckForUI()
     {
-        auto pointerData = pointer->pointerData;
+        auto pointerData = pointer->dyn__pointerData();
         if (!pointerData) return false;
         auto go = pointerData->get_pointerCurrentRaycast().get_gameObject();
         if (!go) return false;

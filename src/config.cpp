@@ -6,7 +6,7 @@ config_t config;
 
 Configuration& get_config()
 {
-    static Configuration config({ID, VERSION});
+    static Configuration config({MOD_ID, VERSION});
     config.Load();
     return config;
 }

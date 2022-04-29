@@ -39,16 +39,11 @@ namespace Scribble::ThumbnailHelper
         return screenShot;
     }
 
-    template<typename T, typename W = ::ArrayW<T>, class Ptr = ::Array<T>*>
-    Ptr get_ptr(W&& wrapper) {
-        return (Ptr)wrapper;
-    }
-
     void WriteThumbnail(std::ofstream& writer, Camera* camera, int width, int height)
     {
         auto screenshot = GetThumbnail(camera, width, height);
         auto data = ImageConversion::EncodeToPNG(screenshot);
-        writer.write(reinterpret_cast<const char*>(get_ptr<uint8_t>(data)->values), data.Length());
+        writer.write(reinterpret_cast<const char*>(data->values), data->Length());
         Object::Destroy(screenshot);
     }
 
@@ -116,7 +111,7 @@ namespace Scribble::ThumbnailHelper
         int num1;
         int num2;
         
-        std::array<uint8_t, 4> half1;
+        std::array<uint8_t, 4> half1{};
 
         bool flag = true;
         while (flag)
