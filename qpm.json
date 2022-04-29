@@ -5,7 +5,7 @@
     "name": "Scribble",
     "id": "scribble",
     "version": "0.1.0",
-    "url": "https://github.com/cal117/Scribble",
+    "url": "https://github.com/RedBrumbler/Scribble",
     "additionalData": {
       "overrideSoName": "libscribble.so"
     }
