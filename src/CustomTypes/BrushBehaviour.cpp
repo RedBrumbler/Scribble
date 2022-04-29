@@ -157,7 +157,7 @@ namespace Scribble
 
     void BrushBehaviour::GetMenuHandle()
     {
-        static auto MenuHandle_cs = il2cpp_utils::newcsstr<il2cpp_utils::CreationType::Manual>("MenuHandle");
+        static ConstString MenuHandle_cs("MenuHandle");
         menuHandle = get_transform()->Find(MenuHandle_cs)->get_gameObject();
     }
 

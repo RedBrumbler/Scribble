@@ -14,7 +14,7 @@ namespace Scribble
     void InputManager::Init(GlobalNamespace::SaberType type)
     {
         saberType = type;
-        inputString = il2cpp_utils::newcsstr(saberType == GlobalNamespace::SaberType::SaberA ? "TriggerLeftHand" : "TriggerRightHand");
+        inputString = (saberType == GlobalNamespace::SaberType::SaberA) ? "TriggerLeftHand" : "TriggerRightHand";
     }
 
     void InputManager::Update()

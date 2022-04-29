@@ -127,7 +127,7 @@ namespace Scribble
                                                          {
                                                              saveModal->Hide(true, nullptr);
                                                              saveFileName = "";
-                                                             fileNameField->set_text(Il2CppString::_get_Empty());
+                                                             fileNameField->set_text("");
                                                              ReloadFileLists();
                                                          });
             auto saveNew = BeatSaberUI::CreateUIButton(saveConfirmHorizontal->get_transform(), "Save", [&]()
@@ -299,7 +299,7 @@ namespace Scribble
             Brushes::brushes.push_back(duplicate);
             // clear name setting
             brushName = "";
-            brushNameField->set_text(Il2CppString::_get_Empty());
+            brushNameField->set_text("");
         }
 
         Brushes::Save();
@@ -350,7 +350,7 @@ namespace Scribble
         Brushes::Save();
 
         brushName = "";
-        brushNameField->set_text(Il2CppString::_get_Empty());
+        brushNameField->set_text("");
         ReloadBrushList();
     }
 

@@ -47,7 +47,7 @@ MAKE_AUTO_HOOK_MATCH(SceneManager_SetActiveScene, &UnityEngine::SceneManagement:
     bool result = SceneManager_SetActiveScene(scene);
 
     auto nameCS = scene.get_name();
-    std::string name = nameCS ? to_utf8(csstrtostr(nameCS)) : "";
+    std::string name = nameCS ? nameCS : "";
 
     INFO("Scene %s loaded", name.c_str());
     if (name == "ShaderWarmup" && firstWarmup)

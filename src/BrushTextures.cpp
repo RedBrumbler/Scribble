@@ -20,7 +20,7 @@ using Dictionary = System::Collections::Generic::Dictionary_2<T, U>;
 using namespace UnityEngine;
 namespace Scribble::BrushTextures
 {
-    SafePtr<Dictionary<Il2CppString*, UnityEngine::Texture2D*>> textures;
+    SafePtr<Dictionary<StringW, UnityEngine::Texture2D*>> textures;
 
     void LoadAllTextures()
     {
@@ -35,8 +35,8 @@ namespace Scribble::BrushTextures
 
     Texture2D* GetTexture(std::string_view name)
     {
-        if (!textures || !((Dictionary<Il2CppString*, UnityEngine::Texture2D*>*)textures)) textures = Dictionary<Il2CppString*, UnityEngine::Texture2D*>::New_ctor();
-        auto key = il2cpp_utils::newcsstr(name);
+        if (!textures || !((Dictionary<StringW, UnityEngine::Texture2D*>*)textures)) textures = Dictionary<StringW, UnityEngine::Texture2D*>::New_ctor();
+        StringW key(name);
         Texture2D* tex = nullptr;
         if (textures->ContainsKey(key)) {
             // if found, get the value
@@ -59,7 +59,7 @@ namespace Scribble::BrushTextures
     std::string GetTextureName(int idx)
     {
         if (!textures || idx < 0 || idx >= textures->get_Count()) return "brush";
-        return to_utf8(csstrtostr(textures->dyn_entries()->values[idx].key));
+        return textures->dyn_entries()[idx].key;
     }
 
     std::vector<std::pair<std::string, UnityEngine::Texture2D*>> GetTextures()
@@ -69,8 +69,8 @@ namespace Scribble::BrushTextures
         int count = textures->get_Count();
         for (int i = 0; i < count; i++)
         {
-            std::string key = to_utf8(csstrtostr(textures->dyn_entries()->values[i].key));
-            tex.emplace_back(key, textures->dyn_entries()->values[i].value);
+            std::string key = textures->dyn_entries()[i].key;
+            tex.emplace_back(key, textures->dyn_entries()[i].value);
         }
         return tex;
     }

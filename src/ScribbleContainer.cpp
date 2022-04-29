@@ -64,7 +64,7 @@ namespace Scribble
     {
         if (instance)
             return;
-        auto go = GameObject::New_ctor(il2cpp_utils::newcsstr("ScribbleContainer"))
+        auto go = GameObject::New_ctor("ScribbleContainer")
                       ->AddComponent<ScribbleContainer*>();
         Object::DontDestroyOnLoad(go);
         go->get_transform()->set_position(Vector3::get_up());
@@ -75,8 +75,8 @@ namespace Scribble
                                         bool disableOnStart)
     {
         // create GO with numbered name
-        auto go = GameObject::New_ctor(il2cpp_utils::newcsstr(
-            string_format("LineRenderer-%d", lineRenderers->get_Count())));
+        auto go = GameObject::New_ctor(
+            string_format("LineRenderer-%d", lineRenderers->get_Count()));
         go->get_transform()->SetParent(get_transform());
         auto lineRenderer = go->AddComponent<Scribble::LineRenderer*>();
         lineRenderer->set_enabled(!disableOnStart);

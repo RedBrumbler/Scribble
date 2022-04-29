@@ -11,12 +11,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED 20)
 # define that stores the actual source directory
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 # compile options used
 add_compile_options(-frtti -fPIE -fPIC -fexceptions)
 # compile definitions used
 add_compile_definitions(VERSION=\"${MOD_VERSION}\")
-add_compile_definitions(ID=\"${MOD_ID}\")
+add_compile_definitions(MOD_ID=\"${MOD_ID}\")
 add_compile_definitions(USE_CODEGEN_FIELDS)
 
 # recursively get all src files

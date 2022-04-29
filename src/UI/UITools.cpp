@@ -21,7 +21,7 @@ namespace UITools
 {
     TMPro::TextMeshProUGUI* CreateText(UnityEngine::RectTransform* parent, std::string_view text, UnityEngine::Vector2 anchoredPosition)
     {
-        auto textGo = UnityEngine::GameObject::New_ctor(il2cpp_utils::newcsstr("Text"));
+        auto textGo = UnityEngine::GameObject::New_ctor("Text");
         textGo->SetActive(false);
         auto textComp = textGo->AddComponent<TMPro::TextMeshProUGUI*>();
         auto font = QuestUI::ArrayUtil::First(UnityEngine::Resources::FindObjectsOfTypeAll<TMPro::TMP_FontAsset*>(), [](auto t){ 
@@ -30,7 +30,7 @@ namespace UITools
         });
         textComp->set_font(font);
         textComp->get_rectTransform()->SetParent(parent, false);
-        textComp->set_text(il2cpp_utils::newcsstr(text));
+        textComp->set_text(text);
         textComp->set_fontSize(14.0f);
         textComp->set_overrideColorTags(true);
         textComp->get_rectTransform()->set_anchorMin(UnityEngine::Vector2(0.5f, 0.5f));
@@ -72,9 +72,8 @@ namespace UITools
     
     UnityEngine::GameObject* CreateFromInstance(UnityEngine::Transform* parent, std::string_view name, bool worldPositionStays)
     {
-        auto nameCS = il2cpp_utils::newcsstr(name);
-        auto go = QuestUI::ArrayUtil::First(UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::GameObject*>(), [nameCS](auto x){
-            return x && nameCS->Equals(x->get_name());
+        auto go = UnityEngine::Resources::FindObjectsOfTypeAll<UnityEngine::GameObject*>().FirstOrDefault([name](auto x){
+            return x && x->get_name() == name;
         });
         return UnityEngine::Object::Instantiate(go, parent, worldPositionStays);
     }
@@ -99,7 +98,7 @@ namespace UITools
 
     UnityEngine::GameObject* GetChild(UnityEngine::GameObject* go, std::string_view path)
     {
-        return go->get_transform()->Find(il2cpp_utils::newcsstr(path))->get_gameObject();
+        return go->get_transform()->Find(path)->get_gameObject();
     }
 
     void SetSkewForChildren(UnityEngine::GameObject* root, float skew)

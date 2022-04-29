@@ -62,7 +62,7 @@ namespace Scribble
         if (!tableCell)
         {
             if (!songListTableCellInstance)
-                songListTableCellInstance = ArrayUtil::First(Resources::FindObjectsOfTypeAll<GlobalNamespace::LevelListTableCell*>(), [](auto x){ return to_utf8(csstrtostr(x->get_name())) == "LevelListTableCell"; });
+                songListTableCellInstance = ArrayUtil::First(Resources::FindObjectsOfTypeAll<GlobalNamespace::LevelListTableCell*>(), [](auto x){ return x->get_name() == "LevelListTableCell"; });
 
             tableCell = Instantiate(songListTableCellInstance);
         }
@@ -80,7 +80,7 @@ namespace Scribble
         if (!tableCell)
         {
             if (!levelPackTableCellInstance)
-                levelPackTableCellInstance = ArrayUtil::First(Resources::FindObjectsOfTypeAll<GlobalNamespace::LevelPackTableCell*>(), [](auto x){ return to_utf8(csstrtostr(x->get_name())) == "AnnotatedBeatmapLevelCollectionTableCell"; });
+                levelPackTableCellInstance = ArrayUtil::First(Resources::FindObjectsOfTypeAll<GlobalNamespace::LevelPackTableCell*>(), [](auto x){ return x->get_name() == "AnnotatedBeatmapLevelCollectionTableCell"; });
             tableCell = Instantiate(levelPackTableCellInstance);
         }
         return tableCell;
@@ -92,7 +92,7 @@ namespace Scribble
         if (!tableCell)
         {
             if (!simpleTextTableCellInstance)
-                simpleTextTableCellInstance = ArrayUtil::First(Resources::FindObjectsOfTypeAll<GlobalNamespace::SimpleTextTableCell*>(), [](auto x){ return to_utf8(csstrtostr(x->get_name())) == "SimpleTextTableCell"; });
+                simpleTextTableCellInstance = ArrayUtil::First(Resources::FindObjectsOfTypeAll<GlobalNamespace::SimpleTextTableCell*>(), [](auto x){ return x->get_name() == "SimpleTextTableCell"; });
             tableCell = Instantiate(simpleTextTableCellInstance);
         }
 
@@ -163,19 +163,19 @@ namespace Scribble
         return data.size();
     }
 
-    Il2CppString* CustomBrushListDataSource::CustomCellInfo::get_text() 
+    StringW CustomBrushListDataSource::CustomCellInfo::get_text() 
     { 
-        return il2cpp_utils::newcsstr(text); 
+        return text;
     }
 
-    Il2CppString* CustomBrushListDataSource::CustomCellInfo::get_subText() 
+    StringW CustomBrushListDataSource::CustomCellInfo::get_subText() 
     { 
-        return il2cpp_utils::newcsstr(subText); 
+        return subText;
     }
 
-    Il2CppString* CustomBrushListDataSource::CustomCellInfo::get_combinedText()
+    StringW CustomBrushListDataSource::CustomCellInfo::get_combinedText()
     {
-        return il2cpp_utils::newcsstr(string_format("%s\n%s", text.c_str(), subText.c_str())); 
+        return string_format("%s\n%s", text.c_str(), subText.c_str());
     }
 
     UnityEngine::Sprite* CustomBrushListDataSource::CustomCellInfo::get_icon()

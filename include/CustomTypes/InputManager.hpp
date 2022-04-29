@@ -5,7 +5,7 @@
 #include "GlobalNamespace/SaberType.hpp"
 
 DECLARE_CLASS_CODEGEN(Scribble, InputManager, UnityEngine::MonoBehaviour,
-    DECLARE_INSTANCE_FIELD(Il2CppString*, inputString);
+    DECLARE_INSTANCE_FIELD(StringW, inputString);
     DECLARE_INSTANCE_METHOD(void, Update);
     DECLARE_CTOR(ctor);
     public:

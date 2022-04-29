@@ -18,17 +18,17 @@ using namespace UnityEngine;
 namespace Scribble::AssetLoader
 {
     SafePtr<AssetBundle> bundle;
-    SafePtr<Dictionary<Il2CppString*, Material*>> shaders;
+    SafePtr<Dictionary<StringW, Material*>> shaders;
     //std::map<std::string, UnityEngine::Material*> materials;
 
     void LoadBundle()
     {
-        bundle = AssetBundle::LoadFromFile(il2cpp_utils::newcsstr(assetPath));
+        bundle = AssetBundle::LoadFromFile(assetPath);
     }
 
     Shader* LoadShader(std::string_view name)
     {
-        //if (!shaders) shaders = Dictionary<Il2CppString*, Material*>::New_ctor();
+        //if (!shaders) shaders = Dictionary<StringW, Material*>::New_ctor();
         /*
         if (shaders->ContainsKey(key)) {
             // has key, so shader was already loaded once

@@ -39,9 +39,9 @@ ___DECLARE_TYPE_WRAPPER_INHERITANCE(Scribble, CustomBrushListDataSource, Il2CppT
 
         CustomCellInfo(std::string text = "", std::string subText = "", Sombrero::FastColor color = {}, UnityEngine::Sprite* icon = nullptr) : text(text), subText(subText), color(color), icon(icon) {};
         
-        Il2CppString* get_text();
-        Il2CppString* get_subText();
-        Il2CppString* get_combinedText();
+        StringW get_text();
+        StringW get_subText();
+        StringW get_combinedText();
         UnityEngine::Sprite* get_icon();
     };
 

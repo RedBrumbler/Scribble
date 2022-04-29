@@ -69,7 +69,7 @@ namespace Scribble
 
             void set_text(std::string_view value) const
             {
-                textMesh->set_text(il2cpp_utils::newcsstr(value));
+                textMesh->set_text(value);
             }
 
             explicit ScribbleUISlider(UnityEngine::GameObject* go) : ScribbleUIElement(go), slider(go->GetComponentInChildren<HMUI::RangeValuesTextSlider*>()), textMesh(go->GetComponentInChildren<TMPro::TextMeshProUGUI*>()) {};
@@ -100,15 +100,14 @@ namespace Scribble
 
             void set_text(std::string_view value) const
             {
-                textMesh->set_text(il2cpp_utils::newcsstr(value));
+                textMesh->set_text(value);
             }
 
             explicit ScribbleUISimpleButton(UnityEngine::GameObject* go, std::string_view text = "button") : ScribbleUIElement(go), textMesh(go->GetComponentInChildren<TMPro::TextMeshProUGUI*>()), noTransitionsButton(go->GetComponent<HMUI::NoTransitionsButton*>())
             {
-                auto textCS = il2cpp_utils::newcsstr(text);
-                go->set_name(textCS);
+                go->set_name(text);
                 UnityEngine::Object::DestroyImmediate(go->GetComponentInChildren<Polyglot::LocalizedTextMeshProUGUI*>());
-                textMesh->set_text(textCS);
+                textMesh->set_text(text);
             }
 
             void AddListener(std::function<void()> fun) const
@@ -125,7 +124,7 @@ namespace Scribble
 
             [[maybe_unused]] void set_text(std::string_view value) const
             {
-                textMesh->set_text(il2cpp_utils::newcsstr(value));
+                textMesh->set_text(value);
             }
 
             explicit ScribbleUICheckbox(UnityEngine::GameObject* go) : ScribbleUIElement(go), toggle(go->GetComponentInChildren<UnityEngine::UI::Toggle*>()), textMesh(go->GetComponentInChildren<TMPro::TextMeshProUGUI*>()) {};

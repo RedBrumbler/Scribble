@@ -37,7 +37,7 @@ namespace Scribble
 
     void ColorHistoryPanelController::AddColor(Sombrero::FastColor color)
     {
-        if (!controllerPanelTemplate) controllerPanelTemplate = ArrayUtil::First(Resources::FindObjectsOfTypeAll<GlobalNamespace::PreviousColorPanelController*>(), [](auto x){ return to_utf8(csstrtostr(x->get_name())) == "PreviousColorPanelController";});
+        if (!controllerPanelTemplate) controllerPanelTemplate = ArrayUtil::First(Resources::FindObjectsOfTypeAll<GlobalNamespace::PreviousColorPanelController*>(), [](auto x){ return x->get_name() == "PreviousColorPanelController";});
         if (!colorPanelHistory) colorPanelHistory = List<GlobalNamespace::PreviousColorPanelController*>::New_ctor();
 
         // if color already in history, return
