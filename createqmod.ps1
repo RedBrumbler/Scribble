@@ -42,6 +42,7 @@ foreach ($lib in $modJson.libraryFiles)
     $filelist += $path
 }
 
+$ignoredFileSubStrings = @("Icons", "Promotion", ".psd")
 if (Test-Path "./ExtraFiles")
 {
     $extraFiles = @()
@@ -65,9 +66,16 @@ if (Test-Path "./ExtraFiles")
                 $folderPath = $dir.Directory.Name + "/" + $folderPath
             }
 
-            if ($folderPath.Contains("Icons")) 
-            {
-                continue;
+            $found = $false
+            foreach ($ignore in $ignoredFileSubStrings) {
+                if ($folderPath.Contains($ignore)) {
+                    $found = $true
+                    break
+                }
+            }
+
+            if ($found) {
+                continue
             }
             $extraFiles += ,$folderPath
         }
